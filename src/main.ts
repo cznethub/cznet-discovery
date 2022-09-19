@@ -13,6 +13,7 @@ import VueRouter from 'vue-router'
 import { router } from './router'
 import { orm } from '@/models/orm'
 import { persistedPaths } from './models/persistedPaths'
+import { APP_NAME } from './constants'
 
 // Uncomment to filter out errors
 // Vue.config.errorHandler = (err, vm, info) => {
@@ -33,7 +34,7 @@ const store = new Vuex.Store({
     VuexORM.install(orm),
     createPersistedState({
       paths: persistedPaths,
-      key: 'Appname'
+      key: APP_NAME
     })
   ]
 })
