@@ -1,14 +1,16 @@
-query Resources {
-  geojson_checksum_normalized {
+query Resources($limit: Int, $after: ObjectId) {
+  geojson_checksum_normalizeds(limit: $limit, query: { title_exists: true, _id_gt: $after}, sortBy: MODIFIED_DESC) {
     _id
-    abstract
-    created
     id
-    language
-    modified
-    published
-    subjects
     title
+    abstract
     type
+    creators {
+        name
+    }
+    files {
+        size
+    }
+    created
   }
 }

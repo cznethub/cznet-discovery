@@ -20,11 +20,17 @@
     name: 'home',
     components: { ApolloQuery },
     apollo: {
-      resources: gql`${Resources}`,
+      geojson_checksum_normalizeds: gql`${Resources}`,
     }
   })
   export default class Home extends Vue {
-
+    async created() {
+      // Query execution example
+      const query = this.$apollo.queries.geojson_checksum_normalizeds
+      query.setVariables({ $limit: 10, $after: null })
+      const res = await query.refetch()
+      console.log(res.data)
+    }
   }
 </script>
 
