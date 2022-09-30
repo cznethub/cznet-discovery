@@ -12,10 +12,16 @@
 
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator'
+  import ApolloQuery from 'vue-apollo'
+  import gql from 'graphql-tag'
+  const Resources = require('@/graphql/Resources.gql')
 
   @Component({
     name: 'home',
-    components: { },
+    components: { ApolloQuery },
+    apollo: {
+      resources: gql`${Resources}`,
+    }
   })
   export default class Home extends Vue {
 

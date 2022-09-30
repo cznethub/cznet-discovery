@@ -30,7 +30,7 @@
   import { Component, Vue } from 'vue-property-decorator'
 
   @Component({
-    name: 'footer',
+    name: 'app-footer',
     components: { },
   })
   export default class Footer extends Vue {

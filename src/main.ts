@@ -14,6 +14,9 @@ import { router } from './router'
 import { orm } from '@/models/orm'
 import { persistedPaths } from './models/persistedPaths'
 import { APP_NAME } from './constants'
+import { createApolloProvider } from './apollo.config'
+
+const apolloProvider = createApolloProvider()
 
 // Uncomment to filter out errors
 // Vue.config.errorHandler = (err, vm, info) => {
@@ -47,5 +50,6 @@ new Vue({
   store,
   vuetify,
   router,
+  apolloProvider,
   render: (h) => h(App)
 }).$mount('#app')

@@ -1,0 +1,14 @@
+query Resources {
+  geojson_checksum_normalized {
+    _id
+    abstract
+    created
+    id
+    language
+    modified
+    published
+    subjects
+    title
+    type
+  }
+}
