@@ -12,24 +12,27 @@
 
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator'
-  import ApolloQuery from 'vue-apollo'
   import gql from 'graphql-tag'
   const Resources = require('@/graphql/Resources.gql')
 
   @Component({
     name: 'home',
-    components: { ApolloQuery },
+    components: { },
     apollo: {
       geojson_checksum_normalizeds: gql`${Resources}`,
     }
   })
   export default class Home extends Vue {
     async created() {
+      const response = await this.refetch()
+      console.log(response)
+    }
+
+    async refetch() {
       // Query execution example
       const query = this.$apollo.queries.geojson_checksum_normalizeds
-      query.setVariables({ $limit: 10, $after: null })
-      const res = await query.refetch()
-      console.log(res.data)
+      query.setVariables({ limit: 10, after: null })
+      return query.refetch()
     }
   }
 </script>
