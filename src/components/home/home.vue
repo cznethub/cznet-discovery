@@ -13,13 +13,13 @@
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator'
   import gql from 'graphql-tag'
-  const Resources = require('@/graphql/Resources.gql')
+  const Search = require('@/graphql/Search.gql')
 
   @Component({
     name: 'home',
     components: { },
     apollo: {
-      geojson_checksum_normalizeds: gql`${Resources}`,
+      schemaorg: gql`${Search}`,
     }
   })
   export default class Home extends Vue {
@@ -30,7 +30,7 @@
 
     async refetch() {
       // Query execution example
-      const query = this.$apollo.queries.geojson_checksum_normalizeds
+      const query = this.$apollo.queries.schemaorg
       query.setVariables({ limit: 10, after: null })
       return query.refetch()
     }
