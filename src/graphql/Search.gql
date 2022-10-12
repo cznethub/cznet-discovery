@@ -1,5 +1,5 @@
-query Search($term: String!, $limit: Float){
-  fuzzy_search(input: {term: $term, limit: $limit}){
+query Search($term: String!, $limit: Float) {
+  fuzzy_search(input: { term: $term, limit: $limit }){
     _id
     url
     name
