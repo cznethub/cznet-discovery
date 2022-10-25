@@ -20,6 +20,10 @@ section {
   gap: 1rem;
 }
 
+.gap-2 {
+  gap: 2rem;
+}
+
 #main-container {
   height: 100%;
 
@@ -50,16 +54,16 @@ section {
   color: #FFF !important;
 }
 
+.has-text-black {
+  color: #000;
+}
+
 .has-cursor-pointer {
   cursor: pointer;
 }
 
 .has-cursor-text {
   cursor: text;
-}
-
-.has-text-black {
-  color: #000;
 }
 
 // .has-background-dark--gradient {
@@ -79,44 +83,12 @@ section {
   transform: scaleX(-1);
 }
 
-.has-space-bottom {
-  margin-bottom: 1.5rem !important;
-}
-
-.has-space-bottom-2x {
-  margin-bottom: 3rem !important;
-}
-
-.has-space-top {
-  margin-top: 1.5rem !important;
-}
-
-.has-space-top-2x {
-  margin-top: 3rem !important;
-}
-
-.has-space-right {
-  margin-right: 1.5rem;
-}
-
-.has-space-left {
-  margin-left: 1.5rem;
-}
-
-.has-bg-light-gray {
-  background-color: #f7f6f6 !important;
-}
-
 .has-bg-white {
   background-color: #fff !important;
 }
 
 p {
   max-width: 70rem;
-}
-
-.f-gap-2 {
-  gap: 2rem;
 }
 
 .is-borderless {

@@ -1,5 +1,5 @@
 query Search($term: String!, $limit: Float) {
-  fuzzy_search(input: { term: $term, limit: $limit }){
+  fuzzy_search(input: { term: $term, limit: $limit }) {
     _id
     url
     name
@@ -12,5 +12,15 @@ query Search($term: String!, $limit: Float) {
     keywords
     dateCreated
     dateModified
+    license {
+      text
+    }
+    funding { 
+      name
+      funder {
+        name
+      }
+    }
+    citation
 	}
 }

@@ -30,10 +30,10 @@
   import { Component, Vue } from 'vue-property-decorator'
 
   @Component({
-    name: 'app-footer',
+    name: 'cd-footer',
     components: { },
   })
-  export default class Footer extends Vue {
+  export default class CdFooter extends Vue {
     protected get version() {
       return process.env.VUE_APP_VERSION || '0'
     }

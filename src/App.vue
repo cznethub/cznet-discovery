@@ -20,7 +20,7 @@
 
     <v-main app>
       <v-container id="main-container">
-        <v-sheet :elevation="$route.meta.hideMainSheet ? 0 : 2">
+        <v-sheet min-height="70vh" rounded :elevation="$route.meta.hideMainSheet ? 0 : 2">
           <router-view v-if="!isLoading" name="content" />
         </v-sheet>
       </v-container>
