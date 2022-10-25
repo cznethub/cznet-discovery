@@ -22,5 +22,13 @@ query Search($term: String!, $limit: Float) {
       }
     }
     citation
+    highlights {
+      score
+      path
+      texts {
+        type
+        value
+      }
+    }
 	}
 }

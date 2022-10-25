@@ -7,11 +7,12 @@
         </router-link>
         <div class="spacer"></div>
         <v-card class="nav-items has-space-right d-flex" :elevation="2" v-if="!$vuetify.breakpoint.mdAndDown">
-          <v-btn id="navbar-nav-home" to="/" :elevation="0" active-class="accent">Home</v-btn>
           <v-btn color="primary"
             v-for="path of paths" :key="path.to" :to="path.to"
             :id="`navbar-nav-${path.label.replaceAll(/[\/\s]/g, ``)}`"
-            :elevation="0" active-class="accent">{{ path.label }}</v-btn>
+            :elevation="0" active-class="accent">
+            {{ path.label }}
+          </v-btn>
         </v-card>
 
         <v-app-bar-nav-icon @click.stop="showMobileNavigation = true" v-if="$vuetify.breakpoint.mdAndDown" />
@@ -169,7 +170,7 @@ export default class App extends Vue {
   protected snackbar: IToast & { isActive: boolean; isInfinite: boolean } = INITIAL_SNACKBAR
   protected dialog: IDialog & { isActive: boolean } = INITIAL_DIALOG
   protected paths = [
-    { to: "/search", label: "Discover Data", icon: "mdi-bookmark-multiple" },
+    { to: "/", label: "Discover Data", icon: "mdi-bookmark-multiple" },
     { to: "/contribute", label: "Contribute Data", icon: "mdi-book-plus" },
     { to: "/about", label: "About", icon: "mdi-help" },
     { to: "/contact", label: "Contact", icon: "mdi-book-open-blank-variant" },

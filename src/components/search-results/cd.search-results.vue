@@ -3,7 +3,7 @@
     <div class="d-flex">
       <v-container class="sidebar">
         <div class="text-subtitle-2 mb-6">Filter by:</div>
-        <div class="mb-6">
+        <div class="mb-4">
           <v-checkbox
             v-model="filter.publicationYear.isActive"
             label="Publication year"
@@ -93,7 +93,7 @@
         />
 
         <div>
-          <div class="text-body-2">Content type:</div>
+          <div class="text-body-2">Content type</div>
           <v-checkbox
             v-for="(option, index) of filter.contentType.options"
             :key="index"
@@ -105,6 +105,7 @@
           />
         </div>
       </v-container>
+      
       <v-container class="flex-grow-1">
         <cd-search v-model="searchQuery" @input="onSearch" />
         <div class="my-6 d-lg-flex flex-row justify-space-between gap-1 d-table">
@@ -178,10 +179,10 @@
             </div>
           </template>
           <div v-for="result of fuzzy_search" class="mb-12 text-body-2" :key="result._id">
-            <a class="text-body-1" :href="result.url">{{ result.name }}</a>
+            <a class="text-body-1" :href="result.url" v-html="getResultNameHtml(result)"></a>
             <div class="my-1">{{ getResultAuthors(result) }}</div>
             <div class="my-1">{{ getResultCreationDate(result) }}</div>
-            <p class="mt-4">{{ result.description }}</p>
+            <p class="mt-4" v-html="getResultDescriptionHtml(result)"></p>
             <a class="mb-4 d-block" :href="result.url">{{ result.url }}</a>
             <div class="mb-2"><strong>Keywords: </strong>{{ getResultKeywords(result) }}</div>
             <div class="mb-2" v-if="result.funding"><strong>Funded by: </strong>{{ getResultFunding(result) }}</div>
@@ -208,7 +209,8 @@
     apollo: {
       fuzzy_search: {
         query: gql`${Search}`,
-        variables: { term: ' ', limit: 0 }
+        variables: { term: ' ', limit: 0 },
+        // errorPolicy: 'ignore'
       },
     }
   })
@@ -257,8 +259,8 @@
       try {
         const query = this.$apollo.queries.fuzzy_search
         const result = await query.refetch({ limit: 10, term: searchQuery })
+        console.log(result.data.fuzzy_search[0])
         this.isSearching = false
-        console.log(result.data.fuzzy_search)
       }
       catch(e) {
         console.log(e)
@@ -288,6 +290,57 @@
       }
 
       return ''
+    }
+
+    protected getResultDescriptionHtml(result) {
+      let description: string = result.description
+
+      // Strip any previous existing HTML from the text
+      const tmp = document.createElement("DIV")
+      tmp.innerHTML = description
+      description = tmp.textContent || tmp.innerText || ""
+
+      let hits = result.highlights
+        .filter(h => h.path === 'description')
+        .map(h => h.texts
+          .filter(t => t.type === 'hit')
+          .map(t => t.value)
+        )
+        .flat()
+
+      hits = [...new Set(hits)]
+
+      hits.map((hit) => {
+        description = description.replaceAll(hit, `<mark>${hit}</mark>`)
+      })
+
+      return description
+    }
+
+    // TODO: turn this method into a filter
+    protected getResultNameHtml(result) {
+      let name: string = result.name
+
+      // Strip any previous existing HTML from the text
+      const tmp = document.createElement("DIV")
+      tmp.innerHTML = name
+      name = tmp.textContent || tmp.innerText || ""
+
+      let hits = result.highlights
+        .filter(h => h.path === 'name')
+        .map(h => h.texts
+          .filter(t => t.type === 'hit')
+          .map(t => t.value)
+        )
+        .flat()
+
+      hits = [...new Set(hits)]
+
+      hits.map((hit) => {
+        name = name.replaceAll(hit, `<mark>${hit}</mark>`)
+      })
+
+      return name
     }
   }
 </script>

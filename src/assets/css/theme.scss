@@ -107,3 +107,9 @@ p {
     line-height: 1.5rem;
   }
 }
+
+mark {
+  background-color: transparent;
+  font-weight: bold;
+  color: inherit;
+}
