@@ -7,11 +7,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - id: Build-Vue
-      uses: LizAinslie/VueBuildToBranchAction@1.0.2
+      uses: StruggleYang/VuePagesAction@2.0.0
       with:
-        username: 'cznethub'
-        reponame: 'cznet-discovery'
-        token: ${{ secrets.GITHUB_TOKEN }}
+        useyarn: false
       env:
         VUE_APP_REALM_API_KEY: ${{ secrets.VUE_APP_REALM_API_KEY }}
         VUE_APP_REALM_APP_ID: ${{ secrets.VUE_APP_REALM_APP_ID }}
