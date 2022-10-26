@@ -10,10 +10,6 @@ jobs:
         envkey_VUE_APP_REALM_API_KEY: ${{ secrets.VUE_APP_REALM_API_KEY }}
         envkey_VUE_APP_REALM_APP_ID: ${{ secrets.VUE_APP_REALM_APP_ID }}
         file_name: .env.local
-
-name: Build Vue
-on: [push]
-jobs:
   build_vue:
     runs-on: ubuntu-latest
     name: Build Vue
