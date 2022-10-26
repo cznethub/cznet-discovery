@@ -7,7 +7,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - id: Build-Vue
-      uses: xRealNeon/VuePagesAction@1.0.1
+      uses: LizAinslie/VueBuildToBranchAction@1.0.2
       with:
         username: 'cznethub'
         reponame: 'cznet-discovery'
@@ -15,3 +15,4 @@ jobs:
       env:
         VUE_APP_REALM_API_KEY: ${{ secrets.VUE_APP_REALM_API_KEY }}
         VUE_APP_REALM_APP_ID: ${{ secrets.VUE_APP_REALM_APP_ID }}
+
