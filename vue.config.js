@@ -41,6 +41,5 @@ module.exports = {
   },
   transpileDependencies: [
     'vuetify',
-  ],
-  publicPath: '/cznet-discovery/',
+  ]
 }
