@@ -1,15 +1,6 @@
 name: Create envfile
 on: [ push ]
 jobs:
-  create-envfile:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Make envfile
-      uses: SpicyPizza/create-envfile@v1.3
-      with:
-        envkey_VUE_APP_REALM_API_KEY: ${{ secrets.VUE_APP_REALM_API_KEY }}
-        envkey_VUE_APP_REALM_APP_ID: ${{ secrets.VUE_APP_REALM_APP_ID }}
-        file_name: .env.local
   build_vue:
     runs-on: ubuntu-latest
     name: Build Vue
@@ -20,4 +11,7 @@ jobs:
       with:
         username: 'cznethub'
         reponame: 'cznet-discovery'
-        token: ${{ secrets.GITHUB_TOKEN }} # Leave this line unchanged
+        token: ${{ secrets.GITHUB_TOKEN }}
+      env:
+        VUE_APP_REALM_API_KEY: ${{ secrets.VUE_APP_REALM_API_KEY }}
+        VUE_APP_REALM_APP_ID: ${{ secrets.VUE_APP_REALM_APP_ID }}
