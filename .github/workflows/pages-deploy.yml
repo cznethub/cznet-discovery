@@ -1,16 +1,20 @@
-name: Create envfile
-on: [ push ]
+name: Deploy to Github Pages
+on:
+  push:
+    branches:
+      - develop
 jobs:
-  build_vue:
+  gh-pages-deploy:
+    name: Deploying to Github Pages
     runs-on: ubuntu-latest
-    name: Build Vue
     steps:
-    - uses: actions/checkout@v2
-    - id: Build-Vue
-      uses: StruggleYang/VuePagesAction@2.0.0
-      with:
-        useyarn: false
-      env:
-        VUE_APP_REALM_API_KEY: ${{ secrets.VUE_APP_REALM_API_KEY }}
-        VUE_APP_REALM_APP_ID: ${{ secrets.VUE_APP_REALM_APP_ID }}
-
+        - uses: actions/checkout@v2
+        - uses: actions/setup-node@v2
+          with:
+            node-version: '12'
+        - name: Install packages
+          run: npm i
+        - name: Set Creds
+          run: git config user.name sblack-usu && git config user.email sblack@cuahsi.org
+        - name: Deploy
+          run: npm run deploy
