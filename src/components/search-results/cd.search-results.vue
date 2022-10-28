@@ -62,7 +62,7 @@
         </div>
 
         <v-text-field
-          label="Author / Creator name:"
+          label="Author / Creator name"
           class="mb-6"
           hide-details
           clearable
@@ -179,10 +179,10 @@
             </div>
           </template>
           <div v-for="result of fuzzy_search" class="mb-12 text-body-2" :key="result._id">
-            <a class="text-body-1" :href="result.url" v-html="getResultNameHtml(result)"></a>
+            <a class="text-body-1" :href="result.url" v-html="getResultFieldHighlightedHtml(result, 'name')"></a>
             <div class="my-1">{{ getResultAuthors(result) }}</div>
             <div class="my-1">{{ getResultCreationDate(result) }}</div>
-            <p class="mt-4" v-html="getResultDescriptionHtml(result)"></p>
+            <p class="mt-4" v-html="getResultFieldHighlightedHtml(result, 'description')"></p>
             <a class="mb-4 d-block" :href="result.url">{{ result.url }}</a>
             <div class="mb-2"><strong>Keywords: </strong>{{ getResultKeywords(result) }}</div>
             <div class="mb-2" v-if="result.funding"><strong>Funded by: </strong>{{ getResultFunding(result) }}</div>
@@ -292,57 +292,31 @@
       return ''
     }
 
-    protected getResultDescriptionHtml(result) {
-      let description: string = result.description
-
-      // Strip any previous existing HTML from the text
-      const tmp = document.createElement("DIV")
-      tmp.innerHTML = description
-      description = tmp.textContent || tmp.innerText || ""
-
-      let hits = result.highlights
-        .filter(h => h.path === 'description')
-        .map(h => h.texts
-          .filter(t => t.type === 'hit')
-          .map(t => t.value)
-        )
-        .flat()
-
-      hits = [...new Set(hits)]
-
-      hits.map((hit) => {
-        description = description.replaceAll(hit, `<mark>${hit}</mark>`)
-      })
-
-      return description
-    }
-
     // TODO: turn this method into a filter
-    protected getResultNameHtml(result) {
-      let name: string = result.name
-
-      // Strip any previous existing HTML from the text
-      const tmp = document.createElement("DIV")
-      tmp.innerHTML = name
-      name = tmp.textContent || tmp.innerText || ""
+    protected getResultFieldHighlightedHtml(result: Schemaorg, path: string) {
+      const div = document.createElement("DIV")
+      div.innerHTML = result[path]
+      let content = div.textContent || div.innerText || ""
 
       let hits = result.highlights
-        .filter(h => h.path === 'name')
-        .map(h => h.texts
+        .filter((highlight) => highlight.path === path)
+        .map(hit => hit.texts
           .filter(t => t.type === 'hit')
           .map(t => t.value)
         )
         .flat()
 
       hits = [...new Set(hits)]
-
       hits.map((hit) => {
-        name = name.replaceAll(hit, `<mark>${hit}</mark>`)
+        content = content.replaceAll(hit, `<mark>${hit}</mark>`)
       })
 
-      return name
+      return content
     }
   }
+
+  // TODO: pagination example
+  // https://stackoverflow.com/questions/48305624/how-to-use-mongodb-aggregation-for-pagination
 </script>
 
 <style lang="scss" scoped>
