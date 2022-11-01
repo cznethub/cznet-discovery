@@ -179,12 +179,12 @@
             </div>
           </template>
           <div v-for="result of fuzzy_search" class="mb-12 text-body-2" :key="result._id">
-            <a class="text-body-1" :href="result.url" v-html="getResultFieldHighlightedHtml(result, 'name')"></a>
+            <a class="text-body-1 text-decoration-none" :href="result.url" v-html="getResultFieldHighlightedHtml(result, 'name')"></a>
             <div class="my-1">{{ getResultAuthors(result) }}</div>
             <div class="my-1">{{ getResultCreationDate(result) }}</div>
             <p class="mt-4" v-html="getResultFieldHighlightedHtml(result, 'description')"></p>
             <a class="mb-4 d-block" :href="result.url">{{ result.url }}</a>
-            <div class="mb-2"><strong>Keywords: </strong>{{ getResultKeywords(result) }}</div>
+            <div class="mb-2"><strong>Keywords: </strong><span v-html="getResultFieldHighlightedHtml(result, 'keywords')"></span></div>
             <div class="mb-2" v-if="result.funding"><strong>Funded by: </strong>{{ getResultFunding(result) }}</div>
             <div class="mb-2"><strong>License: </strong>{{ result.license.text }}</div>
           </div>
@@ -255,11 +255,24 @@
     }
 
     protected async onSearch(searchQuery: string) {
+      if (!this.searchQuery) {
+        return
+      }
+      
       this.isSearching = true
       try {
+        const startYear = this.filter.publicationYear.range[0]
+        const endYear = this.filter.publicationYear.range[1]
+        const start = new Date(Date.parse(`01 Jan ${startYear} 00:00:00 GMT`))
+        const end = new Date(Date.parse(`31 Dec ${endYear} 23:59:59 GMT`))
+
+        // console.log(start.toISOString())
+        // console.log(end.toISOString())
+
+        // const now = Date.now()
         const query = this.$apollo.queries.fuzzy_search
-        const result = await query.refetch({ limit: 10, term: searchQuery })
-        console.log(result.data.fuzzy_search[0])
+        const result = await query.refetch({ limit: 10, term: searchQuery, publishedStart: start, publishedEnd: end })
+        // console.log(result.data.fuzzy_search[0])
         this.isSearching = false
       }
       catch(e) {
@@ -295,7 +308,7 @@
     // TODO: turn this method into a filter
     protected getResultFieldHighlightedHtml(result: Schemaorg, path: string) {
       const div = document.createElement("DIV")
-      div.innerHTML = result[path]
+      div.innerHTML = Array.isArray(result[path]) ? result[path].join(', ') : result[path]
       let content = div.textContent || div.innerText || ""
 
       let hits = result.highlights
@@ -325,10 +338,8 @@
   }
 
   .results-container a {
-    text-decoration: none;
-
     &:hover {
-      text-decoration: underline;
+      text-decoration: underline !important;
     }
   }
 </style>

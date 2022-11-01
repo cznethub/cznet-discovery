@@ -30,11 +30,13 @@
 
     protected onSearch() {
       this.onChange()
-      try {
-        this.$router.push({ name: 'search', query: { q: this.valueInternal } })
-      }
-      catch(e) {
-        
+      if (this.valueInternal) {
+        try {
+          this.$router.push({ name: 'search', query: { q: this.valueInternal } })
+        }
+        catch(e) {
+          
+        }
       }
     }
 

@@ -1,5 +1,5 @@
-query Search($term: String!, $limit: Float) {
-  fuzzy_search(input: { term: $term, limit: $limit }) {
+query Search($term: String!, $limit: Float, $publishedStart: String, $publishedEnd: String) {
+  fuzzy_search(input: { term: $term, limit: $limit, publishedStart: $publishedStart, publishedEnd: $publishedEnd }) {
     _id
     url
     name
@@ -30,5 +30,6 @@ query Search($term: String!, $limit: Float) {
         value
       }
     }
+    score
 	}
 }
