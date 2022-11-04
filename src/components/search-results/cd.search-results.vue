@@ -100,6 +100,7 @@
         <v-select
           :items="filter.repository.options"
           v-model="filter.repository.value"
+          @change="onFilterChange"
           class="mb-6"
           clearable
           outlined
@@ -263,7 +264,7 @@
         value: []
       },
       repository: {
-        options: ['HydroShare', 'EarthChem', 'Zenodo'],
+        options: ['HydroShare', 'EarthChem Library'],
         value: null
       }
     }
@@ -305,6 +306,11 @@
       // CREATOR NAME
       if (this.filter.creatorName) {
         queryParams.creatorName = this.filter.creatorName.trim()
+      }
+
+      // REPOSITORY
+      if (this.filter.repository) {
+        queryParams.providerName = this.filter.repository
       }
 
       try {

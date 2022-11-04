@@ -6,6 +6,7 @@ query Search(
   $dataCoverageStart: Float,
   $dataCoverageEnd: Float,
   $creatorName: String,
+  $providerName: String,
 ) {
   filtering_cznet(input: {
     term: $term,
@@ -15,6 +16,7 @@ query Search(
     dataCoverageStart: $dataCoverageStart,
     dataCoverageEnd: $dataCoverageEnd,
     creatorName: $creatorName,
+    providerName: $providerName,
    }) {
     _id
     url
@@ -24,6 +26,9 @@ query Search(
       List {
         name
       }
+    }
+    provider {
+      name
     }
     keywords
     dateCreated
