@@ -7,6 +7,7 @@
         <div class="mb-4">
           <v-checkbox
             v-model="filter.publicationYear.isActive"
+            @change="onFilterChange"
             label="Publication year"
             dense
             hide-details
@@ -22,13 +23,15 @@
           />
           <div class="d-flex gap-1">
             <v-text-field
-              v-model.lazy="filter.publicationYear.range[0]"
+              @change="$set(filter.publicationYear.range, 0, $event); onFilterChange()"
+              :value="filter.publicationYear.range[0]"
               :disabled="!(filter.publicationYear.isActive)"
               type="number"
               small dense outlined hide-details 
             />
             <v-text-field
-              v-model.lazy="filter.publicationYear.range[1]"
+              @change="$set(filter.publicationYear.range, 1, $event); onFilterChange()"
+              :value="filter.publicationYear.range[1]"
               :disabled="!(filter.publicationYear.isActive)"
               type="number"
               small dense outlined hide-details
@@ -261,7 +264,7 @@
     }
 
     protected onFilterChange(e) {
-      console.log('filter changed', e)
+      this.onSearch()
     }
 
     protected async onSearch() {
@@ -282,7 +285,8 @@
 
       try {
         const query = this.$apollo.queries.filtering_cznet
-        const result = await query.refetch(queryParams)
+        query.setVariables(queryParams)
+        const result = await query.refetch()
         console.log(result.data.filtering_cznet)
       }
       catch(e) {
