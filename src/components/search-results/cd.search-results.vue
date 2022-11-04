@@ -76,6 +76,8 @@
         </div>
 
         <v-text-field
+          @change="$set(filter, 'creatorName', $event); onFilterChange()"
+          :value="filter.creatorName"
           label="Author / Creator name"
           class="mb-6"
           hide-details
@@ -123,13 +125,13 @@
       <v-container class="flex-grow-1">
         <cd-search v-model="searchQuery" @input="onSearch" />
         <div class="my-6 d-lg-flex flex-row justify-space-between gap-1 d-table">
-          <div class="d-table-row d-lg-flex align-center flex-row">
+          <!-- <div class="d-table-row d-lg-flex align-center flex-row">
             <small class="d-table-cell text-right text-lg-left pr-2 py-2" style="white-space: nowrap">View mode:</small>
             <v-btn-toggle class="d-table-cell" v-model="view" dense mandatory>
               <v-btn small><v-icon small>mdi-view-list-outline</v-icon></v-btn>
               <v-btn small><v-icon small>mdi-map</v-icon></v-btn>
             </v-btn-toggle>
-          </div>
+          </div> -->
           <div class="d-table-row d-lg-flex align-center flex-row">
             <small class="d-table-cell text-right text-lg-left pr-2" style="white-space: nowrap">Sort results by:</small>
             <v-btn-toggle
@@ -192,6 +194,9 @@
               />
             </div>
           </template>
+          <div v-if="!filtering_cznet.length" class="text-body-2 text--secondary text-center mt-8">
+            <div>No results found.</div>
+          </div>
           <div v-for="result of filtering_cznet" class="mb-12 text-body-2" :key="result._id">
             <a class="text-body-1 text-decoration-none" :href="result.url" v-html="getResultFieldHighlightedHtml(result, 'name')"></a>
             <div class="my-1">{{ getResultAuthors(result) }}</div>
@@ -248,6 +253,7 @@
         range: [maxPublicationYear - 50, maxPublicationYear],
         isActive: false
       },
+      creatorName: '',
       czProjects: {
         options: ['Drylands Cluster'],
         value: null
@@ -294,6 +300,11 @@
       if (this.filter.dataCoverage.isActive) {
         queryParams.dataCoverageStart = this.filter.dataCoverage.range[0]
         queryParams.dataCoverageEnd = this.filter.dataCoverage.range[1]
+      }
+
+      // CREATOR NAME
+      if (this.filter.creatorName) {
+        queryParams.creatorName = this.filter.creatorName.trim()
       }
 
       try {

@@ -5,6 +5,7 @@ query Search(
   $publishedEnd: Float,
   $dataCoverageStart: Float,
   $dataCoverageEnd: Float,
+  $creatorName: String,
 ) {
   filtering_cznet(input: {
     term: $term,
@@ -13,6 +14,7 @@ query Search(
     publishedEnd: $publishedEnd,
     dataCoverageStart: $dataCoverageStart,
     dataCoverageEnd: $dataCoverageEnd,
+    creatorName: $creatorName,
    }) {
     _id
     url
