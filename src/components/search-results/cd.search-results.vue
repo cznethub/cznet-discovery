@@ -43,12 +43,14 @@
         <div class="mb-6">
           <v-checkbox
             v-model="filter.dataCoverage.isActive"
+            @change="onFilterChange"
             dense
             label="Data coverage"
             hide-details
           />
           <v-range-slider
             v-model="filter.dataCoverage.range"
+            @change="onFilterChange"
             :disabled="!(filter.dataCoverage.isActive)"
             :min="filter.dataCoverage.min"
             :max="filter.dataCoverage.max"
@@ -57,13 +59,17 @@
           />
           <div class="d-flex gap-1">
             <v-text-field
+              @change="$set(filter.dataCoverage.range, 0, $event); onFilterChange()"
+              :value="filter.dataCoverage.range[0]"
               :disabled="!(filter.dataCoverage.isActive)"
-              type="number" v-model="filter.dataCoverage.range[0]"
+              type="number"
               small dense outlined hide-details 
             />
-            <v-text-field :disabled="!(filter.dataCoverage.isActive)"
+            <v-text-field
+              @change="$set(filter.dataCoverage.range, 1, $event); onFilterChange()"
+              :value="filter.dataCoverage.range[1]"
+              :disabled="!(filter.dataCoverage.isActive)"
               type="number"
-              v-model="filter.dataCoverage.range[1]"
               small dense outlined hide-details
             />
           </div>
@@ -278,9 +284,16 @@
         term: this.searchQuery
       }
 
+      // PUBLICATION YEAR
       if (this.filter.publicationYear.isActive) {
         queryParams.publishedStart = this.filter.publicationYear.range[0]
         queryParams.publishedEnd = this.filter.publicationYear.range[1]
+      }
+
+      // DATA COVERAGE
+      if (this.filter.dataCoverage.isActive) {
+        queryParams.dataCoverageStart = this.filter.dataCoverage.range[0]
+        queryParams.dataCoverageEnd = this.filter.dataCoverage.range[1]
       }
 
       try {

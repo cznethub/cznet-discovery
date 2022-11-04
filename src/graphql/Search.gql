@@ -1,5 +1,19 @@
-query Search($term: String!, $limit: Float, $publishedStart: Float, $publishedEnd: Float) {
-  filtering_cznet(input: { term: $term, limit: $limit, publishedStart: $publishedStart, publishedEnd: $publishedEnd }) {
+query Search(
+  $term: String!, 
+  $limit: Float, 
+  $publishedStart: Float,
+  $publishedEnd: Float,
+  $dataCoverageStart: Float,
+  $dataCoverageEnd: Float,
+) {
+  filtering_cznet(input: {
+    term: $term,
+    limit: $limit,
+    publishedStart: $publishedStart,
+    publishedEnd: $publishedEnd,
+    dataCoverageStart: $dataCoverageStart,
+    dataCoverageEnd: $dataCoverageEnd,
+   }) {
     _id
     url
     name
@@ -13,6 +27,10 @@ query Search($term: String!, $limit: Float, $publishedStart: Float, $publishedEn
     dateCreated
     dateModified
     datePublished
+    temporalCoverage {
+      start
+      end
+    }
     license {
       text
     }
