@@ -3,6 +3,7 @@
     <div class="d-flex">
       <v-container class="sidebar">
         <div class="text-subtitle-2 mb-6">Filter by:</div>
+        <!-- PUBLICATION YEAR -->
         <div class="mb-4">
           <v-checkbox
             v-model="filter.publicationYear.isActive"
@@ -12,6 +13,7 @@
           />
           <v-range-slider
             v-model="filter.publicationYear.range"
+            @change="onFilterChange"
             :disabled="!(filter.publicationYear.isActive)"
             :min="filter.publicationYear.min"
             :max="filter.publicationYear.max"
@@ -20,18 +22,21 @@
           />
           <div class="d-flex gap-1">
             <v-text-field
+              v-model.lazy="filter.publicationYear.range[0]"
               :disabled="!(filter.publicationYear.isActive)"
-              type="number" v-model="filter.publicationYear.range[0]"
+              type="number"
               small dense outlined hide-details 
             />
-            <v-text-field :disabled="!(filter.publicationYear.isActive)"
+            <v-text-field
+              v-model.lazy="filter.publicationYear.range[1]"
+              :disabled="!(filter.publicationYear.isActive)"
               type="number"
-              v-model="filter.publicationYear.range[1]"
               small dense outlined hide-details
             />
           </div>
         </div>
 
+        <!-- DATA COVERAGE -->
         <div class="mb-6">
           <v-checkbox
             v-model="filter.dataCoverage.isActive"
@@ -178,10 +183,11 @@
               />
             </div>
           </template>
-          <div v-for="result of fuzzy_search" class="mb-12 text-body-2" :key="result._id">
+          <div v-for="result of filtering_cznet" class="mb-12 text-body-2" :key="result._id">
             <a class="text-body-1 text-decoration-none" :href="result.url" v-html="getResultFieldHighlightedHtml(result, 'name')"></a>
             <div class="my-1">{{ getResultAuthors(result) }}</div>
             <div class="my-1">{{ getResultCreationDate(result) }}</div>
+            <div class="my-1" v-if="result.datePublished">Publication Date: {{ getResultPublicationDate(result) }}</div>
             <p class="mt-4" v-html="getResultFieldHighlightedHtml(result, 'description')"></p>
             <a class="mb-4 d-block" :href="result.url">{{ result.url }}</a>
             <div class="mb-2"><strong>Keywords: </strong><span v-html="getResultFieldHighlightedHtml(result, 'keywords')"></span></div>
@@ -195,7 +201,7 @@
 </template>
 
 <script lang="ts">
-  import { Component, Vue } from 'vue-property-decorator'
+  import { Component, Vue, Watch } from 'vue-property-decorator'
   import CdSearch from '@/components/search/cd.search.vue'
   import gql from 'graphql-tag'
 
@@ -207,7 +213,7 @@
     name: 'cd-search-results',
     components: { CdSearch },
     apollo: {
-      fuzzy_search: {
+      filtering_cznet: {
         query: gql`${Search}`,
         variables: { term: ' ', limit: 0 },
         // errorPolicy: 'ignore'
@@ -215,7 +221,7 @@
     }
   })
   export default class CdSearchResults extends Vue {
-    protected fuzzy_search = []
+    protected filtering_cznet = []
     protected searchQuery = ''
     protected isSearching = false
     protected sort: 'date' | 'title' | 'author' | 'popular' = 'date'
@@ -250,43 +256,55 @@
     created() {
       if (this.$route.query['q']) {
         this.searchQuery = this.$route.query['q'] as string
-        this.onSearch(this.searchQuery)
+        this.onSearch()
       }
     }
 
-    protected async onSearch(searchQuery: string) {
+    protected onFilterChange(e) {
+      console.log('filter changed', e)
+    }
+
+    protected async onSearch() {
       if (!this.searchQuery) {
         return
       }
       
       this.isSearching = true
+      const queryParams: { [key:string]: any } = { 
+        limit: 10,
+        term: this.searchQuery
+      }
+
+      if (this.filter.publicationYear.isActive) {
+        queryParams.publishedStart = this.filter.publicationYear.range[0]
+        queryParams.publishedEnd = this.filter.publicationYear.range[1]
+      }
+
       try {
-        const startYear = this.filter.publicationYear.range[0]
-        const endYear = this.filter.publicationYear.range[1]
-        const start = new Date(Date.parse(`01 Jan ${startYear} 00:00:00 GMT`))
-        const end = new Date(Date.parse(`31 Dec ${endYear} 23:59:59 GMT`))
-
-        // console.log(start.toISOString())
-        // console.log(end.toISOString())
-
-        // const now = Date.now()
-        const query = this.$apollo.queries.fuzzy_search
-        const result = await query.refetch({ limit: 10, term: searchQuery, publishedStart: start, publishedEnd: end })
-        // console.log(result.data.fuzzy_search[0])
-        this.isSearching = false
+        const query = this.$apollo.queries.filtering_cznet
+        const result = await query.refetch(queryParams)
+        console.log(result.data.filtering_cznet)
       }
       catch(e) {
         console.log(e)
-        this.isSearching = false
       }
+      this.isSearching = false
     }
 
     protected getResultAuthors(result) {
-      return result.creator.List.map(c => c.name).join(', ')
+      return result.creator?.List.map(c => c.name).join(', ')
     }
 
     protected getResultCreationDate(result) {
       return new Date(result.dateCreated).toLocaleDateString('en-us', { 
+        year:"numeric",
+        month:"long",
+        day:"numeric"
+      })
+    }
+
+    protected getResultPublicationDate(result) {
+      return new Date(result.datePublished).toLocaleDateString('en-us', { 
         year:"numeric",
         month:"long",
         day:"numeric"

@@ -31,12 +31,15 @@
     protected onSearch() {
       this.onChange()
       if (this.valueInternal) {
-        try {
-          this.$router.push({ name: 'search', query: { q: this.valueInternal } })
-        }
-        catch(e) {
-          
-        }
+        this.$router.push({ name: 'search', query: { q: this.valueInternal } })
+          .catch((e) => {
+            // Ignore the vuex err regarding  navigating to the page they are already on.
+            if (e.name !== 'NavigationDuplicated' && !e.message.includes('Avoided redundant navigation to current location')) {
+              // But print any other errors to the console
+              console.error(e)
+            }
+          }
+        )
       }
     }
 

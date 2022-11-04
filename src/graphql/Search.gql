@@ -1,5 +1,5 @@
-query Search($term: String!, $limit: Float, $publishedStart: String, $publishedEnd: String) {
-  fuzzy_search(input: { term: $term, limit: $limit, publishedStart: $publishedStart, publishedEnd: $publishedEnd }) {
+query Search($term: String!, $limit: Float, $publishedStart: Float, $publishedEnd: Float) {
+  filtering_cznet(input: { term: $term, limit: $limit, publishedStart: $publishedStart, publishedEnd: $publishedEnd }) {
     _id
     url
     name
@@ -12,6 +12,7 @@ query Search($term: String!, $limit: Float, $publishedStart: String, $publishedE
     keywords
     dateCreated
     dateModified
+    datePublished
     license {
       text
     }
