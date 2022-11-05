@@ -8,6 +8,7 @@ query Search(
   $dataCoverageEnd: Float,
   $creatorName: String,
   $providerName: String,
+  $sortBy: String,
 ) {
   filtering_cznet(input: {
     term: $term,
@@ -19,6 +20,7 @@ query Search(
     dataCoverageEnd: $dataCoverageEnd,
     creatorName: $creatorName,
     providerName: $providerName,
+    sortBy: $sortBy,
    }) {
     _id
     url

@@ -139,12 +139,9 @@
               class="d-table-cell"
               v-model="sort"
               dense
-              mandatory
             >
-              <v-btn small @click="sort = 'date'">Date</v-btn>
-              <v-btn small @click="sort = 'title'">Title</v-btn>
-              <v-btn small @click="sort = 'author'">Author</v-btn>
-              <v-btn small @click="sort = 'popular'">Most Popular</v-btn>
+              <v-btn small value="dateCreated">Date</v-btn>
+              <v-btn small value="name">Title</v-btn>
             </v-btn-toggle>
           </div>
         </div>
@@ -215,13 +212,14 @@
         </div>
         <div id="sensor"></div>
         <div v-if="isFetchingMore" class="text-subtitle-2 text--secondary text-center">Loading more results...</div>
+        <div v-if="filtering_cznet.length && !hasMore" class="text-subtitle-2 text--secondary text-center">End of results.</div>
       </v-container>
     </div>
   </v-container>
 </template>
 
 <script lang="ts">
-  import { Component, Vue } from 'vue-property-decorator'
+  import { Component, Vue, Watch } from 'vue-property-decorator'
   import CdSearch from '@/components/search/cd.search.vue'
   import gql from 'graphql-tag'
   import scrollMonitor from 'scrollmonitor'
@@ -249,7 +247,7 @@
     protected hasMore = true
     protected isSearching = false
     protected isFetchingMore = false
-    protected sort: 'date' | 'title' | 'author' | 'popular' = 'date'
+    protected sort: 'dateCreated' | 'name' | null = null
     protected view: 'list' | 'map' = 'list'
     protected filter = {
       publicationYear: { 
@@ -308,6 +306,11 @@
         queryParams.providerName = this.filter.repository.value
       }
 
+      // SORT BY
+      if (this.sort) {
+        queryParams.sortBy = this.sort
+      }
+
       return queryParams
     }
 
@@ -326,6 +329,11 @@
           this.fetchMore()
         }
       }, false)
+    }
+
+    @Watch('sort')
+    onSortChange() {
+      this.onSearch()
     }
 
     protected async onSearch() {
