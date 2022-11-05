@@ -1,6 +1,7 @@
 query Search(
   $term: String!, 
-  $limit: Float, 
+  $pageSize: Float,
+  $pageNumber: Float,
   $publishedStart: Float,
   $publishedEnd: Float,
   $dataCoverageStart: Float,
@@ -10,7 +11,8 @@ query Search(
 ) {
   filtering_cznet(input: {
     term: $term,
-    limit: $limit,
+    pageSize: $pageSize,
+    pageNumber: $pageNumber,
     publishedStart: $publishedStart,
     publishedEnd: $publishedEnd,
     dataCoverageStart: $dataCoverageStart,

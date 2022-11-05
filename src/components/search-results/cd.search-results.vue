@@ -1,20 +1,20 @@
 <template>
   <v-container class="cd-search-results text-body-1">
     <div class="d-flex">
-      <v-container class="sidebar">
+      <v-container class="sidebar flex-shrink-0">
         <div class="text-subtitle-2 mb-6">Filter by:</div>
         <!-- PUBLICATION YEAR -->
         <div class="mb-4">
           <v-checkbox
             v-model="filter.publicationYear.isActive"
-            @change="onFilterChange"
+            @change="onSearch"
             label="Publication year"
             dense
             hide-details
           />
           <v-range-slider
             v-model="filter.publicationYear.range"
-            @change="onFilterChange"
+            @change="onSearch"
             :disabled="!(filter.publicationYear.isActive)"
             :min="filter.publicationYear.min"
             :max="filter.publicationYear.max"
@@ -23,14 +23,14 @@
           />
           <div class="d-flex gap-1">
             <v-text-field
-              @change="$set(filter.publicationYear.range, 0, $event); onFilterChange()"
+              @change="$set(filter.publicationYear.range, 0, $event); onSearch()"
               :value="filter.publicationYear.range[0]"
               :disabled="!(filter.publicationYear.isActive)"
               type="number"
               small dense outlined hide-details 
             />
             <v-text-field
-              @change="$set(filter.publicationYear.range, 1, $event); onFilterChange()"
+              @change="$set(filter.publicationYear.range, 1, $event); onSearch()"
               :value="filter.publicationYear.range[1]"
               :disabled="!(filter.publicationYear.isActive)"
               type="number"
@@ -43,14 +43,14 @@
         <div class="mb-6">
           <v-checkbox
             v-model="filter.dataCoverage.isActive"
-            @change="onFilterChange"
+            @change="onSearch"
             dense
             label="Data coverage"
             hide-details
           />
           <v-range-slider
             v-model="filter.dataCoverage.range"
-            @change="onFilterChange"
+            @change="onSearch"
             :disabled="!(filter.dataCoverage.isActive)"
             :min="filter.dataCoverage.min"
             :max="filter.dataCoverage.max"
@@ -59,14 +59,14 @@
           />
           <div class="d-flex gap-1">
             <v-text-field
-              @change="$set(filter.dataCoverage.range, 0, $event); onFilterChange()"
+              @change="$set(filter.dataCoverage.range, 0, $event); onSearch()"
               :value="filter.dataCoverage.range[0]"
               :disabled="!(filter.dataCoverage.isActive)"
               type="number"
               small dense outlined hide-details 
             />
             <v-text-field
-              @change="$set(filter.dataCoverage.range, 1, $event); onFilterChange()"
+              @change="$set(filter.dataCoverage.range, 1, $event); onSearch()"
               :value="filter.dataCoverage.range[1]"
               :disabled="!(filter.dataCoverage.isActive)"
               type="number"
@@ -76,7 +76,7 @@
         </div>
 
         <v-text-field
-          @change="$set(filter, 'creatorName', $event); onFilterChange()"
+          @change="$set(filter, 'creatorName', $event); onSearch()"
           :value="filter.creatorName"
           label="Author / Creator name"
           class="mb-6"
@@ -100,7 +100,7 @@
         <v-select
           :items="filter.repository.options"
           v-model="filter.repository.value"
-          @change="onFilterChange"
+          @change="onSearch"
           class="mb-6"
           clearable
           outlined
@@ -123,7 +123,7 @@
         </div>
       </v-container>
       
-      <v-container class="flex-grow-1">
+      <v-container class="results-content">
         <cd-search v-model="searchQuery" @input="onSearch" />
         <div class="my-6 d-lg-flex flex-row justify-space-between gap-1 d-table">
           <!-- <div class="d-table-row d-lg-flex align-center flex-row">
@@ -148,7 +148,7 @@
             </v-btn-toggle>
           </div>
         </div>
-        <div class="results-container">
+        <div class="results-container mb-12">
           <template v-if="isSearching">
             <div v-for="index in 4" :key="index" class="mb-16">
               <div class="d-flex">
@@ -199,7 +199,10 @@
             <div>No results found.</div>
           </div>
           <div v-for="result of filtering_cznet" class="mb-12 text-body-2" :key="result._id">
-            <a class="text-body-1 text-decoration-none" :href="result.url" v-html="getResultFieldHighlightedHtml(result, 'name')"></a>
+            <a class="result-title text-body-1 text-decoration-none"
+              :href="result.url"
+              v-html="getResultFieldHighlightedHtml(result, 'name')"
+            ></a>
             <div class="my-1">{{ getResultAuthors(result) }}</div>
             <div class="my-1">{{ getResultCreationDate(result) }}</div>
             <div class="my-1" v-if="result.datePublished">Publication Date: {{ getResultPublicationDate(result) }}</div>
@@ -210,15 +213,18 @@
             <div class="mb-2"><strong>License: </strong>{{ result.license.text }}</div>
           </div>
         </div>
+        <div id="sensor"></div>
+        <div v-if="isFetchingMore" class="text-subtitle-2 text--secondary text-center">Loading more results...</div>
       </v-container>
     </div>
   </v-container>
 </template>
 
 <script lang="ts">
-  import { Component, Vue, Watch } from 'vue-property-decorator'
+  import { Component, Vue } from 'vue-property-decorator'
   import CdSearch from '@/components/search/cd.search.vue'
   import gql from 'graphql-tag'
+  import scrollMonitor from 'scrollmonitor'
 
   const Search = require('@/graphql/Search.gql')
   const maxPublicationYear = (new Date()).getFullYear()
@@ -230,7 +236,7 @@
     apollo: {
       filtering_cznet: {
         query: gql`${Search}`,
-        variables: { term: ' ', limit: 0 },
+        variables: { term: ' ' },
         // errorPolicy: 'ignore'
       },
     }
@@ -238,7 +244,11 @@
   export default class CdSearchResults extends Vue {
     protected filtering_cznet = []
     protected searchQuery = ''
+    protected pageNumber = 1
+    protected pageSize = 30
+    protected hasMore = true
     protected isSearching = false
+    protected isFetchingMore = false
     protected sort: 'date' | 'title' | 'author' | 'popular' = 'date'
     protected view: 'list' | 'map' = 'list'
     protected filter = {
@@ -269,25 +279,10 @@
       }
     }
 
-    created() {
-      if (this.$route.query['q']) {
-        this.searchQuery = this.$route.query['q'] as string
-        this.onSearch()
-      }
-    }
-
-    protected onFilterChange(e) {
-      this.onSearch()
-    }
-
-    protected async onSearch() {
-      if (!this.searchQuery) {
-        return
-      }
-      
-      this.isSearching = true
+    protected get queryParams() {
       const queryParams: { [key:string]: any } = { 
-        limit: 10,
+        pageSize: this.pageSize,
+        pageNumber: this.pageNumber,
         term: this.searchQuery
       }
 
@@ -309,20 +304,76 @@
       }
 
       // REPOSITORY
-      if (this.filter.repository) {
-        queryParams.providerName = this.filter.repository
+      if (this.filter.repository.value) {
+        queryParams.providerName = this.filter.repository.value
       }
+
+      return queryParams
+    }
+
+    created() {
+      if (this.$route.query['q']) {
+        this.searchQuery = this.$route.query['q'] as string
+        this.onSearch()
+      }
+    }
+
+    mounted () {
+      const el = document.getElementById('sensor') as HTMLElement
+      const elementWatcher = scrollMonitor.create(el)
+      elementWatcher.enterViewport(() => {
+        if (this.hasMore) {
+          this.fetchMore()
+        }
+      }, false)
+    }
+
+    protected async onSearch() {
+      if (!this.searchQuery) {
+        return
+      }
+      this.pageNumber = 1
+      this.hasMore = true
+      this.isSearching = true
 
       try {
         const query = this.$apollo.queries.filtering_cznet
-        query.setVariables(queryParams)
+        query.setVariables(this.queryParams)
         const result = await query.refetch()
-        console.log(result.data.filtering_cznet)
+        this.hasMore = result.data.filtering_cznet.length === this.pageSize
+        console.log('refetch results: ')
+        console.log(result)
       }
       catch(e) {
         console.log(e)
       }
       this.isSearching = false
+    }
+
+    protected async fetchMore() {
+      this.pageNumber++
+      this.isFetchingMore = true
+      try{
+        const result = await this.$apollo.queries.filtering_cznet.fetchMore({
+          variables: this.queryParams,
+          updateQuery: (existing, incoming) => {
+            this.hasMore = incoming.fetchMoreResult.filtering_cznet.length === this.pageSize
+
+            return {
+              filtering_cznet: [
+                ...existing.filtering_cznet,
+                ...incoming.fetchMoreResult.filtering_cznet
+              ]
+            }
+          },
+        })
+        console.log('fetchMore results: ')
+        console.log(result)
+      }
+      catch(e) {
+        console.log(e)
+      }
+      this.isFetchingMore = false
     }
 
     protected getResultAuthors(result) {
@@ -379,19 +430,29 @@
       return content
     }
   }
-
-  // TODO: pagination example
-  // https://stackoverflow.com/questions/48305624/how-to-use-mongodb-aggregation-for-pagination
 </script>
 
 <style lang="scss" scoped>
   .sidebar {
-    width: 30rem;
+    width: 16rem;
   }
 
-  .results-container a {
-    &:hover {
-      text-decoration: underline !important;
+  .results-content {
+    min-width: 0; // https://stackoverflow.com/a/66689926/3288102
+  }
+
+  .results-container {
+    p {
+      word-break: break-word;
     }
+
+    a {
+      &:hover {
+        text-decoration: underline !important;
+      }
+    }
+  }
+
+  .result-title {
   }
 </style>
