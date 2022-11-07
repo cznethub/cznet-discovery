@@ -14,13 +14,14 @@
           />
           <v-range-slider
             v-model="filter.publicationYear.range"
-            @change="filter.publicationYear.isActive && onSearch()"
+            @change="onSliderControlChange(filter.publicationYear)"
+            :class="{ 'grayed-out': !(filter.publicationYear.isActive) }"
             :min="filter.publicationYear.min"
             :max="filter.publicationYear.max"
             class="mb-1"
             hide-details
           />
-          <div class="d-flex gap-1">
+          <div class="d-flex gap-1" :class="{ 'grayed-out': !(filter.publicationYear.isActive) }">
             <v-text-field
               @change="onSliderChange(filter.publicationYear, 0, $event)"
               :value="filter.publicationYear.range[0]"
@@ -47,13 +48,14 @@
           />
           <v-range-slider
             v-model="filter.dataCoverage.range"
-            @change="filter.dataCoverage.isActive && onSearch()"
+            @change="onSliderControlChange(filter.dataCoverage)"
+            :class="{ 'grayed-out': !(filter.dataCoverage.isActive) }"
             :min="filter.dataCoverage.min"
             :max="filter.dataCoverage.max"
             class="mb-1"
             hide-details
           />
-          <div class="d-flex gap-1">
+          <div class="d-flex gap-1" :class="{ 'grayed-out': !(filter.dataCoverage.isActive) }">
             <v-text-field
               @change="onSliderChange(filter.dataCoverage, 0, $event)"
               :value="filter.dataCoverage.range[0]"
@@ -421,14 +423,17 @@
      *  @param value: the value to set.
      */
     protected onSliderChange(path: any, index: 0 | 1, value: number) {
-      if (!path.isActive) {
-        return
-      }
       // Conditional to prevent change event triggers on focus change where the value has not changed.
       if (path.range[index] !== value) {
+        path.isActive = true
         this.$set(path.range, index, value)
         this.onSearch()
       }
+    }
+
+    protected onSliderControlChange(path: any) {
+      path.isActive = true
+      this.onSearch()
     }
 
     // TODO: turn this method into a filter
@@ -476,6 +481,7 @@
     }
   }
 
-  .result-title {
+  .grayed-out {
+    opacity: 0.55;
   }
 </style>
