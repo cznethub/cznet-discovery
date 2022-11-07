@@ -14,8 +14,7 @@
           />
           <v-range-slider
             v-model="filter.publicationYear.range"
-            @change="onSearch"
-            :disabled="!(filter.publicationYear.isActive)"
+            @change="filter.publicationYear.isActive && onSearch()"
             :min="filter.publicationYear.min"
             :max="filter.publicationYear.max"
             class="mb-1"
@@ -23,16 +22,14 @@
           />
           <div class="d-flex gap-1">
             <v-text-field
-              @change="$set(filter.publicationYear.range, 0, $event); onSearch()"
+              @change="onSliderChange(filter.publicationYear, 0, $event)"
               :value="filter.publicationYear.range[0]"
-              :disabled="!(filter.publicationYear.isActive)"
               type="number"
               small dense outlined hide-details 
             />
             <v-text-field
-              @change="$set(filter.publicationYear.range, 1, $event); onSearch()"
+              @change="onSliderChange(filter.publicationYear, 0, $event)"
               :value="filter.publicationYear.range[1]"
-              :disabled="!(filter.publicationYear.isActive)"
               type="number"
               small dense outlined hide-details
             />
@@ -50,8 +47,7 @@
           />
           <v-range-slider
             v-model="filter.dataCoverage.range"
-            @change="onSearch"
-            :disabled="!(filter.dataCoverage.isActive)"
+            @change="filter.dataCoverage.isActive && onSearch()"
             :min="filter.dataCoverage.min"
             :max="filter.dataCoverage.max"
             class="mb-1"
@@ -59,16 +55,14 @@
           />
           <div class="d-flex gap-1">
             <v-text-field
-              @change="$set(filter.dataCoverage.range, 0, $event); onSearch()"
+              @change="onSliderChange(filter.dataCoverage, 0, $event)"
               :value="filter.dataCoverage.range[0]"
-              :disabled="!(filter.dataCoverage.isActive)"
               type="number"
               small dense outlined hide-details 
             />
             <v-text-field
-              @change="$set(filter.dataCoverage.range, 1, $event); onSearch()"
+              @change="onSliderChange(filter.dataCoverage, 1, $event)"
               :value="filter.dataCoverage.range[1]"
-              :disabled="!(filter.dataCoverage.isActive)"
               type="number"
               small dense outlined hide-details
             />
@@ -414,6 +408,21 @@
       }
 
       return ''
+    }
+
+    /** @param path: the filter object to act on.
+     *  @param index: 0 or 1 (min or max).
+     *  @param value: the value to set.
+     */
+    protected onSliderChange(path: any, index: 0 | 1, value: number) {
+      if (!path.isActive) {
+        return
+      }
+      // Conditional to prevent change event triggers on focus change where the value has not changed.
+      if (path.range[index] !== value) {
+        this.$set(path.range, index, value)
+        this.onSearch()
+      }
     }
 
     // TODO: turn this method into a filter
