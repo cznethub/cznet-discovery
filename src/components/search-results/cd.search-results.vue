@@ -192,7 +192,7 @@
           <div v-if="!filtering_cznet.length" class="text-body-2 text--secondary text-center mt-8">
             <div>No results found.</div>
           </div>
-          <div v-for="result of filtering_cznet" class="mb-12 text-body-2" :key="result._id">
+          <div v-for="result of filtering_cznet" class="mb-16 text-body-2" :key="result._id">
             <a class="result-title text-body-1 text-decoration-none"
               :href="result.url"
               v-html="getResultFieldHighlightedHtml(result, 'name')"
@@ -240,7 +240,7 @@
     protected filtering_cznet = []
     protected searchQuery = ''
     protected pageNumber = 1
-    protected pageSize = 30
+    protected pageSize = 15
     protected hasMore = true
     protected isSearching = false
     protected isFetchingMore = false
@@ -475,6 +475,7 @@
     }
 
     a {
+      text-decoration: none;
       &:hover {
         text-decoration: underline !important;
       }
