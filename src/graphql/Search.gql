@@ -9,6 +9,7 @@ query Search(
   $creatorName: String,
   $providerName: String,
   $sortBy: String,
+  $contentType: [String]
 ) {
   filtering_cznet(input: {
     term: $term,
@@ -21,6 +22,7 @@ query Search(
     creatorName: $creatorName,
     providerName: $providerName,
     sortBy: $sortBy,
+    contentType: $contentType,
    }) {
     _id
     url
@@ -61,5 +63,6 @@ query Search(
       }
     }
     score
+    Type
 	}
 }

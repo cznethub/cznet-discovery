@@ -80,7 +80,7 @@
           dense
         />
 
-        <v-select
+        <!-- <v-select
           :items="filter.czProjects.options"
           v-model="filter.czProjects.value"
           class="mb-6"
@@ -89,7 +89,7 @@
           label="CZ project"
           hide-details
           dense
-        />
+        /> -->
 
         <v-select
           :items="filter.repository.options"
@@ -109,6 +109,7 @@
             v-for="(option, index) of filter.contentType.options"
             :key="index"
             v-model="filter.contentType.value"
+            @change="onSearch"
             hide-details
             dense
             :label="option"
@@ -262,7 +263,7 @@
         value: null
       },
       contentType: {
-        options: ['Data', 'Notebook/Code', 'Software'],
+        options: ['Dataset', 'Notebook/Code', 'Software'],
         value: []
       },
       repository: {
@@ -298,6 +299,11 @@
       // REPOSITORY
       if (this.filter.repository.value) {
         queryParams.providerName = this.filter.repository.value
+      }
+
+      // CONTENT TYPE
+      if (this.filter.contentType.value.length) {
+        queryParams.contentType = this.filter.contentType.value
       }
 
       // SORT BY
