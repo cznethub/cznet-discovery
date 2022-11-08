@@ -189,27 +189,29 @@
               />
             </div>
           </template>
-          <div v-if="!filtering_cznet.length" class="text-body-2 text--secondary text-center mt-8">
-            <div>No results found.</div>
-          </div>
-          <div v-for="result of filtering_cznet" class="mb-16 text-body-2" :key="result._id">
-            <a class="result-title text-body-1 text-decoration-none"
-              :href="result.url"
-              v-html="getResultFieldHighlightedHtml(result, 'name')"
-            ></a>
-            <div class="my-1">{{ getResultAuthors(result) }}</div>
-            <div class="my-1">{{ getResultCreationDate(result) }}</div>
-            <div class="my-1" v-if="result.datePublished">Publication Date: {{ getResultPublicationDate(result) }}</div>
-            <p class="mt-4" v-html="getResultFieldHighlightedHtml(result, 'description')"></p>
-            <a class="mb-4 d-block" :href="result.url">{{ result.url }}</a>
-            <div class="mb-2"><strong>Keywords: </strong><span v-html="getResultFieldHighlightedHtml(result, 'keywords')"></span></div>
-            <div class="mb-2" v-if="result.funding"><strong>Funded by: </strong>{{ getResultFunding(result) }}</div>
-            <div class="mb-2"><strong>License: </strong>{{ result.license.text }}</div>
-          </div>
+          <template v-else>
+            <div v-if="!results.length" class="text-body-2 text--secondary text-center mt-8">
+              <div>No results found.</div>
+            </div>
+            <div v-for="result of results" class="mb-16 text-body-2" :key="result._id">
+              <a class="result-title text-body-1 text-decoration-none"
+                :href="result.url"
+                v-html="getResultFieldHighlightedHtml(result, 'name')"
+              ></a>
+              <div class="my-1">{{ getResultAuthors(result) }}</div>
+              <div class="my-1">{{ getResultCreationDate(result) }}</div>
+              <div class="my-1" v-if="result.datePublished">Publication Date: {{ getResultPublicationDate(result) }}</div>
+              <p class="mt-4" v-html="getResultFieldHighlightedHtml(result, 'description')"></p>
+              <a class="mb-4 d-block" :href="result.url">{{ result.url }}</a>
+              <div class="mb-2"><strong>Keywords: </strong><span v-html="getResultFieldHighlightedHtml(result, 'keywords')"></span></div>
+              <div class="mb-2" v-if="result.funding"><strong>Funded by: </strong>{{ getResultFunding(result) }}</div>
+              <div class="mb-2"><strong>License: </strong>{{ result.license.text }}</div>
+            </div>
+          </template>
         </div>
         <div id="sensor"></div>
         <div v-if="isFetchingMore" class="text-subtitle-2 text--secondary text-center">Loading more results...</div>
-        <div v-if="filtering_cznet.length && !hasMore" class="text-subtitle-2 text--secondary text-center">End of results.</div>
+        <div v-if="results.length && !hasMore" class="text-subtitle-2 text--secondary text-center">End of results.</div>
       </v-container>
     </div>
   </v-container>
@@ -217,11 +219,12 @@
 
 <script lang="ts">
   import { Component, Vue, Watch } from 'vue-property-decorator'
+  import { SEARCH_RESOLVER, SEARCH_QUERY } from '@/constants'
   import CdSearch from '@/components/search/cd.search.vue'
   import gql from 'graphql-tag'
   import scrollMonitor from 'scrollmonitor'
 
-  const Search = require('@/graphql/Search.gql')
+  const Search = require(`@/graphql/${ SEARCH_QUERY }`)
   const maxPublicationYear = (new Date()).getFullYear()
   const minPublicationYear = 1900
 
@@ -229,7 +232,7 @@
     name: 'cd-search-results',
     components: { CdSearch },
     apollo: {
-      filtering_cznet: {
+      [SEARCH_RESOLVER]: {
         query: gql`${Search}`,
         variables: { term: ' ' },
         // errorPolicy: 'ignore'
@@ -237,7 +240,6 @@
     }
   })
   export default class CdSearchResults extends Vue {
-    protected filtering_cznet = []
     protected searchQuery = ''
     protected pageNumber = 1
     protected pageSize = 15
@@ -272,6 +274,10 @@
         options: ['HydroShare', 'EarthChem Library'],
         value: null
       }
+    }
+
+    protected get results() {
+      return this[SEARCH_RESOLVER] || []
     }
 
     protected get queryParams() {
@@ -347,12 +353,12 @@
       this.isSearching = true
 
       try {
-        const query = this.$apollo.queries.filtering_cznet
+        const query = this.$apollo.queries[SEARCH_RESOLVER]
         query.setVariables(this.queryParams)
         const result = await query.refetch()
-        this.hasMore = result.data.filtering_cznet.length === this.pageSize
-        console.log('refetch results: ')
-        console.log(result)
+        this.hasMore = result.data[SEARCH_RESOLVER].length === this.pageSize
+        // console.log('refetch results: ')
+        // console.log(result)
       }
       catch(e) {
         console.log(e)
@@ -364,21 +370,20 @@
       this.pageNumber++
       this.isFetchingMore = true
       try{
-        const result = await this.$apollo.queries.filtering_cznet.fetchMore({
+        const result = await this.$apollo.queries[SEARCH_RESOLVER].fetchMore({
           variables: this.queryParams,
           updateQuery: (existing, incoming) => {
-            this.hasMore = incoming.fetchMoreResult.filtering_cznet.length === this.pageSize
-
+            this.hasMore = incoming.fetchMoreResult[SEARCH_RESOLVER].length === this.pageSize
             return {
-              filtering_cznet: [
-                ...existing.filtering_cznet,
-                ...incoming.fetchMoreResult.filtering_cznet
+              [SEARCH_RESOLVER]: [
+                ...(existing[SEARCH_RESOLVER] || []),
+                ...incoming.fetchMoreResult[SEARCH_RESOLVER]
               ]
             }
           },
         })
-        console.log('fetchMore results: ')
-        console.log(result)
+        // console.log('fetchMore results: ')
+        // console.log(result)
       }
       catch(e) {
         console.log(e)
