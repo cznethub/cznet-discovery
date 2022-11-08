@@ -220,6 +220,7 @@
 <script lang="ts">
   import { Component, Vue, Watch } from 'vue-property-decorator'
   import { SEARCH_RESOLVER, SEARCH_QUERY } from '@/constants'
+  import { sameRouteNavigationErrorHandler } from '@/constants'
   import CdSearch from '@/components/search/cd.search.vue'
   import gql from 'graphql-tag'
   import scrollMonitor from 'scrollmonitor'
@@ -227,6 +228,7 @@
   const Search = require(`@/graphql/${ SEARCH_QUERY }`)
   const maxPublicationYear = (new Date()).getFullYear()
   const minPublicationYear = 1900
+  const initialRange: [number, number] = [maxPublicationYear - 50, maxPublicationYear]
 
   @Component({
     name: 'cd-search-results',
@@ -248,31 +250,31 @@
     protected isFetchingMore = false
     protected sort: 'dateCreated' | 'name' | null = null
     protected view: 'list' | 'map' = 'list'
-    protected filter = {
+    protected filter: CdSearchFilter = {
       publicationYear: { 
         min: minPublicationYear, 
         max: maxPublicationYear, 
-        range: [maxPublicationYear - 50, maxPublicationYear],
+        range: initialRange,
         isActive: false
       },
       dataCoverage: { 
         min: minPublicationYear, 
         max: maxPublicationYear, 
-        range: [maxPublicationYear - 50, maxPublicationYear],
+        range: initialRange,
         isActive: false
       },
       creatorName: '',
-      czProjects: {
-        options: ['Drylands Cluster'],
-        value: null
-      },
+      // czProjects: {
+      //   options: ['Drylands Cluster'],
+      //   value: null
+      // },
       contentType: {
         options: ['Dataset', 'Notebook/Code', 'Software'],
         value: []
       },
       repository: {
         options: ['HydroShare', 'EarthChem Library'],
-        value: null
+        value: ''
       }
     }
 
@@ -280,6 +282,7 @@
       return this[SEARCH_RESOLVER] || []
     }
 
+    /** GraphQL query parameters */
     protected get queryParams() {
       const queryParams: { [key:string]: any } = { 
         pageSize: this.pageSize,
@@ -322,9 +325,26 @@
       return queryParams
     }
 
+    /** Route query parameters with short keys. These are parameters needed to replicate a search. */
+    protected get routeParams() {
+      return {
+        q: this.searchQuery,
+        cn: this.filter.creatorName || undefined,
+        r: this.filter.repository.value || undefined,
+        py: this.filter.publicationYear.isActive
+          ? this.filter.publicationYear.range.map(n => n.toString()) || undefined
+          : undefined,
+        dc: this.filter.dataCoverage.isActive
+          ? this.filter.dataCoverage.range.map(n => n.toString()) || undefined
+          : undefined,
+        ct: this.filter.contentType.value || undefined,
+        s: this.sort || undefined
+      }
+    }
+
     created() {
+      this._loadRouteParams()
       if (this.$route.query['q']) {
-        this.searchQuery = this.$route.query['q'] as string
         this.onSearch()
       }
     }
@@ -333,14 +353,14 @@
       const el = document.getElementById('sensor') as HTMLElement
       const elementWatcher = scrollMonitor.create(el)
       elementWatcher.enterViewport(() => {
-        if (this.hasMore) {
+        if (this.results.length && this.hasMore) {
           this.fetchMore()
         }
       }, false)
     }
 
     @Watch('sort')
-    onSortChange() {
+    protected onSortChange() {
       this.onSearch()
     }
 
@@ -354,7 +374,16 @@
 
       try {
         const query = this.$apollo.queries[SEARCH_RESOLVER]
+        
+        // set query parameters
         query.setVariables(this.queryParams)
+
+        // set the parameters on the route
+        this.$router.push({ 
+          name: 'search',
+          query: this.routeParams
+        }).catch(sameRouteNavigationErrorHandler)
+        
         const result = await query.refetch()
         this.hasMore = result.data[SEARCH_RESOLVER].length === this.pageSize
         // console.log('refetch results: ')
@@ -366,10 +395,11 @@
       this.isSearching = false
     }
 
+    /** Gets the next page of results and appends them to the current results list. */
     protected async fetchMore() {
       this.pageNumber++
       this.isFetchingMore = true
-      try{
+      try {
         const result = await this.$apollo.queries[SEARCH_RESOLVER].fetchMore({
           variables: this.queryParams,
           updateQuery: (existing, incoming) => {
@@ -442,6 +472,7 @@
     }
 
     // TODO: turn this method into a filter
+    /** Applies highlights to a field and returns the new content as HTML */
     protected getResultFieldHighlightedHtml(result: Schemaorg, path: string) {
       const div = document.createElement("DIV")
       div.innerHTML = Array.isArray(result[path]) ? result[path].join(', ') : result[path]
@@ -462,6 +493,34 @@
 
       return content
     }
+
+    /** Load route query parameters into component values. */
+    private _loadRouteParams() {
+      // SEARCH QUERY
+      this.searchQuery = this.$route.query['q'] as string
+      // CREATOR NAME
+      this.filter.creatorName = this.$route.query['cn'] as string || ''
+      // REPOSITORY
+      this.filter.repository.value = this.$route.query['r'] as string || ''
+      // CONTENT TYPE
+      this.filter.contentType.value = this.$route.query['ct'] as string[] || []
+      // PUBLICATION YEAR
+      if (this.$route.query['py']) {
+        this.filter.publicationYear.isActive = true
+        this.filter.publicationYear.range =
+          (this.$route.query['py'] as [string, string])?.map(n => +n) as [number, number]
+          || initialRange
+      }
+      // DATA COVERAGE
+      if (this.$route.query['dc']) {
+        this.filter.dataCoverage.isActive = true
+        this.filter.dataCoverage.range =
+          (this.$route.query['dc'] as [string, string])?.map(n => +n) as [number, number]
+          || initialRange
+      }
+      // SORT
+      this.sort = this.$route.query['s'] as "name" | "dateCreated" || null
+    }
   }
 </script>
 
@@ -475,7 +534,7 @@
   }
 
   .results-container {
-    p {
+    * {
       word-break: break-word;
     }
 
