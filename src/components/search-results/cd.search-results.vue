@@ -23,13 +23,13 @@
           />
           <div class="d-flex gap-1" :class="{ 'grayed-out': !(filter.publicationYear.isActive) }">
             <v-text-field
-              @change="onSliderChange(publicationYear, 0, $event)"
+              @change="onSliderChange('publicationYear', 0, $event)"
               :value="publicationYear[0]"
               type="number"
               small dense outlined hide-details 
             />
             <v-text-field
-              @change="onSliderChange(publicationYear, 0, $event)"
+              @change="onSliderChange('publicationYear', 0, $event)"
               :value="publicationYear[1]"
               type="number"
               small dense outlined hide-details
@@ -57,13 +57,13 @@
           />
           <div class="d-flex gap-1" :class="{ 'grayed-out': !(filter.dataCoverage.isActive) }">
             <v-text-field
-              @change="onSliderChange(dataCoverage, 0, $event)"
+              @change="onSliderChange('dataCoverage', 0, $event)"
               :value="dataCoverage[0]"
               type="number"
               small dense outlined hide-details 
             />
             <v-text-field
-              @change="onSliderChange(dataCoverage, 1, $event)"
+              @change="onSliderChange('dataCoverage', 1, $event)"
               :value="dataCoverage[1]"
               type="number"
               small dense outlined hide-details
@@ -277,6 +277,7 @@
     }
 
     protected set sort(sort: 'name' | 'dateCreated' | null) {
+      // TODO: validate input
       SearchResults.commit((state) => {
         state.sort = sort
       })
@@ -287,6 +288,7 @@
     }
 
     protected set publicationYear(range: [number, number]) {
+      // TODO: validate input
       SearchResults.commit((state) => {
         state.publicationYear = range
       })
@@ -297,6 +299,7 @@
     }
 
     protected set dataCoverage(range: [number, number]) {
+      // TODO: validate input
       SearchResults.commit((state) => {
         state.dataCoverage = range
       })
@@ -317,6 +320,7 @@
     }
 
     protected set repository(repository: string) {
+      // TODO: validate input
       SearchResults.commit((state) => {
         state.repository = repository
       })
@@ -327,6 +331,7 @@
     }
 
     protected set contentType(types: string[]) {
+      // TODO: validate input
       SearchResults.commit((state) => {
         state.contentType = types
       })
@@ -346,14 +351,14 @@
 
       // PUBLICATION YEAR
       if (this.filter.publicationYear.isActive) {
-        queryParams.publishedStart = this.publicationYear[0]
-        queryParams.publishedEnd = this.publicationYear[1]
+        this.$set(queryParams, 'publishedStart', this.dataCoverage[0])
+        this.$set(queryParams, 'publishedEnd', this.dataCoverage[1])
       }
 
       // DATA COVERAGE
       if (this.filter.dataCoverage.isActive) {
-        queryParams.dataCoverageStart = this.dataCoverage[0]
-        queryParams.dataCoverageEnd = this.dataCoverage[1]
+        this.$set(queryParams, 'dataCoverageStart', this.dataCoverage[0])
+        this.$set(queryParams, 'dataCoverageEnd', this.dataCoverage[1])
       }
 
       // CREATOR NAME
@@ -428,11 +433,9 @@
 
       try {
         const query = this.$apollo.queries[SEARCH_RESOLVER]
-        
+
         // set query parameters
         query.setVariables(this.queryParams)
-
-        console.log(this.routeParams)
 
         // set the parameters on the route
         this.$router.push({ 
@@ -441,7 +444,7 @@
         }).catch(sameRouteNavigationErrorHandler)
         
         const result = await query.refetch()
-        this.hasMore = result.data[SEARCH_RESOLVER].length === this.pageSize
+        this.hasMore = result.data?.[SEARCH_RESOLVER].length === this.pageSize
         // console.log('refetch results: ')
         // console.log(result)
       }
@@ -513,11 +516,11 @@
      *  @param index: 0 or 1 (min or max).
      *  @param value: the value to set.
      */
-    protected onSliderChange(path: any, index: 0 | 1, value: number) {
+    protected onSliderChange(path: string, index: 0 | 1, value: number) {
       // Conditional to prevent change event triggers on focus change where the value has not changed.
-      if (path[index] !== value) {
-        path.isActive = true
-        this.$set(path, index, value)
+      if (this[path][index] !== value) {
+        this.filter[path].isActive = true
+        this.$set(this[path], index, value)
         this.onSearch()
       }
     }
