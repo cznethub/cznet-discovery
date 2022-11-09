@@ -49,20 +49,17 @@ interface SchemaorgHighlightText {
   value: string
 }
 
-interface CdSearchFilter {
+interface ISearchFilter {
   publicationYear: { 
     min: number, 
     max: number, 
-    range: [number, number],
     isActive: boolean
   },
   dataCoverage: { 
     min: number, 
     max: number, 
-    range: [number, number],
     isActive: boolean
   },
-  creatorName: string,
   contentType: {
     options: string[],
     value: string[]

@@ -31,7 +31,7 @@
 
     protected onSearch() {
       this.onChange()
-      if (this.valueInternal) {
+      if (this.valueInternal && this.$route.name !== 'search') {
         this.$router
           .push({ name: 'search', query: { q: this.valueInternal } })
           .catch(sameRouteNavigationErrorHandler)

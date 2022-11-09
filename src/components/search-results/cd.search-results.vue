@@ -13,8 +13,8 @@
             hide-details
           />
           <v-range-slider
-            v-model="filter.publicationYear.range"
-            @change="onSliderControlChange(filter.publicationYear)"
+            v-model="publicationYear"
+            @change="onSliderControlChange(publicationYear)"
             :class="{ 'grayed-out': !(filter.publicationYear.isActive) }"
             :min="filter.publicationYear.min"
             :max="filter.publicationYear.max"
@@ -23,14 +23,14 @@
           />
           <div class="d-flex gap-1" :class="{ 'grayed-out': !(filter.publicationYear.isActive) }">
             <v-text-field
-              @change="onSliderChange(filter.publicationYear, 0, $event)"
-              :value="filter.publicationYear.range[0]"
+              @change="onSliderChange(publicationYear, 0, $event)"
+              :value="publicationYear[0]"
               type="number"
               small dense outlined hide-details 
             />
             <v-text-field
-              @change="onSliderChange(filter.publicationYear, 0, $event)"
-              :value="filter.publicationYear.range[1]"
+              @change="onSliderChange(publicationYear, 0, $event)"
+              :value="publicationYear[1]"
               type="number"
               small dense outlined hide-details
             />
@@ -47,8 +47,8 @@
             hide-details
           />
           <v-range-slider
-            v-model="filter.dataCoverage.range"
-            @change="onSliderControlChange(filter.dataCoverage)"
+            v-model="dataCoverage"
+            @change="onSliderControlChange(dataCoverage)"
             :class="{ 'grayed-out': !(filter.dataCoverage.isActive) }"
             :min="filter.dataCoverage.min"
             :max="filter.dataCoverage.max"
@@ -57,14 +57,14 @@
           />
           <div class="d-flex gap-1" :class="{ 'grayed-out': !(filter.dataCoverage.isActive) }">
             <v-text-field
-              @change="onSliderChange(filter.dataCoverage, 0, $event)"
-              :value="filter.dataCoverage.range[0]"
+              @change="onSliderChange(dataCoverage, 0, $event)"
+              :value="dataCoverage[0]"
               type="number"
               small dense outlined hide-details 
             />
             <v-text-field
-              @change="onSliderChange(filter.dataCoverage, 1, $event)"
-              :value="filter.dataCoverage.range[1]"
+              @change="onSliderChange(dataCoverage, 1, $event)"
+              :value="dataCoverage[1]"
               type="number"
               small dense outlined hide-details
             />
@@ -72,8 +72,8 @@
         </div>
 
         <v-text-field
-          @change="$set(filter, 'creatorName', $event); onSearch()"
-          :value="filter.creatorName"
+          @change="creatorName = $event; onSearch()"
+          :value="creatorName"
           label="Author / Creator name"
           class="mb-6"
           hide-details
@@ -95,7 +95,7 @@
 
         <v-select
           :items="filter.repository.options"
-          v-model="filter.repository.value"
+          v-model="repository"
           @change="onSearch"
           class="mb-6"
           clearable
@@ -110,7 +110,7 @@
           <v-checkbox
             v-for="(option, index) of filter.contentType.options"
             :key="index"
-            v-model="filter.contentType.value"
+            v-model="contentType"
             @change="onSearch"
             hide-details
             dense
@@ -219,16 +219,14 @@
 
 <script lang="ts">
   import { Component, Vue, Watch } from 'vue-property-decorator'
-  import { SEARCH_RESOLVER, SEARCH_QUERY } from '@/constants'
+  import { SEARCH_RESOLVER, SEARCH_QUERY, MIN_YEAR, MAX_YEAR } from '@/constants'
   import { sameRouteNavigationErrorHandler } from '@/constants'
+  import SearchResults from '@/models/search-results.model'
   import CdSearch from '@/components/search/cd.search.vue'
   import gql from 'graphql-tag'
   import scrollMonitor from 'scrollmonitor'
 
   const Search = require(`@/graphql/${ SEARCH_QUERY }`)
-  const maxPublicationYear = (new Date()).getFullYear()
-  const minPublicationYear = 1900
-  const initialRange: [number, number] = [maxPublicationYear - 50, maxPublicationYear]
 
   @Component({
     name: 'cd-search-results',
@@ -248,22 +246,18 @@
     protected hasMore = true
     protected isSearching = false
     protected isFetchingMore = false
-    protected sort: 'dateCreated' | 'name' | null = null
-    protected view: 'list' | 'map' = 'list'
-    protected filter: CdSearchFilter = {
+    // protected view: 'list' | 'map' = 'list'
+    protected filter: ISearchFilter = {
       publicationYear: { 
-        min: minPublicationYear, 
-        max: maxPublicationYear, 
-        range: initialRange,
+        min: MIN_YEAR, 
+        max: MAX_YEAR, 
         isActive: false
       },
       dataCoverage: { 
-        min: minPublicationYear, 
-        max: maxPublicationYear, 
-        range: initialRange,
+        min: MIN_YEAR, 
+        max: MAX_YEAR, 
         isActive: false
       },
-      creatorName: '',
       // czProjects: {
       //   options: ['Drylands Cluster'],
       //   value: null
@@ -276,6 +270,66 @@
         options: ['HydroShare', 'EarthChem Library'],
         value: ''
       }
+    }
+
+    protected get sort() {
+      return SearchResults.$state.sort
+    }
+
+    protected set sort(sort: 'name' | 'dateCreated' | null) {
+      SearchResults.commit((state) => {
+        state.sort = sort
+      })
+    }
+
+    protected get publicationYear() {
+      return SearchResults.$state.publicationYear
+    }
+
+    protected set publicationYear(range: [number, number]) {
+      SearchResults.commit((state) => {
+        state.publicationYear = range
+      })
+    }
+
+    protected get dataCoverage() {
+      return SearchResults.$state.dataCoverage
+    }
+
+    protected set dataCoverage(range: [number, number]) {
+      SearchResults.commit((state) => {
+        state.dataCoverage = range
+      })
+    }
+
+    protected get creatorName() {
+      return SearchResults.$state.creatorName
+    }
+
+    protected set creatorName(name: string) {
+      SearchResults.commit((state) => {
+        state.creatorName = name
+      })
+    }
+
+    protected get repository() {
+      return SearchResults.$state.repository
+    }
+
+    protected set repository(repository: string) {
+      SearchResults.commit((state) => {
+        state.repository = repository
+      })
+    }
+
+    protected get contentType() {
+      return SearchResults.$state.contentType
+    }
+
+    protected set contentType(types: string[]) {
+      SearchResults.commit((state) => {
+        state.contentType = types
+      })
     }
 
     protected get results() {
@@ -292,29 +346,29 @@
 
       // PUBLICATION YEAR
       if (this.filter.publicationYear.isActive) {
-        queryParams.publishedStart = this.filter.publicationYear.range[0]
-        queryParams.publishedEnd = this.filter.publicationYear.range[1]
+        queryParams.publishedStart = this.publicationYear[0]
+        queryParams.publishedEnd = this.publicationYear[1]
       }
 
       // DATA COVERAGE
       if (this.filter.dataCoverage.isActive) {
-        queryParams.dataCoverageStart = this.filter.dataCoverage.range[0]
-        queryParams.dataCoverageEnd = this.filter.dataCoverage.range[1]
+        queryParams.dataCoverageStart = this.dataCoverage[0]
+        queryParams.dataCoverageEnd = this.dataCoverage[1]
       }
 
       // CREATOR NAME
-      if (this.filter.creatorName) {
-        queryParams.creatorName = this.filter.creatorName.trim()
+      if (this.creatorName) {
+        queryParams.creatorName = this.creatorName
       }
 
       // REPOSITORY
-      if (this.filter.repository.value) {
-        queryParams.providerName = this.filter.repository.value
+      if (this.repository) {
+        queryParams.providerName = this.repository
       }
 
       // CONTENT TYPE
-      if (this.filter.contentType.value.length) {
-        queryParams.contentType = this.filter.contentType.value
+      if (this.contentType.length) {
+        queryParams.contentType = this.contentType
       }
 
       // SORT BY
@@ -329,15 +383,15 @@
     protected get routeParams() {
       return {
         q: this.searchQuery,
-        cn: this.filter.creatorName || undefined,
-        r: this.filter.repository.value || undefined,
+        cn: this.creatorName || undefined,
+        r: this.repository || undefined,
         py: this.filter.publicationYear.isActive
-          ? this.filter.publicationYear.range.map(n => n.toString()) || undefined
+          ? this.publicationYear.map(n => n.toString()) || undefined
           : undefined,
         dc: this.filter.dataCoverage.isActive
-          ? this.filter.dataCoverage.range.map(n => n.toString()) || undefined
+          ? this.dataCoverage.map(n => n.toString()) || undefined
           : undefined,
-        ct: this.filter.contentType.value || undefined,
+        ct: this.contentType || undefined,
         s: this.sort || undefined
       }
     }
@@ -377,6 +431,8 @@
         
         // set query parameters
         query.setVariables(this.queryParams)
+
+        console.log(this.routeParams)
 
         // set the parameters on the route
         this.$router.push({ 
@@ -459,9 +515,9 @@
      */
     protected onSliderChange(path: any, index: 0 | 1, value: number) {
       // Conditional to prevent change event triggers on focus change where the value has not changed.
-      if (path.range[index] !== value) {
+      if (path[index] !== value) {
         path.isActive = true
-        this.$set(path.range, index, value)
+        this.$set(path, index, value)
         this.onSearch()
       }
     }
@@ -499,27 +555,31 @@
       // SEARCH QUERY
       this.searchQuery = this.$route.query['q'] as string
       // CREATOR NAME
-      this.filter.creatorName = this.$route.query['cn'] as string || ''
+      this.creatorName = this.$route.query['cn'] as string || ''
       // REPOSITORY
-      this.filter.repository.value = this.$route.query['r'] as string || ''
+      this.repository = this.$route.query['r'] as string || ''
       // CONTENT TYPE
-      this.filter.contentType.value = this.$route.query['ct'] as string[] || []
+      this.contentType = this.$route.query['ct'] as string[] || []
+
+      // For the fields below we add a fallback to persistent state
+      // ------------------------
+
       // PUBLICATION YEAR
       if (this.$route.query['py']) {
         this.filter.publicationYear.isActive = true
-        this.filter.publicationYear.range =
+        this.publicationYear =
           (this.$route.query['py'] as [string, string])?.map(n => +n) as [number, number]
-          || initialRange
+          || this.publicationYear 
       }
       // DATA COVERAGE
       if (this.$route.query['dc']) {
         this.filter.dataCoverage.isActive = true
-        this.filter.dataCoverage.range =
+        this.dataCoverage =
           (this.$route.query['dc'] as [string, string])?.map(n => +n) as [number, number]
-          || initialRange
+          || this.dataCoverage
       }
       // SORT
-      this.sort = this.$route.query['s'] as "name" | "dateCreated" || null
+      this.sort = this.$route.query['s'] as "name" | "dateCreated" || this.sort
     }
   }
 </script>

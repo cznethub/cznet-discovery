@@ -12,3 +12,7 @@ export const sameRouteNavigationErrorHandler = (e) => {
     console.error(e)
   }
 }
+
+export const MAX_YEAR = (new Date()).getFullYear()
+export const MIN_YEAR = 1900
+export const INITIAL_RANGE: [number, number] = [MIN_YEAR, MAX_YEAR]
