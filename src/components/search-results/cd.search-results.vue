@@ -209,7 +209,7 @@
             </div>
           </template>
         </div>
-        <div id="sensor"></div>
+        <div v-if="results.length" v-intersect="{ handler: onIntersect, options: { threshold: [0, 0.5, 1.0] } }"></div>
         <div v-if="isFetchingMore" class="text-subtitle-2 text--secondary text-center">Loading more results...</div>
         <div v-if="results.length && !hasMore" class="text-subtitle-2 text--secondary text-center">End of results.</div>
       </v-container>
@@ -224,7 +224,6 @@
   import SearchResults from '@/models/search-results.model'
   import CdSearch from '@/components/search/cd.search.vue'
   import gql from 'graphql-tag'
-  import scrollMonitor from 'scrollmonitor'
 
   const Search = require(`@/graphql/${ SEARCH_QUERY }`)
 
@@ -240,6 +239,7 @@
     }
   })
   export default class CdSearchResults extends Vue {
+    protected isIntersecting = false
     protected searchQuery = ''
     protected pageNumber = 1
     protected pageSize = 15
@@ -407,15 +407,11 @@
         this.onSearch()
       }
     }
-
-    mounted () {
-      const el = document.getElementById('sensor') as HTMLElement
-      const elementWatcher = scrollMonitor.create(el)
-      elementWatcher.enterViewport(() => {
-        if (this.results.length && this.hasMore) {
-          this.fetchMore()
-        }
-      }, false)
+    protected onIntersect(entries, observer) {
+      this.isIntersecting = entries[0].intersectionRatio >= 0.5
+      if (this.isIntersecting && this.results.length && this.hasMore && !this.isSearching && !this.isFetchingMore) {
+        this.fetchMore()
+      }
     }
 
     @Watch('sort')
