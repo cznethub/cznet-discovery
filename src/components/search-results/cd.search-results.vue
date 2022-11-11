@@ -14,7 +14,7 @@
           />
           <v-range-slider
             v-model="publicationYear"
-            @change="onSliderControlChange(publicationYear)"
+            @change="onSliderControlChange('publicationYear')"
             :class="{ 'grayed-out': !(filter.publicationYear.isActive) }"
             :min="filter.publicationYear.min"
             :max="filter.publicationYear.max"
@@ -48,7 +48,7 @@
           />
           <v-range-slider
             v-model="dataCoverage"
-            @change="onSliderControlChange(dataCoverage)"
+            @change="onSliderControlChange('dataCoverage')"
             :class="{ 'grayed-out': !(filter.dataCoverage.isActive) }"
             :min="filter.dataCoverage.min"
             :max="filter.dataCoverage.max"
@@ -515,14 +515,14 @@
     protected onSliderChange(path: string, index: 0 | 1, value: number) {
       // Conditional to prevent change event triggers on focus change where the value has not changed.
       if (this[path][index] !== value) {
-        this.filter[path].isActive = true
+        this.$set(this.filter[path], 'isActive', true)
         this.$set(this[path], index, value)
         this.onSearch()
       }
     }
 
     protected onSliderControlChange(path: any) {
-      path.isActive = true
+      this.$set(this.filter[path], 'isActive', true)
       this.onSearch()
     }
 
