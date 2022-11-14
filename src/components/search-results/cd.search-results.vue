@@ -1,6 +1,6 @@
 <template>
   <v-container class="cd-search-results text-body-1">
-    <div class="d-flex">
+    <div class="d-flex justify-content">
       <v-container class="sidebar flex-shrink-0">
         <div class="text-subtitle-2 mb-6">Filter by:</div>
         <!-- PUBLICATION YEAR -->
@@ -119,100 +119,114 @@
           />
         </div>
       </v-container>
-      
-      <v-container class="results-content">
-        <cd-search v-model="searchQuery" @input="onSearch" />
-        <div class="my-6 d-lg-flex flex-row justify-space-between gap-1 d-table">
-          <!-- <div class="d-table-row d-lg-flex align-center flex-row">
-            <small class="d-table-cell text-right text-lg-left pr-2 py-2" style="white-space: nowrap">View mode:</small>
-            <v-btn-toggle class="d-table-cell" v-model="view" dense mandatory>
-              <v-btn small><v-icon small>mdi-view-list-outline</v-icon></v-btn>
-              <v-btn small><v-icon small>mdi-map</v-icon></v-btn>
-            </v-btn-toggle>
-          </div> -->
-          <div class="d-table-row d-lg-flex align-center flex-row">
-            <small class="d-table-cell text-right text-lg-left pr-2" style="white-space: nowrap">Sort results by:</small>
-            <v-btn-toggle
-              class="d-table-cell"
-              v-model="sort"
-              dense
-            >
-              <v-btn small value="dateCreated">Date</v-btn>
-              <v-btn small value="name">Title</v-btn>
-            </v-btn-toggle>
+
+      <div class="results-content-wrapper">
+        <v-container class="results-content">
+          <cd-search v-model="searchQuery" @input="onSearch" />
+          <div class="my-6 d-lg-flex flex-row justify-space-between gap-1 d-table">
+            <!-- <div class="d-table-row d-lg-flex align-center flex-row">
+              <small class="d-table-cell text-right text-lg-left pr-2 py-2" style="white-space: nowrap">View mode:</small>
+              <v-btn-toggle class="d-table-cell" v-model="view" dense mandatory>
+                <v-btn small><v-icon small>mdi-view-list-outline</v-icon></v-btn>
+                <v-btn small><v-icon small>mdi-map</v-icon></v-btn>
+              </v-btn-toggle>
+            </div> -->
+            <div class="d-table-row d-lg-flex align-center flex-row">
+              <small class="d-table-cell text-right text-lg-left pr-2" style="white-space: nowrap">Sort results by:</small>
+              <v-btn-toggle
+                class="d-table-cell"
+                v-model="sort"
+                dense
+              >
+                <v-btn small value="dateCreated">Date</v-btn>
+                <v-btn small value="name">Title</v-btn>
+              </v-btn-toggle>
+            </div>
           </div>
-        </div>
-        <div class="results-container mb-12">
-          <template v-if="isSearching">
-            <div v-for="index in 4" :key="index" class="mb-16">
-              <div class="d-flex">
-                <div class="flex-grow-1">
+          <div class="results-container mb-12">
+            <template v-if="isSearching">
+              <div v-for="index in 4" :key="index" class="mb-16">
+                <div class="d-flex">
+                  <div class="flex-grow-1">
+                    <v-skeleton-loader
+                      type="heading"
+                    />
+                    <v-skeleton-loader
+                      class="mt-2"
+                      max-width="180"
+                      type="text"
+                    />
+                    <v-skeleton-loader
+                      max-width="100"
+                      type="text"
+                    />
+                  </div>
                   <v-skeleton-loader
-                    type="heading"
+                    width="100"
+                    max-height="50"
+                    type="image"
                   />
+                </div>
+                <v-skeleton-loader
+                  class="my-2"
+                  type="paragraph"
+                />
+                <div class="d-flex align-center my-2 gap-1">
                   <v-skeleton-loader
-                    class="mt-2"
-                    max-width="180"
+                    width="90"
                     type="text"
                   />
                   <v-skeleton-loader
-                    max-width="100"
+                    width="90"
+                    type="text"
+                  />
+                  <v-skeleton-loader
+                    width="90"
                     type="text"
                   />
                 </div>
                 <v-skeleton-loader
-                  width="100"
-                  max-height="50"
-                  type="image"
+                  type="button"
                 />
               </div>
-              <v-skeleton-loader
-                class="my-2"
-                type="paragraph"
-              />
-              <div class="d-flex align-center my-2 gap-1">
-                <v-skeleton-loader
-                  width="90"
-                  type="text"
-                />
-                <v-skeleton-loader
-                  width="90"
-                  type="text"
-                />
-                <v-skeleton-loader
-                  width="90"
-                  type="text"
-                />
+            </template>
+            <template v-else>
+              <div v-if="!results.length" class="text-body-2 text--secondary text-center mt-8">
+                <div>No results found.</div>
               </div>
-              <v-skeleton-loader
-                type="button"
-              />
-            </div>
-          </template>
-          <template v-else>
-            <div v-if="!results.length" class="text-body-2 text--secondary text-center mt-8">
-              <div>No results found.</div>
-            </div>
-            <div v-for="result of results" class="mb-16 text-body-2" :key="result._id">
-              <a class="result-title text-body-1 text-decoration-none"
-                :href="result.url"
-                v-html="getResultFieldHighlightedHtml(result, 'name')"
-              ></a>
-              <div class="my-1">{{ getResultAuthors(result) }}</div>
-              <div class="my-1">{{ getResultCreationDate(result) }}</div>
-              <div class="my-1" v-if="result.datePublished">Publication Date: {{ getResultPublicationDate(result) }}</div>
-              <p class="mt-4" v-html="getResultFieldHighlightedHtml(result, 'description')"></p>
-              <a class="mb-4 d-block" :href="result.url">{{ result.url }}</a>
-              <div class="mb-2"><strong>Keywords: </strong><span v-html="getResultFieldHighlightedHtml(result, 'keywords')"></span></div>
-              <div class="mb-2" v-if="result.funding"><strong>Funded by: </strong>{{ getResultFunding(result) }}</div>
-              <div class="mb-2"><strong>License: </strong>{{ result.license.text }}</div>
-            </div>
-          </template>
-        </div>
-        <div v-if="results.length" v-intersect="{ handler: onIntersect, options: { threshold: [0, 0.5, 1.0] } }"></div>
-        <div v-if="isFetchingMore" class="text-subtitle-2 text--secondary text-center">Loading more results...</div>
-        <div v-if="results.length && !hasMore" class="text-subtitle-2 text--secondary text-center">End of results.</div>
-      </v-container>
+              <div v-for="result of results" class="mb-16 text-body-2" :key="result._id">
+                <a class="result-title text-body-1 text-decoration-none"
+                  :href="result.url"
+                  v-html="getResultFieldHighlightedHtml(result, 'name')"
+                ></a>
+                <div class="my-1">{{ getResultAuthors(result) }}</div>
+                <div class="my-1">{{ getResultCreationDate(result) }}</div>
+                <div class="my-1" v-if="result.datePublished">Publication Date: {{ getResultPublicationDate(result) }}</div>
+                <p class="mt-4" v-html="getResultFieldHighlightedHtml(result, 'description')"></p>
+
+                <div class="d-flex gap-1 justify-space-between flex-wrap">
+                  <div style="flex-basis: 30rem; min-width: 30rem;">
+                    <a class="mb-4 d-block" :href="result.url">{{ result.url }}</a>
+                    <div class="mb-2"><strong>Keywords: </strong><span v-html="getResultFieldHighlightedHtml(result, 'keywords')"></span></div>
+                    <div class="mb-2" v-if="result.funding"><strong>Funded by: </strong>{{ getResultFunding(result) }}</div>
+                    <div class="mb-2" v-if="result.license.text"><strong>License: </strong>{{ result.license.text }}</div>
+                  </div>
+
+                  <div v-if="result.spatialCoverage" class="map-container" :id="`map-${ result._id}`">
+                    <cd-spatial-coverage-map
+                      :loader="loader"
+                      :loader-options="options"
+                    />
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+          <div v-if="results.length" v-intersect="{ handler: onIntersect, options: { threshold: [0, 0.5, 1.0] } }"></div>
+          <div v-if="isFetchingMore" class="text-subtitle-2 text--secondary text-center">Loading more results...</div>
+          <div v-if="results.length && !hasMore" class="text-subtitle-2 text--secondary text-center">End of results.</div>
+        </v-container>
+      </div>
     </div>
   </v-container>
 </template>
@@ -221,15 +235,20 @@
   import { Component, Vue, Watch } from 'vue-property-decorator'
   import { SEARCH_RESOLVER, SEARCH_QUERY, MIN_YEAR, MAX_YEAR } from '@/constants'
   import { sameRouteNavigationErrorHandler } from '@/constants'
-  import SearchResults from '@/models/search-results.model'
+  import { Loader, LoaderOptions } from "google-maps"
+  import CdSpatialCoverageMap from '@/components/search-results/cd.spatial-coverage-map.vue'
   import CdSearch from '@/components/search/cd.search.vue'
+  import SearchResults from '@/models/search-results.model'
   import gql from 'graphql-tag'
+
+  const options: LoaderOptions = { libraries: ["drawing"] }
+  const loader: Loader = new Loader(process.env.VUE_APP_GOOGLE_MAPS_API_KEY, options)
 
   const Search = require(`@/graphql/${ SEARCH_QUERY }`)
 
   @Component({
     name: 'cd-search-results',
-    components: { CdSearch },
+    components: { CdSearch, CdSpatialCoverageMap },
     apollo: {
       [SEARCH_RESOLVER]: {
         query: gql`${Search}`,
@@ -239,6 +258,8 @@
     }
   })
   export default class CdSearchResults extends Vue {
+    protected loader = loader
+    protected options = options
     protected isIntersecting = false
     protected searchQuery = ''
     protected pageNumber = 1
@@ -441,8 +462,8 @@
         
         const result = await query.refetch()
         this.hasMore = result.data?.[SEARCH_RESOLVER].length === this.pageSize
-        // console.log('refetch results: ')
-        // console.log(result)
+        console.log('refetch results: ')
+        console.log(result.data[SEARCH_RESOLVER])
       }
       catch(e) {
         console.log(e)
@@ -588,8 +609,14 @@
     width: 16rem;
   }
 
+  .results-content-wrapper {
+    flex: 1 1 auto;
+  }
+
   .results-content {
     min-width: 0; // https://stackoverflow.com/a/66689926/3288102
+    max-width: 70rem;
+    margin: unset;
   }
 
   .results-container {

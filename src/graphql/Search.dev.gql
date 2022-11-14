@@ -44,6 +44,14 @@ query Search(
       start
       end
     }
+    spatialCoverage {
+      geojson {
+        geometry {
+          coordinates
+          type
+        }
+      }
+    }
     license {
       text
     }
