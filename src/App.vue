@@ -10,7 +10,9 @@
           <v-btn color="primary"
             v-for="path of paths" :key="path.to" :to="path.to"
             :id="`navbar-nav-${path.label.replaceAll(/[\/\s]/g, ``)}`"
-            :elevation="0" active-class="accent">
+            :elevation="0" active-class="accent"
+            :class="path.isActive?.() ? 'accent' : ''"
+          >
             {{ path.label }}
           </v-btn>
         </v-card>
@@ -34,18 +36,14 @@
     <v-navigation-drawer class="mobile-nav-items" v-model="showMobileNavigation" temporary app>
       <v-list nav dense class="nav-items">
         <v-list-item-group class="text-body-1">
-          <v-list-item id="drawer-nav-home" @click="showMobileNavigation = false" to="/" active-class="is-active">
-            <v-icon class="mr-2">mdi-home</v-icon>
-            <span>Home</span>
-          </v-list-item>
-
           <v-list-item
             v-for="path of paths"
+            @click="showMobileNavigation = false"
             :id="`drawer-nav-${path.label.replaceAll(/[\/\s]/g, ``)}`"
             :key="path.to"
+            :class="path.isActive?.() ? 'accent' : ''"
             :to="path.to"
-            @click="showMobileNavigation = false"
-            active-class="is-active"
+            active-class="accent"
           >
             <v-icon class="mr-2">{{ path.icon }}</v-icon>
             <span >{{ path.label }}</span>
@@ -169,8 +167,8 @@ export default class App extends Vue {
   }
   protected snackbar: IToast & { isActive: boolean; isInfinite: boolean } = INITIAL_SNACKBAR
   protected dialog: IDialog & { isActive: boolean } = INITIAL_DIALOG
-  protected paths = [
-    { to: "/", label: "Discover Data", icon: "mdi-bookmark-multiple" },
+  protected paths: any[] = [
+    { to: "/", label: "Discover Data", icon: "mdi-bookmark-multiple", isActive: () => this.$route.name === 'search' },
     { to: "/contribute", label: "Contribute Data", icon: "mdi-book-plus" },
     { to: "/about", label: "About", icon: "mdi-help" },
     { to: "/contact", label: "Contact", icon: "mdi-book-open-blank-variant" },
