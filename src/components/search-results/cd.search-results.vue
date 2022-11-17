@@ -199,7 +199,7 @@
                   :href="result.url"
                   v-html="getResultFieldHighlightedHtml(result, 'name')"
                 ></a>
-                <div class="my-1">{{ getResultAuthors(result) }}</div>
+                <div class="my-1" v-html="getCreatorsHighlightedHtml(result)"></div>
                 <div class="my-1">{{ getResultCreationDate(result) }}</div>
                 <div class="my-1" v-if="result.datePublished">Publication Date: {{ getResultPublicationDate(result) }}</div>
                 <p class="mt-4" v-html="getResultFieldHighlightedHtml(result, 'description')"></p>
@@ -547,25 +547,51 @@
       this.onSearch()
     }
 
+    protected getCreatorsHighlightedHtml(result: Cznet) {
+      const div = document.createElement("DIV")
+      div.innerHTML = result.creator.List.map(c => c.name).join(', ')
+
+      let content = div.textContent || div.innerText || ''
+
+      if (result.highlights) {
+        let hits = result.highlights
+          .filter((highlight) => highlight.path === 'creator.@list.name')
+          .map(hit => hit.texts
+            .filter(t => t.type === 'hit')
+            .map(t => t.value)
+          )
+          .flat()
+
+        hits = [...new Set(hits)]
+        hits.map((hit) => {
+          content = content.replaceAll(hit, `<mark>${hit}</mark>`)
+        })
+      }
+
+      return content
+    }
+
     // TODO: turn this method into a filter
-    /** Applies highlights to a field and returns the new content as HTML */
-    protected getResultFieldHighlightedHtml(result: Schemaorg, path: string) {
+    /** Applies highlights to a string or string[] field and returns the new content as HTML */
+    protected getResultFieldHighlightedHtml(result: Cznet, path: string) {
       const div = document.createElement("DIV")
       div.innerHTML = Array.isArray(result[path]) ? result[path].join(', ') : result[path]
       let content = div.textContent || div.innerText || ""
 
-      let hits = result.highlights
-        .filter((highlight) => highlight.path === path)
-        .map(hit => hit.texts
-          .filter(t => t.type === 'hit')
-          .map(t => t.value)
-        )
-        .flat()
+      if (result.highlights) {
+        let hits = result.highlights
+          .filter((highlight) => highlight.path === path)
+          .map(hit => hit.texts
+            .filter(t => t.type === 'hit')
+            .map(t => t.value)
+          )
+          .flat()
 
-      hits = [...new Set(hits)]
-      hits.map((hit) => {
-        content = content.replaceAll(hit, `<mark>${hit}</mark>`)
-      })
+        hits = [...new Set(hits)]
+        hits.map((hit) => {
+          content = content.replaceAll(hit, `<mark>${hit}</mark>`)
+        })
+      }
 
       return content
     }

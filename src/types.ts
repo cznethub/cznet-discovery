@@ -1,52 +1,61 @@
-interface Schemaorg {
-  Context: SchemaorgContext
+interface Cznet {
+  // Context: CznetContext
   Id: string
   Type: string
   _id: string
-  // about: SchemaorgAbout
-  additionalType: string
-  // author: SchemaorgAuthor
+  // about: CznetAbout
+  additionalType: String
+  // author: CznetAuthor
   citation: string[]
-  creativeWorkStatus: string
-  // creator: SchemaorgCreator
+  creativeWorkStatus: String
+  creator: CznetCreator
   dateCreated: string
   dateModified: string
   datePublished: string
   description: string
-  // distribution: SchemaorgDistribution
-  // funder: SchemaorgFunder
-  // funding: [SchemaorgFunding]
-  highlights: [SchemaorgHighlight]
-  // identifier: [SchemaorgIdentifier]
-  inLanguage: String
-  // includedInDataCatalog: SchemaorgIncludedInDataCatalog
+  // distribution: CznetDistribution
+  // funder: CznetFunder
+  // funding: [CznetFunding]
+  highlights: CznetHighlight[]
+  // identifier: [CznetIdentifier]
+  inLanguage: string
+  // includedInDataCatalog: CznetIncludedInDataCatalog
   isAccessibleForFree: Boolean
   keywords: string[]
-  // license: SchemaorgLicense
+  // license: CznetLicense
   name: string
-  // provider: SchemaorgProvider
-  // publisher: SchemaorgPublisher
+  // provider: CznetProvider
+  // publisher: CznetPublisher
   sameAs: string
-  // spatialCoverage: SchemaorgSpatialCoverage
-  // subjectOf: SchemaorgSubjectOf
-  temporalCoverage: string
+  score: number
+  // spatialCoverage: CznetSpatialCoverage
+  // subjectOf: CznetSubjectOf
+  // temporalCoverage: CznetTemporalCoverage
   url: string
 }
 
-interface SchemaorgContext {
-  Vocab: string
-  datacite: string
-}
-
-interface SchemaorgHighlight {
+interface CznetHighlight {
   path: string
   score: number
-  texts: SchemaorgHighlightText[]
+  texts: CznetHighlightText[]
 }
 
-interface SchemaorgHighlightText {
+interface CznetHighlightText {
   type: string
   value: string
+}
+
+interface CznetCreator {
+  List: CznetCreatorList[]
+}
+
+interface CznetCreatorList {
+  Type: string
+  // address: CznetCreatorListAddress
+  // affiliation: CznetCreatorListAffiliation
+  email: String
+  name: String
+  url: String
 }
 
 interface ISearchFilter {
