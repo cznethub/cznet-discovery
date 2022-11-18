@@ -243,8 +243,8 @@
 
   const options: LoaderOptions = { libraries: ["drawing"] }
   const loader: Loader = new Loader(process.env.VUE_APP_GOOGLE_MAPS_API_KEY, options)
-
   const Search = require(`@/graphql/${ SEARCH_QUERY }`)
+
 
   @Component({
     name: 'cd-search-results',
@@ -254,7 +254,7 @@
         query: gql`${Search}`,
         variables: { term: ' ' },
         // errorPolicy: 'ignore'
-      },
+      }
     }
   })
   export default class CdSearchResults extends Vue {
@@ -362,6 +362,43 @@
       return this[SEARCH_RESOLVER] || []
     }
 
+    /** Typeahead query parameters */
+    protected get typeaheadParams() {
+      const queryParams: { [key:string]: any } = { 
+        pageSize: this.pageSize,
+        term: this.searchQuery
+      }
+
+      // PUBLICATION YEAR
+      if (this.filter.publicationYear.isActive) {
+        this.$set(queryParams, 'publishedStart', this.dataCoverage[0])
+        this.$set(queryParams, 'publishedEnd', this.dataCoverage[1])
+      }
+
+      // DATA COVERAGE
+      if (this.filter.dataCoverage.isActive) {
+        this.$set(queryParams, 'dataCoverageStart', this.dataCoverage[0])
+        this.$set(queryParams, 'dataCoverageEnd', this.dataCoverage[1])
+      }
+
+      // CREATOR NAME
+      if (this.creatorName) {
+        queryParams.creatorName = this.creatorName
+      }
+
+      // REPOSITORY
+      if (this.repository) {
+        queryParams.providerName = this.repository
+      }
+
+      // CONTENT TYPE
+      if (this.contentType.length) {
+        queryParams.contentType = this.contentType
+      }
+
+      return queryParams
+    }
+
     /** GraphQL query parameters */
     protected get queryParams() {
       const queryParams: { [key:string]: any } = { 
@@ -428,6 +465,7 @@
         this.onSearch()
       }
     }
+
     protected onIntersect(entries, observer) {
       this.isIntersecting = entries[0].intersectionRatio >= 0.5
       if (this.isIntersecting && this.results.length && this.hasMore && !this.isSearching && !this.isFetchingMore) {
@@ -444,7 +482,6 @@
       if (!this.searchQuery) {
         return
       }
-      this.pageNumber = 1
       this.hasMore = true
       this.isSearching = true
 
@@ -548,6 +585,9 @@
     }
 
     protected getCreatorsHighlightedHtml(result: Cznet) {
+      if (!result.creator) {
+        return ''
+      }
       const div = document.createElement("DIV")
       div.innerHTML = result.creator.List.map(c => c.name).join(', ')
 
