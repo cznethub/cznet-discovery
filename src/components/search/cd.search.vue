@@ -1,41 +1,43 @@
 <template>
-  
-<div>
-    <v-menu offset-y v-model="menu">
-      <template v-slot:activator="{ on }">
-        <v-text-field
-          ref="search"
-          @keydown.enter="onSearch"
-          v-model.trim.lazy="valueInternal"
-          class="cz-search"
-          prepend-inner-icon="mdi-magnify"
-          placeholder="Search the CZNet catalog"
-          rounded background-color="#FFF"
-          full-width hide-details
-          flat outlined
-          dense
-          clearable
-          v-on="on"
-        />
-      </template>
-      <v-list>
-        <v-list-item
-          v-for="hint of hints"
-          :key="hint"
-        >
-          <v-list-item-title>{{ hint }}</v-list-item-title>
-        </v-list-item>
-      </v-list>
+  <v-menu offset-y v-model="menu">
+    <template v-slot:activator="{ on }">
+      <v-text-field
+        ref="search"
+        @keydown.enter="onSearch"
+        v-model.trim.lazy="valueInternal"
+        class="cz-search"
+        prepend-inner-icon="mdi-magnify"
+        placeholder="Search the CZNet catalog"
+        rounded background-color="#FFF"
+        full-width hide-details
+        flat outlined
+        dense
+        clearable
+        @click:clear="onClear"
+        v-on="on"
+      />
+    </template>
+    <v-progress-linear
+      v-if="isFetchingHints"
+      indeterminate
+      absolute
+      color="yellow darken-2"
+    ></v-progress-linear>
+    <v-list>
+      <v-list-item
+        v-for="hint of hints"
+        :key="hint"
+      >
+        <v-list-item-title>{{ hint }}</v-list-item-title>
+      </v-list-item>
+    </v-list>
   </v-menu>
-</div>
-
 </template>
 
 <script lang="ts">
-  import { Component, Vue, Prop, Watch, Ref } from 'vue-property-decorator'
+  import { Component, Vue, Prop, Ref } from 'vue-property-decorator'
   import { sameRouteNavigationErrorHandler } from '@/constants'
   import { TYPEAHEAD_RESOLVER, TYPEAHEAD_QUERY } from '@/constants'
-
   import { fromEvent, from } from 'rxjs';
   import {
     debounceTime,
@@ -146,6 +148,10 @@
 
     protected onChange() {
       this.$emit('input', this.valueInternal)
+    }
+
+    protected onClear() {
+      this.hints = []
     }
   }
 </script>
