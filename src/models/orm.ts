@@ -1,4 +1,5 @@
 import VuexORM from '@vuex-orm/core'
+import SearchHistory from './search-history.model'
 import SearchResults from './search-results.model'
 
 /**
@@ -7,5 +8,6 @@ import SearchResults from './search-results.model'
  */
 const db = new VuexORM.Database()
 db.register(SearchResults)
+db.register(SearchHistory)
 
 export const orm = db

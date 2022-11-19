@@ -46,6 +46,7 @@
     switchMap
   } from 'rxjs/operators';
   import gql from 'graphql-tag'
+import SearchHistory from '@/models/search-history.model';
 
   const Typeahead = require(`@/graphql/${ TYPEAHEAD_QUERY }`)
   const typeaheadDebounceTime = 200
@@ -85,6 +86,13 @@
         .filter((v:string) => v !== this.valueInternal.toLowerCase())
       
       return [...new Set(hints)].slice(0, 10) as string[]
+    }
+
+    created() {
+      SearchHistory.log('test3')
+      console.log(SearchHistory.all())
+      console.log(SearchHistory.find('test3'))
+      console.log(SearchHistory.find('test4'))
     }
 
     async mounted() {
