@@ -36,30 +36,6 @@
           </v-card>
         </v-slide-item>
       </v-slide-group>
-
-      <v-expand-transition>
-        <v-sheet
-          v-if="selectedResult != null"
-          elevation="2"
-          style="max-width: 60rem;"
-          class="mb-16 text-body-2 text-left pa-4 mx-auto"
-        >
-          <a class="result-title text-body-1 text-decoration-none"
-            :href="selectedResult.url"
-          >{{ selectedResult.name}}</a>
-          <div class="my-1">{{ getResultAuthors(selectedResult) }}</div>
-          <div class="my-1">{{ getResultCreationDate(selectedResult) }}</div>
-          <div class="my-1" v-if="selectedResult.datePublished">Publication Date: {{ getResultPublicationDate(selectedResult) }}</div>
-          <p class="mt-4">{{ selectedResult.description }}</p>
-
-          <div class="d-flex gap-1 justify-space-between flex-wrap">
-              <a class="mb-4 d-block" :href="selectedResult.url">{{ selectedResult.url }}</a>
-              <div class="mb-2"><strong>Keywords: </strong>{{ selectedResult.url }}</div>
-              <div class="mb-2" v-if="selectedResult.funding"><strong>Funded by: </strong>{{ getResultFunding(selectedResult) }}</div>
-              <div class="mb-2" v-if="selectedResult.license.text"><strong>License: </strong>{{ selectedResult.license.text }}</div>
-          </div>
-        </v-sheet>
-      </v-expand-transition>
     </v-container>
 
     <v-divider></v-divider>
@@ -104,12 +80,6 @@
 
     protected get results() {
       return this[SEARCH_RESOLVER] || new Array(numFeatured).fill(null)
-    }
-
-    protected get selectedResult() {
-      if (this.selected !== null) {
-        return this.results[this.selected]
-      }
     }
 
     created() {

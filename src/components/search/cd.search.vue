@@ -43,13 +43,14 @@
     debounceTime,
     distinctUntilChanged,
     map,
-    switchMap
+    switchMap,
+    tap
   } from 'rxjs/operators';
   import gql from 'graphql-tag'
-import SearchHistory from '@/models/search-history.model';
+  import SearchHistory from '@/models/search-history.model';
 
   const Typeahead = require(`@/graphql/${ TYPEAHEAD_QUERY }`)
-  const typeaheadDebounceTime = 200
+  const typeaheadDebounceTime = 500
 
   @Component({
     name: 'cd-search',
@@ -101,24 +102,24 @@ import SearchHistory from '@/models/search-history.model';
       this.hints = !this.valueInternal ? [] : this.typeaheadHints
 
       // https://www.learnrxjs.io/learn-rxjs/recipes/type-ahead
-      fromEvent(this.searchInput.$el, 'keyup')
+      fromEvent(this.searchInput.$el, 'input')
         .pipe(
+          tap(() => { this.isFetchingHints = !!this.valueInternal }),
           debounceTime(typeaheadDebounceTime),
           map((e: any) => e.target.value),
           distinctUntilChanged(),
           switchMap(
             () => from(this.onTypeahead())
           )
-        )
-        .subscribe(this.handleTypeahead)
+        ).subscribe(this.handleTypeahead)
     }
 
     protected async onTypeahead() {
       if (!this.valueInternal) {
+        this.isFetchingHints = false
         this.hints = []
         return
       }
-      this.isFetchingHints = true
 
       try {
         const query = this.$apollo.queries[TYPEAHEAD_RESOLVER]
@@ -132,7 +133,6 @@ import SearchHistory from '@/models/search-history.model';
       catch(e) {
         console.log(e)
       }
-      this.isFetchingHints = false
     }
 
     protected handleTypeahead() {
@@ -142,6 +142,7 @@ import SearchHistory from '@/models/search-history.model';
       else {
         this.hints = this.typeaheadHints
         this.menu = true
+        this.isFetchingHints = false
       }
     }
 
