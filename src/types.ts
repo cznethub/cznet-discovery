@@ -76,5 +76,6 @@ interface ISearchFilter {
   repository: {
     options: string[],
     value: string
-  }
+  },
+  creatorName: string
 }

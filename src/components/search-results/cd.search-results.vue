@@ -72,8 +72,8 @@
         </div>
 
         <v-text-field
-          @change="creatorName = $event; onSearch()"
-          :value="creatorName"
+          @change="filter.creatorName = $event; onSearch()"
+          :value="filter.creatorName"
           label="Author / Creator name"
           class="mb-6"
           hide-details
@@ -95,7 +95,7 @@
 
         <v-select
           :items="filter.repository.options"
-          v-model="repository"
+          v-model="filter.repository.value"
           @change="onSearch"
           class="mb-6"
           clearable
@@ -110,7 +110,7 @@
           <v-checkbox
             v-for="(option, index) of filter.contentType.options"
             :key="index"
-            v-model="contentType"
+            v-model="filter.contentType.value"
             @change="onSearch"
             hide-details
             dense
@@ -267,6 +267,7 @@
     protected hasMore = true
     protected isSearching = false
     protected isFetchingMore = false
+    protected sort: 'name' | 'dateCreated' | null = null
     // protected view: 'list' | 'map' = 'list'
     protected filter: ISearchFilter = {
       publicationYear: { 
@@ -290,19 +291,20 @@
       repository: {
         options: ['HydroShare', 'EarthChem Library'],
         value: ''
-      }
+      },
+      creatorName: ''
     }
 
-    protected get sort() {
-      return SearchResults.$state.sort
-    }
+    // protected get sort() {
+    //   return SearchResults.$state.sort
+    // }
 
-    protected set sort(sort: 'name' | 'dateCreated' | null) {
-      // TODO: validate input
-      SearchResults.commit((state) => {
-        state.sort = sort
-      })
-    }
+    // protected set sort(sort: 'name' | 'dateCreated' | null) {
+    //   // TODO: validate input
+    //   SearchResults.commit((state) => {
+    //     state.sort = sort
+    //   })
+    // }
 
     protected get publicationYear() {
       return SearchResults.$state.publicationYear
@@ -326,37 +328,37 @@
       })
     }
 
-    protected get creatorName() {
-      return SearchResults.$state.creatorName
-    }
+    // protected get creatorName() {
+    //   return SearchResults.$state.creatorName
+    // }
 
-    protected set creatorName(name: string) {
-      SearchResults.commit((state) => {
-        state.creatorName = name
-      })
-    }
+    // protected set creatorName(name: string) {
+    //   SearchResults.commit((state) => {
+    //     state.creatorName = name
+    //   })
+    // }
 
-    protected get repository() {
-      return SearchResults.$state.repository
-    }
+    // protected get repository() {
+    //   return SearchResults.$state.repository
+    // }
 
-    protected set repository(repository: string) {
-      // TODO: validate input
-      SearchResults.commit((state) => {
-        state.repository = repository
-      })
-    }
+    // protected set repository(repository: string) {
+    //   // TODO: validate input
+    //   SearchResults.commit((state) => {
+    //     state.repository = repository
+    //   })
+    // }
 
-    protected get contentType() {
-      return SearchResults.$state.contentType
-    }
+    // protected get contentType() {
+    //   return SearchResults.$state.contentType
+    // }
 
-    protected set contentType(types: string[]) {
-      // TODO: validate input
-      SearchResults.commit((state) => {
-        state.contentType = types
-      })
-    }
+    // protected set contentType(types: string[]) {
+    //   // TODO: validate input
+    //   SearchResults.commit((state) => {
+    //     state.contentType = types
+    //   })
+    // }
 
     protected get results() {
       return this[SEARCH_RESOLVER] || []
@@ -382,18 +384,18 @@
       }
 
       // CREATOR NAME
-      if (this.creatorName) {
-        queryParams.creatorName = this.creatorName
+      if (this.filter.creatorName) {
+        queryParams.creatorName = this.filter.creatorName
       }
 
       // REPOSITORY
-      if (this.repository) {
-        queryParams.providerName = this.repository
+      if (this.filter.repository.value) {
+        queryParams.providerName = this.filter.repository.value
       }
 
       // CONTENT TYPE
-      if (this.contentType.length) {
-        queryParams.contentType = this.contentType
+      if (this.filter.contentType.value.length) {
+        queryParams.contentType = this.filter.contentType.value
       }
 
       return queryParams
@@ -420,18 +422,18 @@
       }
 
       // CREATOR NAME
-      if (this.creatorName) {
-        queryParams.creatorName = this.creatorName
+      if (this.filter.creatorName) {
+        queryParams.creatorName = this.filter.creatorName
       }
 
       // REPOSITORY
-      if (this.repository) {
-        queryParams.providerName = this.repository
+      if (this.filter.repository.value) {
+        queryParams.providerName = this.filter.repository.value
       }
 
       // CONTENT TYPE
-      if (this.contentType.length) {
-        queryParams.contentType = this.contentType
+      if (this.filter.contentType.value.length) {
+        queryParams.contentType = this.filter.contentType.value
       }
 
       // SORT BY
@@ -446,15 +448,15 @@
     protected get routeParams() {
       return {
         q: this.searchQuery,
-        cn: this.creatorName || undefined,
-        r: this.repository || undefined,
+        cn: this.filter.creatorName || undefined,
+        r: this.filter.repository.value || undefined,
         py: this.filter.publicationYear.isActive
           ? this.publicationYear.map(n => n.toString()) || undefined
           : undefined,
         dc: this.filter.dataCoverage.isActive
           ? this.dataCoverage.map(n => n.toString()) || undefined
           : undefined,
-        ct: this.contentType || undefined,
+        ct: this.filter.contentType.value || undefined,
         s: this.sort || undefined
       }
     }
@@ -641,14 +643,11 @@
       // SEARCH QUERY
       this.searchQuery = this.$route.query['q'] as string
       // CREATOR NAME
-      this.creatorName = this.$route.query['cn'] as string || ''
+      this.filter.creatorName = this.$route.query['cn'] as string || ''
       // REPOSITORY
-      this.repository = this.$route.query['r'] as string || ''
+      this.filter.repository.value = this.$route.query['r'] as string || ''
       // CONTENT TYPE
-      this.contentType = this.$route.query['ct'] as string[] || []
-
-      // For the fields below we add a fallback to persistent state
-      // ------------------------
+      this.filter.contentType.value = this.$route.query['ct'] as string[] || []
 
       // PUBLICATION YEAR
       if (this.$route.query['py']) {
@@ -665,7 +664,9 @@
           || this.dataCoverage
       }
       // SORT
-      this.sort = this.$route.query['s'] as "name" | "dateCreated" || this.sort
+      if (this.$route.query['s']) {
+        this.sort = this.$route.query['s'] as "name" | "dateCreated" || this.sort
+      }
     }
   }
 </script>

@@ -2,6 +2,8 @@
   <v-menu offset-y v-model="menu">
     <template v-slot:activator="{ on }">
       <v-text-field
+        @keyup.up="onHintHighlighted"
+        @keyup.down="onHintHighlighted"
         ref="search"
         @keydown.enter="onSearch"
         v-model.trim.lazy="valueInternal"
@@ -17,19 +19,24 @@
         v-on="on"
       />
     </template>
+    
     <v-progress-linear
       v-if="isFetchingHints"
       indeterminate
       absolute
       color="yellow darken-2"
-    ></v-progress-linear>
+    />
     <v-list>
-      <v-list-item
-        v-for="hint of hints"
-        :key="hint"
-      >
-        <v-list-item-title>{{ hint }}</v-list-item-title>
-      </v-list-item>
+      <v-list-item-group v-if="blink" @change="onHintSelected">
+        <v-list-item
+          v-for="hint of hints"
+          ref="hintElements"
+          :key="hint"
+          dense
+        >
+          <v-list-item-title>{{ hint }}</v-list-item-title>
+        </v-list-item>
+      </v-list-item-group>
     </v-list>
   </v-menu>
 </template>
@@ -67,11 +74,15 @@
     @Prop() value!: string
     @Prop({ default: () => ({}) }) params!: { [key:string]: any }
     @Ref('search') searchInput
+    @Ref('hintElements') hintElements
     
     protected valueInternal = ''
+    protected valueHighlighted = ''
+    protected previousValueInternal = ''
     protected hints: string[] = []  // used to reactively bind to template
     protected menu = false
     protected isFetchingHints = false
+    protected blink = true
 
     protected get typeaheadHints(): string[] {
       if (!this[TYPEAHEAD_RESOLVER] || !this.valueInternal) {
@@ -80,7 +91,8 @@
 
       const hints = this[TYPEAHEAD_RESOLVER]
         .map(h => h.highlights)
-        .flat().map(h => h.texts)
+        .flat()
+        .map(h => h.texts)
         .flat()
         .filter(t => t.type === 'hit')
         .map(t => t.value.toLowerCase())
@@ -91,14 +103,15 @@
 
     created() {
       SearchHistory.log('test3')
-      console.log(SearchHistory.all())
-      console.log(SearchHistory.find('test3'))
-      console.log(SearchHistory.find('test4'))
+      // console.log(SearchHistory.all())
+      // console.log(SearchHistory.find('test3'))
+      // console.log(SearchHistory.find('test4'))
     }
 
     async mounted() {
       this.valueInternal = this.value
-      await this.onTypeahead()
+      this.previousValueInternal = this.value
+      await this._onTypeahead()
       this.hints = !this.valueInternal ? [] : this.typeaheadHints
 
       // https://www.learnrxjs.io/learn-rxjs/recipes/type-ahead
@@ -109,12 +122,53 @@
           map((e: any) => e.target.value),
           distinctUntilChanged(),
           switchMap(
-            () => from(this.onTypeahead())
+            () => from(this._onTypeahead())
           )
-        ).subscribe(this.handleTypeahead)
+        ).subscribe(() => {
+          this._handleTypeahead()
+        })
     }
 
-    protected async onTypeahead() {
+    protected onSearch() {
+      this._onChange()
+      if (this.valueInternal && this.$route.name !== 'search') {
+        this.$router
+          .push({ name: 'search', query: { q: this.valueInternal } })
+          .catch(sameRouteNavigationErrorHandler)
+      }
+    }
+
+    protected onHintHighlighted(event: any) {
+      const hintIndex = this.hintElements.findIndex(e => e.$el.classList.contains('v-list-item--highlighted'))
+
+      // TODO: detect crossover and restore previous value
+      // if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      //   if (hintIndex === this.hintElements.length - 1) {
+      //     // Crossed over
+      //     this.valueInternal = this.previousValueInternal
+      //     this.menu = false
+      //   }
+      // }
+      this.valueHighlighted = this.hints[hintIndex]
+      this.valueInternal = this.valueHighlighted
+    }
+
+    protected async onHintSelected(seletedIndex: number) {
+      if (seletedIndex !== undefined) {
+        this.valueInternal = this.hints[seletedIndex]
+        this.previousValueInternal = this.valueInternal
+        this.isFetchingHints = !!this.valueInternal
+        this.onSearch()
+        await this._onTypeahead()
+        this._handleTypeahead(false)
+      }
+    }
+
+    protected onClear() {
+      this.hints = []
+    }
+
+    private async _onTypeahead() {
       if (!this.valueInternal) {
         this.isFetchingHints = false
         this.hints = []
@@ -125,8 +179,8 @@
         const query = this.$apollo.queries[TYPEAHEAD_RESOLVER]
         // set query parameters
         query.setVariables({
+          ...this.params,
           term: this.valueInternal,
-          ...this.params
         })
         await query.refetch()
       }
@@ -135,32 +189,29 @@
       }
     }
 
-    protected handleTypeahead() {
+    private _handleTypeahead(bringUpHintsMenu = true) {
       if (!this.valueInternal) {
         this.hints = []
       }
       else {
+        // Buetify doesn't handle well reasigning list items array!
         this.hints = this.typeaheadHints
-        this.menu = true
+
+        // Reinstantiate component to reset state.
+        this.blink = false
+        this.$nextTick(() => {
+          this.blink = true
+        })
+
+        if (bringUpHintsMenu) {
+          this.menu = true
+        }
         this.isFetchingHints = false
       }
     }
 
-    protected onSearch() {
-      this.onChange()
-      if (this.valueInternal && this.$route.name !== 'search') {
-        this.$router
-          .push({ name: 'search', query: { q: this.valueInternal } })
-          .catch(sameRouteNavigationErrorHandler)
-      }
-    }
-
-    protected onChange() {
+    private _onChange() {
       this.$emit('input', this.valueInternal)
-    }
-
-    protected onClear() {
-      this.hints = []
     }
   }
 </script>
