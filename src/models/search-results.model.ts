@@ -33,4 +33,8 @@ export default class SearchResults extends Model {
       contentType: []
     }
   }
+
+  print() {
+    console.log(this)
+  }
 }

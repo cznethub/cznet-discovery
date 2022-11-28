@@ -96,8 +96,6 @@
         })
         
         const result = await query.refetch()
-        console.log('results: ')
-        console.log(result.data[SEARCH_RESOLVER])
       }
       catch(e) {
         console.log(e)

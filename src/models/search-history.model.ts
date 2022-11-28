@@ -3,11 +3,16 @@ import { Model } from '@vuex-orm/core'
 export interface ISearchHistoryState {
 }
 
-export default class SearchHistory extends Model {
+export interface ISearch {
+  key: string
+  date: number
+}
+
+export default class SearchHistory extends Model implements ISearch {
   static entity = 'search-history'
   static primaryKey = 'key'
   public readonly key!: string
-  public readonly date!: Date
+  public readonly date!: number
   
   static fields () {
     return {

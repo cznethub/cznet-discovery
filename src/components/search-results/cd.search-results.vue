@@ -109,14 +109,18 @@
           <div class="text-body-2">Content type</div>
           <v-checkbox
             v-for="(option, index) of filter.contentType.options"
-            :key="index"
             v-model="filter.contentType.value"
             @change="onSearch"
-            hide-details
-            dense
+            :key="index"
             :label="option"
             :value="option"
+            hide-details
+            dense
           />
+        </div>
+
+        <div class="text-center  mt-8">
+          <v-btn @click="clearFilters">Clear Filters</v-btn>
         </div>
       </v-container>
 
@@ -145,6 +149,7 @@
           </div>
           <div class="results-container mb-12">
             <template v-if="isSearching">
+              <!-- TODO: refactor into a component -->
               <div v-for="index in 4" :key="index" class="mb-16">
                 <div class="d-flex">
                   <div class="flex-grow-1">
@@ -502,7 +507,7 @@
         const result = await query.refetch()
         this.hasMore = result.data?.[SEARCH_RESOLVER].length === this.pageSize
         console.log('refetch results: ')
-        console.log(result.data[SEARCH_RESOLVER])
+        console.log(result.data[SEARCH_RESOLVER].map(r => r.highlights))
       }
       catch(e) {
         console.log(e)
@@ -636,6 +641,15 @@
       }
 
       return content
+    }
+
+    protected clearFilters() {
+      this.filter.publicationYear.isActive = false
+      this.filter.dataCoverage.isActive = false
+      this.filter.contentType.value = []
+      this.filter.repository.value = ''
+      this.filter.creatorName = ''
+      this.onSearch()
     }
 
     /** Load route query parameters into component values. */

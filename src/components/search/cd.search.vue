@@ -2,9 +2,9 @@
   <v-menu offset-y v-model="menu">
     <template v-slot:activator="{ on }">
       <v-text-field
-        @keyup.up="onHintHighlighted"
-        @keyup.down="onHintHighlighted"
         ref="search"
+        @keyup.up="onHintHighlighted('up')"
+        @keyup.down="onHintHighlighted('down')"
         @keydown.enter="onSearch"
         v-model.trim.lazy="valueInternal"
         class="cz-search"
@@ -27,12 +27,12 @@
       color="yellow darken-2"
     />
     <v-list>
-      <v-list-item-group v-if="blink" @change="onHintSelected">
+      <v-list-item-group v-if="showList" ref="hintsGroup">
         <v-list-item
-          v-for="hint of hints"
+          v-for="(hint, index) of hints"
           ref="hintElements"
-          :key="hint"
-          dense
+          :key="index"
+          @click="onHintSelected($event, hint)"
         >
           <v-list-item-title>{{ hint }}</v-list-item-title>
         </v-list-item>
@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts">
-  import { Component, Vue, Prop, Ref } from 'vue-property-decorator'
+  import { Component, Vue, Prop, Ref, Watch } from 'vue-property-decorator'
   import { sameRouteNavigationErrorHandler } from '@/constants'
   import { TYPEAHEAD_RESOLVER, TYPEAHEAD_QUERY } from '@/constants'
   import { fromEvent, from } from 'rxjs';
@@ -75,6 +75,7 @@
     @Prop({ default: () => ({}) }) params!: { [key:string]: any }
     @Ref('search') searchInput
     @Ref('hintElements') hintElements
+    @Ref('hintsGroup') hintsGroup
     
     protected valueInternal = ''
     protected valueHighlighted = ''
@@ -82,23 +83,36 @@
     protected hints: string[] = []  // used to reactively bind to template
     protected menu = false
     protected isFetchingHints = false
-    protected blink = true
+    protected showList = true
+    protected detectCrossover = false
 
     protected get typeaheadHints(): string[] {
       if (!this[TYPEAHEAD_RESOLVER] || !this.valueInternal) {
         return []
       }
 
+      const minCharacters = 3
       const hints = this[TYPEAHEAD_RESOLVER]
         .map(h => h.highlights)
         .flat()
         .map(h => h.texts)
         .flat()
-        .filter(t => t.type === 'hit')
+        .filter(t => t.type === 'hit' && t.value.length > minCharacters)
         .map(t => t.value.toLowerCase())
         .filter((v:string) => v !== this.valueInternal.toLowerCase())
       
       return [...new Set(hints)].slice(0, 10) as string[]
+    }
+
+    // Buetify doesn't handle well reasigning list items array
+    @Watch('hints', { deep: true })
+    protected onHintsChanged() {
+      // Reinstantiate component to reset state.
+      this.showList = false
+      this.$nextTick(() => {
+        this.showList = true
+      })
+      this.detectCrossover = false
     }
 
     created() {
@@ -131,6 +145,7 @@
 
     protected onSearch() {
       this._onChange()
+      this.previousValueInternal = this.valueInternal
       if (this.valueInternal && this.$route.name !== 'search') {
         this.$router
           .push({ name: 'search', query: { q: this.valueInternal } })
@@ -138,25 +153,40 @@
       }
     }
 
-    protected onHintHighlighted(event: any) {
+    protected onHintHighlighted(direction: 'up' | 'down') {
       const hintIndex = this.hintElements.findIndex(e => e.$el.classList.contains('v-list-item--highlighted'))
 
-      // TODO: detect crossover and restore previous value
-      // if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-      //   if (hintIndex === this.hintElements.length - 1) {
-      //     // Crossed over
-      //     this.valueInternal = this.previousValueInternal
-      //     this.menu = false
-      //   }
-      // }
-      this.valueHighlighted = this.hints[hintIndex]
-      this.valueInternal = this.valueHighlighted
+      if (this.detectCrossover) {
+        const hasCrossedOver =
+          direction === 'up' && hintIndex === this.hints.length - 1 ||
+          direction === 'down' && hintIndex === 0
+
+        if (hasCrossedOver) {
+          this.valueInternal = this.previousValueInternal
+          this.menu = false
+          this.detectCrossover = false
+          return
+        }
+      }
+      else {
+        this.detectCrossover = true
+      }
+
+      if (hintIndex >= 0) {
+        this.valueHighlighted = this.hints[hintIndex]
+        this.valueInternal = this.valueHighlighted
+      }
+      else {
+        // this.valueInternal = this.previousValueInternal
+        // this.valueInternal = this.valueInput
+      }
     }
 
-    protected async onHintSelected(seletedIndex: number) {
-      if (seletedIndex !== undefined) {
-        this.valueInternal = this.hints[seletedIndex]
-        this.previousValueInternal = this.valueInternal
+    protected async onHintSelected(event: PointerEvent, hint: string) {
+      // We only act on mouse events. The enter key is already captured in the input.
+      // The value is already populated by onHintHighlighted.
+      if (event.type === 'click' && ['mouse', 'pen', 'touch'].includes(event.pointerType)) {
+        this.valueInternal = hint
         this.isFetchingHints = !!this.valueInternal
         this.onSearch()
         await this._onTypeahead()
@@ -183,6 +213,7 @@
           term: this.valueInternal,
         })
         await query.refetch()
+        this.isFetchingHints = false
       }
       catch(e) {
         console.log(e)
@@ -194,14 +225,7 @@
         this.hints = []
       }
       else {
-        // Buetify doesn't handle well reasigning list items array!
         this.hints = this.typeaheadHints
-
-        // Reinstantiate component to reset state.
-        this.blink = false
-        this.$nextTick(() => {
-          this.blink = true
-        })
 
         if (bringUpHintsMenu) {
           this.menu = true
