@@ -3,7 +3,9 @@
     <template v-slot:activator="{ on }">
       <v-text-field
         ref="search"
-        @keyup.up="onHintHighlighted('up')"
+        @keydown.up="onDetectCrossover('up')"
+        @keydown.down="onDetectCrossover('down')"
+        @keyup.up="onHintHighlighted('down')"
         @keyup.down="onHintHighlighted('down')"
         @keydown.enter="onSearch"
         v-model.trim.lazy="valueInternal"
@@ -105,14 +107,14 @@
     }
 
     // Buetify doesn't handle well reasigning list items array
-    @Watch('hints', { deep: true })
+    @Watch('hints', { deep: true, immediate: true })
     protected onHintsChanged() {
       // Reinstantiate component to reset state.
       this.showList = false
+      this.detectCrossover = false
       this.$nextTick(() => {
         this.showList = true
       })
-      this.detectCrossover = false
     }
 
     created() {
@@ -153,13 +155,15 @@
       }
     }
 
-    protected onHintHighlighted(direction: 'up' | 'down') {
+    /** Detects when the user crosses over from the beginning or end of the list items.
+     * Then restores original value, hide the menu, and focus the input
+     */
+    protected onDetectCrossover(direction: 'up' | 'down') {
       const hintIndex = this.hintElements.findIndex(e => e.$el.classList.contains('v-list-item--highlighted'))
-
       if (this.detectCrossover) {
         const hasCrossedOver =
-          direction === 'up' && hintIndex === this.hints.length - 1 ||
-          direction === 'down' && hintIndex === 0
+          direction === 'down' && hintIndex === this.hints.length - 1 ||
+          direction === 'up' && hintIndex === 0
 
         if (hasCrossedOver) {
           this.valueInternal = this.previousValueInternal
@@ -171,6 +175,10 @@
       else {
         this.detectCrossover = true
       }
+    }
+
+    protected onHintHighlighted() {
+      const hintIndex = this.hintElements.findIndex(e => e.$el.classList.contains('v-list-item--highlighted'))
 
       if (hintIndex >= 0) {
         this.valueHighlighted = this.hints[hintIndex]
@@ -212,6 +220,7 @@
           ...this.params,
           term: this.valueInternal,
         })
+        this.previousValueInternal = this.valueInternal
         await query.refetch()
         this.isFetchingHints = false
       }
@@ -226,10 +235,7 @@
       }
       else {
         this.hints = this.typeaheadHints
-
-        if (bringUpHintsMenu) {
-          this.menu = true
-        }
+        this.menu = bringUpHintsMenu || this.menu
         this.isFetchingHints = false
       }
     }
