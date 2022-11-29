@@ -69,8 +69,8 @@
             :id="`drawer-nav-${path.label.replaceAll(/[\/\s]/g, ``)}`"
             :key="path.to"
             :class="path.isActive?.() ? 'accent' : ''"
-            :to="path.to"
-            active-class="accent"
+            v-bind="path.attrs"
+            active-class="accent white--text"
           >
             <v-icon class="mr-2">{{ path.icon }}</v-icon>
             <span>{{ path.label }}</span>
