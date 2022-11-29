@@ -28,15 +28,41 @@
       absolute
       color="yellow darken-2"
     />
-    <v-list>
+    
+    <v-list max-height="20rem">
       <v-list-item-group v-if="showList" ref="hintsGroup">
         <v-list-item
           v-for="(hint, index) of hints"
           ref="hintElements"
           :key="index"
+          dense
           @click="onHintSelected($event, hint)"
         >
-          <v-list-item-title>{{ hint }}</v-list-item-title>
+          <v-list-item-icon>
+            <v-icon dense v-if="hint.type === 'history'">mdi-history</v-icon>
+            <v-icon dense v-else>mdi-magnify</v-icon>
+          </v-list-item-icon>
+
+          <v-list-item-content>
+            <v-list-item-title :class="{'accent--text': hint.type === 'history'}" class="font-weight-regular">{{ hint.key }}</v-list-item-title>
+          </v-list-item-content>
+
+          <v-list-item-action class="ma-0 pa-0" v-if="hint.type === 'history'">
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  icon
+                  x-small
+                  v-bind="attrs"
+                  v-on="on"
+                  @click.stop="deleteHint(hint)"
+                >
+                  <v-icon>mdi-close</v-icon>
+                </v-btn>
+              </template>
+              <span>Forget</span>
+            </v-tooltip>
+          </v-list-item-action>
         </v-list-item>
       </v-list-item-group>
     </v-list>
@@ -80,30 +106,35 @@
     @Ref('hintsGroup') hintsGroup
     
     protected valueInternal = ''
-    protected valueHighlighted = ''
+    // protected valueHighlighted = ''
     protected previousValueInternal = ''
-    protected hints: string[] = []  // used to reactively bind to template
+    protected hints: IHint[] = []  // used to reactively bind to template
     protected menu = false
     protected isFetchingHints = false
     protected showList = true
     protected detectCrossover = false
 
-    protected get typeaheadHints(): string[] {
+    protected get typeaheadHints(): IHint[] {
       if (!this[TYPEAHEAD_RESOLVER] || !this.valueInternal) {
         return []
       }
 
+      const hintsFromHistory = SearchHistory.search(this.valueInternal)
+
       const minCharacters = 3
-      const hints = this[TYPEAHEAD_RESOLVER]
+      let hints = this[TYPEAHEAD_RESOLVER]
         .map(h => h.highlights)
         .flat()
         .map(h => h.texts)
         .flat()
         .filter(t => t.type === 'hit' && t.value.length > minCharacters)
         .map(t => t.value.toLowerCase())
-        .filter((v:string) => v !== this.valueInternal.toLowerCase())
-      
-      return [...new Set(hints)].slice(0, 10) as string[]
+        .filter((v:string) => v !== this.valueInternal.toLowerCase() && !hintsFromHistory.some(h => h.key === v))
+
+      hints = [...new Set(hints)].slice(0, 10) as string[]  // get unique ones
+      hints = hints.map(key => ({ type: 'typeahead', key } as IHint))
+
+      return [...hintsFromHistory, ...hints]
     }
 
     // Buetify doesn't handle well reasigning list items array
@@ -115,13 +146,6 @@
       this.$nextTick(() => {
         this.showList = true
       })
-    }
-
-    created() {
-      SearchHistory.log('test3')
-      // console.log(SearchHistory.all())
-      // console.log(SearchHistory.find('test3'))
-      // console.log(SearchHistory.find('test4'))
     }
 
     async mounted() {
@@ -181,8 +205,7 @@
       const hintIndex = this.hintElements.findIndex(e => e.$el.classList.contains('v-list-item--highlighted'))
 
       if (hintIndex >= 0) {
-        this.valueHighlighted = this.hints[hintIndex]
-        this.valueInternal = this.valueHighlighted
+        this.valueInternal = this.hints[hintIndex].key
       }
       else {
         // this.valueInternal = this.previousValueInternal
@@ -190,11 +213,11 @@
       }
     }
 
-    protected async onHintSelected(event: PointerEvent, hint: string) {
+    protected async onHintSelected(event: PointerEvent, hint: IHint) {
       // We only act on mouse events. The enter key is already captured in the input.
       // The value is already populated by onHintHighlighted.
       if (event.type === 'click' && ['mouse', 'pen', 'touch'].includes(event.pointerType)) {
-        this.valueInternal = hint
+        this.valueInternal = hint.key
         this.isFetchingHints = !!this.valueInternal
         this.onSearch()
         await this._onTypeahead()
@@ -204,6 +227,11 @@
 
     protected onClear() {
       this.hints = []
+    }
+
+    protected deleteHint(hint: IHint) {
+      SearchHistory.deleteHint(hint.key)
+      this.hints = this.typeaheadHints
     }
 
     private async _onTypeahead() {
@@ -253,5 +281,9 @@
 
   .search-container {
     max-width: 45rem;
+  }
+
+  .v-item-group {
+    background: #FFF;
   }
 </style>

@@ -245,6 +245,7 @@
   import CdSearch from '@/components/search/cd.search.vue'
   import SearchResults from '@/models/search-results.model'
   import gql from 'graphql-tag'
+import SearchHistory from '@/models/search-history.model'
 
   const options: LoaderOptions = { libraries: ["drawing"] }
   const loader: Loader = new Loader(process.env.VUE_APP_GOOGLE_MAPS_API_KEY, options)
@@ -503,7 +504,8 @@
           name: 'search',
           query: this.routeParams
         }).catch(sameRouteNavigationErrorHandler)
-        
+
+        SearchHistory.log(this.queryParams.term)
         const result = await query.refetch()
         this.hasMore = result.data?.[SEARCH_RESOLVER].length === this.pageSize
         console.log('refetch results: ')

@@ -58,6 +58,11 @@ interface CznetCreatorList {
   url: String
 }
 
+interface IHint { 
+  type: 'typeahead' | 'history', 
+  key: string 
+}
+
 interface ISearchFilter {
   publicationYear: { 
     min: number, 
