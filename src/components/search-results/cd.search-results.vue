@@ -1,6 +1,6 @@
 <template>
-  <v-container class="cd-search-results text-body-1">
-    <div class="d-flex justify-content">
+  <v-container class="cd-search-results text-body-1" :class="{'is-small': $vuetify.breakpoint.smAndDown }">
+    <div class="d-sm-block d-md-flex">
       <v-container class="sidebar flex-shrink-0">
         <div class="text-subtitle-2 mb-6">Filter by:</div>
         <!-- PUBLICATION YEAR -->
@@ -197,7 +197,8 @@
             </template>
             <template v-else>
               <div v-if="!results.length" class="text-body-2 text--secondary text-center mt-8">
-                <div>No results found.</div>
+                <div class="mb-8">No results found.</div>
+                <v-icon x-large>mdi-book-remove-multiple</v-icon>
               </div>
               <div v-for="result of results" class="mb-16 text-body-2" :key="result._id">
                 <a class="result-title text-body-1 text-decoration-none"
@@ -210,19 +211,19 @@
                 <p class="mt-4" v-html="getResultFieldHighlightedHtml(result, 'description')"></p>
 
                 <div class="d-flex gap-1 justify-space-between flex-wrap">
-                  <div style="flex-basis: 30rem; min-width: 30rem;">
+                  <div>
                     <a class="mb-4 d-block" :href="result.url">{{ result.url }}</a>
                     <div class="mb-2"><strong>Keywords: </strong><span v-html="getResultFieldHighlightedHtml(result, 'keywords')"></span></div>
                     <div class="mb-2" v-if="result.funding"><strong>Funded by: </strong>{{ getResultFunding(result) }}</div>
                     <div class="mb-2" v-if="result.license.text"><strong>License: </strong>{{ result.license.text }}</div>
                   </div>
 
-                  <div v-if="result.spatialCoverage" class="map-container" :id="`map-${ result._id}`">
+                  <!-- <div v-if="result.spatialCoverage" class="map-container" :id="`map-${ result._id}`">
                     <cd-spatial-coverage-map
                       :loader="loader"
                       :loader-options="options"
                     />
-                  </div>
+                  </div> -->
                 </div>
               </div>
             </template>
@@ -689,7 +690,13 @@ import SearchHistory from '@/models/search-history.model'
 
 <style lang="scss" scoped>
   .sidebar {
-    width: 16rem;
+    width: 20rem;
+  }
+
+  .cd-search-results.is-small {
+    .sidebar {
+      width: 100%;
+    }
   }
 
   .results-content-wrapper {

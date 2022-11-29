@@ -60,7 +60,7 @@
                   <v-icon>mdi-close</v-icon>
                 </v-btn>
               </template>
-              <span>Forget</span>
+              <span>Delete</span>
             </v-tooltip>
           </v-list-item-action>
         </v-list-item>

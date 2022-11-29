@@ -20,7 +20,7 @@
           <v-card
             :color="active ? 'primary lighten-4' : 'grey lighten-4'"
             class="ma-4 text-left"
-            width="350"
+            width="400"
             height="auto"
             @click="toggle"
           >
