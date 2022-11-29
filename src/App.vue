@@ -1,29 +1,51 @@
 <template>
   <v-app app>
-    <v-app-bar color="primary lighten-4" ref="appBar" id="app-bar" elevate-on-scroll fixed app>
+    <v-app-bar
+      color="primary lighten-4"
+      ref="appBar"
+      id="app-bar"
+      elevate-on-scroll
+      fixed
+      app
+    >
       <v-container class="d-flex align-end full-height pa-0 align-center">
         <router-link :to="{ path: `/` }" class="logo">
-          <img :src="require('@/assets/img/logo.png')" alt="home"/>
+          <img :src="require('@/assets/img/logo.png')" alt="home" />
         </router-link>
         <div class="spacer"></div>
-        <v-card class="nav-items has-space-right d-flex" :elevation="2" v-if="!$vuetify.breakpoint.mdAndDown">
-          <v-btn color="primary"
-            v-for="path of paths" :key="path.to" :to="path.to"
+        <v-card
+          class="nav-items has-space-right d-flex"
+          :elevation="2"
+          v-if="!$vuetify.breakpoint.mdAndDown"
+        >
+          <v-btn
+            color="primary"
+            v-for="path of paths"
+            :key="path.to"
+            v-bind="path.attrs"
             :id="`navbar-nav-${path.label.replaceAll(/[\/\s]/g, ``)}`"
-            :elevation="0" active-class="accent"
+            :elevation="0"
+            active-class="accent"
             :class="path.isActive?.() ? 'accent' : ''"
           >
             {{ path.label }}
           </v-btn>
         </v-card>
 
-        <v-app-bar-nav-icon @click.stop="showMobileNavigation = true" v-if="$vuetify.breakpoint.mdAndDown" />
+        <v-app-bar-nav-icon
+          @click.stop="showMobileNavigation = true"
+          v-if="$vuetify.breakpoint.mdAndDown"
+        />
       </v-container>
     </v-app-bar>
 
     <v-main app>
       <v-container id="main-container">
-        <v-sheet min-height="70vh" rounded :elevation="$route.meta.hideMainSheet ? 0 : 2">
+        <v-sheet
+          min-height="70vh"
+          rounded
+          :elevation="$route.meta.hideMainSheet ? 0 : 2"
+        >
           <router-view v-if="!isLoading" name="content" />
         </v-sheet>
       </v-container>
@@ -33,7 +55,12 @@
       <router-view name="footer" />
     </v-footer>
 
-    <v-navigation-drawer class="mobile-nav-items" v-model="showMobileNavigation" temporary app>
+    <v-navigation-drawer
+      class="mobile-nav-items"
+      v-model="showMobileNavigation"
+      temporary
+      app
+    >
       <v-list nav dense class="nav-items">
         <v-list-item-group class="text-body-1">
           <v-list-item
@@ -46,7 +73,7 @@
             active-class="accent"
           >
             <v-icon class="mr-2">{{ path.icon }}</v-icon>
-            <span >{{ path.label }}</span>
+            <span>{{ path.label }}</span>
           </v-list-item>
         </v-list-item-group>
       </v-list>
@@ -118,17 +145,23 @@
       </v-card>
     </v-dialog>
 
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css"
+      rel="stylesheet"
+    />
   </v-app>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator"
+import { Component, Vue } from "vue-property-decorator";
 // import { setupRouteGuards } from "./router"
-import { Subscription } from "rxjs"
-import { DEFAULT_TOAST_DURATION } from "./constants"
-import Notification, { IDialog, IToast } from "./models/notifications.model"
+import { Subscription } from "rxjs";
+import { DEFAULT_TOAST_DURATION } from "./constants";
+import Notification, { IDialog, IToast } from "./models/notifications.model";
 
 const INITIAL_DIALOG = {
   title: "",
@@ -138,54 +171,68 @@ const INITIAL_DIALOG = {
   isActive: false,
   onConfirm: () => {},
   onCancel: () => {},
-}
+};
 
-const INITIAL_SNACKBAR =  {
-  message: '',
+const INITIAL_SNACKBAR = {
+  message: "",
   duration: DEFAULT_TOAST_DURATION,
-  position: 'center' as ('center' | 'left' | undefined),
-  type: 'default' as ('default' | 'success' | 'error' | 'info'),
+  position: "center" as "center" | "left" | undefined,
+  type: "default" as "default" | "success" | "error" | "info",
   isActive: false,
   isInfinite: false,
   // isPersistent: false,
-}
+};
 
 @Component({
   name: "app",
-  components: {  },
+  components: {},
 })
 export default class App extends Vue {
-  protected isLoading = true
-  protected onToast!: Subscription
-  protected onOpenDialog!: Subscription
-  protected showMobileNavigation = false
+  protected isLoading = true;
+  protected onToast!: Subscription;
+  protected onOpenDialog!: Subscription;
+  protected showMobileNavigation = false;
   protected snackbarColors = {
-    success: { snackbar: 'primary', actionButton: 'primary darken-2' },
-    error: { snackbar: 'error darken-2', actionButton: 'error darken-3' },
-    info: { snackbar: 'primary', actionButton: 'primary darken-2' },
+    success: { snackbar: "primary", actionButton: "primary darken-2" },
+    error: { snackbar: "error darken-2", actionButton: "error darken-3" },
+    info: { snackbar: "primary", actionButton: "primary darken-2" },
     default: { snackbar: undefined, actionButton: undefined },
-  }
-  protected snackbar: IToast & { isActive: boolean; isInfinite: boolean } = INITIAL_SNACKBAR
-  protected dialog: IDialog & { isActive: boolean } = INITIAL_DIALOG
+  };
+  protected snackbar: IToast & { isActive: boolean; isInfinite: boolean } =
+    INITIAL_SNACKBAR;
+  protected dialog: IDialog & { isActive: boolean } = INITIAL_DIALOG;
   protected paths: any[] = [
-    { to: "/", label: "Discover Data", icon: "mdi-bookmark-multiple", isActive: () => this.$route.name === 'search' },
-    { to: "/contribute", label: "Contribute Data", icon: "mdi-book-plus" },
-    { to: "/about", label: "About", icon: "mdi-help" },
-    { to: "/contact", label: "Contact", icon: "mdi-book-open-blank-variant" },
-  ]
-  
+    {
+      attrs: { to: "/" },
+      label: "Discover Data",
+      icon: "mdi-bookmark-multiple",
+      isActive: () => this.$route.name === "search",
+    },
+    {
+      attrs: { href: "https://dsp.criticalzone.org/" },
+      label: "Contribute Data",
+      icon: "mdi-book-plus",
+    },
+    { attrs: { to: "/about" }, label: "About", icon: "mdi-help" },
+    {
+      attrs: { to: "/contact" },
+      label: "Contact",
+      icon: "mdi-book-open-blank-variant",
+    },
+  ];
+
   async created() {
-    document.title = "CZNet Discovery"
+    document.title = "CZNet Discovery";
 
     this.onToast = Notification.toast$.subscribe((toast: IToast) => {
-      this.snackbar = { ...this.snackbar, ...toast }
-      this.snackbar.isActive = true
-    })
+      this.snackbar = { ...this.snackbar, ...toast };
+      this.snackbar.isActive = true;
+    });
 
     this.onOpenDialog = Notification.dialog$.subscribe((dialog: IDialog) => {
-      this.dialog = { ...INITIAL_DIALOG, ...dialog }
-      this.dialog.isActive = true
-    })
+      this.dialog = { ...INITIAL_DIALOG, ...dialog };
+      this.dialog.isActive = true;
+    });
 
     // Guards are setup after checking authorization and loading access tokens
     // because they depend on user logged in status
@@ -196,8 +243,8 @@ export default class App extends Vue {
 
   beforeDestroy() {
     // Good practice
-    this.onToast.unsubscribe()
-    this.onOpenDialog.unsubscribe()
+    this.onToast.unsubscribe();
+    this.onOpenDialog.unsubscribe();
   }
 }
 </script>
