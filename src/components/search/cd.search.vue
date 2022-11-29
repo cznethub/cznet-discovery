@@ -171,6 +171,8 @@ export default class CdSearch extends Vue {
       .pipe(
         tap(() => {
           this.isFetchingHints = !!this.valueInternal;
+          // We update hints to immediately show hints from history
+          this.hints = !this.valueInternal ? [] : this.typeaheadHints;
         }),
         debounceTime(typeaheadDebounceTime),
         map((e: any) => e.target.value),
