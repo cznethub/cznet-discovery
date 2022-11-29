@@ -12,23 +12,26 @@
         class="cz-search"
         prepend-inner-icon="mdi-magnify"
         placeholder="Search the CZNet catalog"
-        rounded background-color="#FFF"
-        full-width hide-details
-        flat outlined
+        rounded
+        background-color="#FFF"
+        full-width
+        hide-details
+        flat
+        outlined
         dense
         clearable
         @click:clear="onClear"
         v-on="on"
       />
     </template>
-    
+
     <v-progress-linear
       v-if="isFetchingHints"
       indeterminate
       absolute
       color="yellow darken-2"
     />
-    
+
     <v-list max-height="20rem">
       <v-list-item-group v-if="showList" ref="hintsGroup">
         <v-list-item
@@ -44,7 +47,11 @@
           </v-list-item-icon>
 
           <v-list-item-content>
-            <v-list-item-title :class="{'accent--text': hint.type === 'history'}" class="font-weight-regular">{{ hint.key }}</v-list-item-title>
+            <v-list-item-title
+              :class="{ 'accent--text': hint.type === 'history' }"
+              class="font-weight-regular"
+              >{{ hint.key }}</v-list-item-title
+            >
           </v-list-item-content>
 
           <v-list-item-action class="ma-0 pa-0" v-if="hint.type === 'history'">
@@ -70,221 +77,229 @@
 </template>
 
 <script lang="ts">
-  import { Component, Vue, Prop, Ref, Watch } from 'vue-property-decorator'
-  import { sameRouteNavigationErrorHandler } from '@/constants'
-  import { TYPEAHEAD_RESOLVER, TYPEAHEAD_QUERY } from '@/constants'
-  import { fromEvent, from } from 'rxjs';
-  import {
-    debounceTime,
-    distinctUntilChanged,
-    map,
-    switchMap,
-    tap
-  } from 'rxjs/operators';
-  import gql from 'graphql-tag'
-  import SearchHistory from '@/models/search-history.model';
+import { Component, Vue, Prop, Ref, Watch } from "vue-property-decorator";
+import { sameRouteNavigationErrorHandler } from "@/constants";
+import { TYPEAHEAD_RESOLVER, TYPEAHEAD_QUERY } from "@/constants";
+import { fromEvent, from } from "rxjs";
+import {
+  debounceTime,
+  distinctUntilChanged,
+  map,
+  switchMap,
+  tap,
+} from "rxjs/operators";
+import gql from "graphql-tag";
+import SearchHistory from "@/models/search-history.model";
 
-  const Typeahead = require(`@/graphql/${ TYPEAHEAD_QUERY }`)
-  const typeaheadDebounceTime = 500
+const Typeahead = require(`@/graphql/${TYPEAHEAD_QUERY}`);
+const typeaheadDebounceTime = 500;
 
-  @Component({
-    name: 'cd-search',
-    components: { },
-    apollo: {
-      [TYPEAHEAD_RESOLVER]: {
-        query: gql`${Typeahead}`,
-        variables: { term: ' ' },
-        // errorPolicy: 'ignore'
-      },
-    }
-  })
-  export default class CdSearch extends Vue {
-    @Prop() value!: string
-    @Prop({ default: () => ({}) }) params!: { [key:string]: any }
-    @Ref('search') searchInput
-    @Ref('hintElements') hintElements
-    @Ref('hintsGroup') hintsGroup
-    
-    protected valueInternal = ''
-    // protected valueHighlighted = ''
-    protected previousValueInternal = ''
-    protected hints: IHint[] = []  // used to reactively bind to template
-    protected menu = false
-    protected isFetchingHints = false
-    protected showList = true
-    protected detectCrossover = false
+@Component({
+  name: "cd-search",
+  components: {},
+  apollo: {
+    [TYPEAHEAD_RESOLVER]: {
+      query: gql`
+        ${Typeahead}
+      `,
+      variables: { term: " " },
+      // errorPolicy: 'ignore'
+    },
+  },
+})
+export default class CdSearch extends Vue {
+  @Prop() value!: string;
+  @Prop({ default: () => ({}) }) params!: { [key: string]: any };
+  @Ref("search") searchInput;
+  @Ref("hintElements") hintElements;
+  @Ref("hintsGroup") hintsGroup;
 
-    protected get typeaheadHints(): IHint[] {
-      if (!this[TYPEAHEAD_RESOLVER] || !this.valueInternal) {
-        return []
-      }
+  protected valueInternal = "";
+  protected previousValueInternal = "";
+  protected hints: IHint[] = []; // used to reactively bind to template
+  protected menu = false;
+  protected isFetchingHints = false;
+  protected showList = true;
+  protected detectCrossover = false;
 
-      const hintsFromHistory = SearchHistory.search(this.valueInternal)
-
-      const minCharacters = 3
-      let hints = this[TYPEAHEAD_RESOLVER]
-        .map(h => h.highlights)
-        .flat()
-        .map(h => h.texts)
-        .flat()
-        .filter(t => t.type === 'hit' && t.value.length > minCharacters)
-        .map(t => t.value.toLowerCase())
-        .filter((v:string) => v !== this.valueInternal.toLowerCase() && !hintsFromHistory.some(h => h.key === v))
-
-      hints = [...new Set(hints)].slice(0, 10) as string[]  // get unique ones
-      hints = hints.map(key => ({ type: 'typeahead', key } as IHint))
-
-      return [...hintsFromHistory, ...hints]
+  protected get typeaheadHints(): IHint[] {
+    if (!this[TYPEAHEAD_RESOLVER] || !this.valueInternal) {
+      return [];
     }
 
-    // Buetify doesn't handle well reasigning list items array
-    @Watch('hints', { deep: true, immediate: true })
-    protected onHintsChanged() {
-      // Reinstantiate component to reset state.
-      this.showList = false
-      this.detectCrossover = false
-      this.$nextTick(() => {
-        this.showList = true
-      })
-    }
+    const hintsFromHistory = SearchHistory.search(this.valueInternal);
 
-    async mounted() {
-      this.valueInternal = this.value
-      this.previousValueInternal = this.value
-      await this._onTypeahead()
-      this.hints = !this.valueInternal ? [] : this.typeaheadHints
-      this.searchInput.focus()
+    const minCharacters = 3;
+    let hints = this[TYPEAHEAD_RESOLVER].map((h) => h.highlights)
+      .flat()
+      .map((h) => h.texts)
+      .flat()
+      .filter((t) => t.type === "hit" && t.value.length > minCharacters)
+      .map((t) => t.value.toLowerCase())
+      .filter(
+        (v: string) =>
+          v !== this.valueInternal.toLowerCase() &&
+          !hintsFromHistory.some((h) => h.key === v)
+      );
 
-      // https://www.learnrxjs.io/learn-rxjs/recipes/type-ahead
-      fromEvent(this.searchInput.$el, 'input')
-        .pipe(
-          tap(() => { this.isFetchingHints = !!this.valueInternal }),
-          debounceTime(typeaheadDebounceTime),
-          map((e: any) => e.target.value),
-          distinctUntilChanged(),
-          switchMap(
-            () => from(this._onTypeahead())
-          )
-        ).subscribe(() => {
-          this._handleTypeahead()
-        })
-    }
+    hints = [...new Set(hints)].slice(0, 10) as string[]; // get unique ones
+    hints = hints.map((key) => ({ type: "typeahead", key } as IHint));
 
-    protected onSearch() {
-      this._onChange()
-      this.previousValueInternal = this.valueInternal
-      if (this.valueInternal && this.$route.name !== 'search') {
-        this.$router
-          .push({ name: 'search', query: { q: this.valueInternal } })
-          .catch(sameRouteNavigationErrorHandler)
-      }
-    }
+    return [...hintsFromHistory, ...hints];
+  }
 
-    /** Detects when the user crosses over from the beginning or end of the list items.
-     * Then restores original value, hide the menu, and focus the input
-     */
-    protected onDetectCrossover(direction: 'up' | 'down') {
-      const hintIndex = this.hintElements.findIndex(e => e.$el.classList.contains('v-list-item--highlighted'))
-      if (this.detectCrossover) {
-        const hasCrossedOver =
-          direction === 'down' && hintIndex === this.hints.length - 1 ||
-          direction === 'up' && hintIndex === 0
+  // Buetify doesn't handle well reasigning list items array
+  @Watch("hints", { deep: true, immediate: true })
+  protected onHintsChanged() {
+    // Reinstantiate component to reset state.
+    this.showList = false;
+    this.detectCrossover = false;
+    this.$nextTick(() => {
+      this.showList = true;
+    });
+  }
 
-        if (hasCrossedOver) {
-          this.valueInternal = this.previousValueInternal
-          this.menu = false
-          this.detectCrossover = false
-          return
-        }
-      }
-      else {
-        this.detectCrossover = true
-      }
-    }
+  async mounted() {
+    this.valueInternal = this.value;
+    this.previousValueInternal = this.value;
+    await this._onTypeahead();
+    this.hints = !this.valueInternal ? [] : this.typeaheadHints;
+    this.searchInput.focus();
 
-    protected onHintHighlighted() {
-      const hintIndex = this.hintElements.findIndex(e => e.$el.classList.contains('v-list-item--highlighted'))
+    // https://www.learnrxjs.io/learn-rxjs/recipes/type-ahead
+    fromEvent(this.searchInput.$el, "input")
+      .pipe(
+        tap(() => {
+          this.isFetchingHints = !!this.valueInternal;
+        }),
+        debounceTime(typeaheadDebounceTime),
+        map((e: any) => e.target.value),
+        distinctUntilChanged(),
+        switchMap(() => from(this._onTypeahead()))
+      )
+      .subscribe(() => {
+        this._handleTypeahead();
+      });
+  }
 
-      if (hintIndex >= 0) {
-        this.valueInternal = this.hints[hintIndex].key
-      }
-      else {
-        // this.valueInternal = this.previousValueInternal
-        // this.valueInternal = this.valueInput
-      }
-    }
-
-    protected async onHintSelected(event: PointerEvent, hint: IHint) {
-      // We only act on mouse events. The enter key is already captured in the input.
-      // The value is already populated by onHintHighlighted.
-      if (event.type === 'click' && ['mouse', 'pen', 'touch'].includes(event.pointerType)) {
-        this.valueInternal = hint.key
-        this.isFetchingHints = !!this.valueInternal
-        this.onSearch()
-        await this._onTypeahead()
-        this._handleTypeahead(false)
-      }
-    }
-
-    protected onClear() {
-      this.hints = []
-    }
-
-    protected deleteHint(hint: IHint) {
-      SearchHistory.deleteHint(hint.key)
-      this.hints = this.typeaheadHints
-    }
-
-    private async _onTypeahead() {
-      if (!this.valueInternal) {
-        this.isFetchingHints = false
-        this.hints = []
-        return
-      }
-
-      try {
-        const query = this.$apollo.queries[TYPEAHEAD_RESOLVER]
-        // set query parameters
-        query.setVariables({
-          ...this.params,
-          term: this.valueInternal,
-        })
-        this.previousValueInternal = this.valueInternal
-        await query.refetch()
-        this.isFetchingHints = false
-      }
-      catch(e) {
-        console.log(e)
-      }
-    }
-
-    private _handleTypeahead(bringUpHintsMenu = true) {
-      if (!this.valueInternal) {
-        this.hints = []
-      }
-      else {
-        this.hints = this.typeaheadHints
-        this.menu = bringUpHintsMenu || this.menu
-        this.isFetchingHints = false
-      }
-    }
-
-    private _onChange() {
-      this.$emit('input', this.valueInternal)
+  protected onSearch() {
+    this._onChange();
+    this.previousValueInternal = this.valueInternal;
+    if (this.valueInternal && this.$route.name !== "search") {
+      this.$router
+        .push({ name: "search", query: { q: this.valueInternal } })
+        .catch(sameRouteNavigationErrorHandler);
     }
   }
+
+  /** Detects when the user crosses over from the beginning or end of the list items.
+   * Then restores original value, hide the menu, and focus the input
+   */
+  protected onDetectCrossover(direction: "up" | "down") {
+    const hintIndex = this.hintElements.findIndex((e) =>
+      e.$el.classList.contains("v-list-item--highlighted")
+    );
+    if (this.detectCrossover) {
+      const hasCrossedOver =
+        (direction === "down" && hintIndex === this.hints.length - 1) ||
+        (direction === "up" && hintIndex === 0);
+
+      if (hasCrossedOver) {
+        this.valueInternal = this.previousValueInternal;
+        this.menu = false;
+        this.detectCrossover = false;
+        return;
+      }
+    } else {
+      this.detectCrossover = true;
+    }
+  }
+
+  protected onHintHighlighted() {
+    const hintIndex = this.hintElements.findIndex((e) =>
+      e.$el.classList.contains("v-list-item--highlighted")
+    );
+
+    if (hintIndex >= 0) {
+      this.valueInternal = this.hints[hintIndex].key;
+    } else {
+      // this.valueInternal = this.previousValueInternal
+      // this.valueInternal = this.valueInput
+    }
+  }
+
+  protected async onHintSelected(event: PointerEvent, hint: IHint) {
+    // We only act on mouse events. The enter key is already captured in the input.
+    // The value is already populated by onHintHighlighted.
+    if (
+      event.type === "click" &&
+      ["mouse", "pen", "touch"].includes(event.pointerType)
+    ) {
+      this.valueInternal = hint.key;
+      this.isFetchingHints = !!this.valueInternal;
+      this.onSearch();
+      await this._onTypeahead();
+      this._handleTypeahead(false);
+    }
+  }
+
+  protected onClear() {
+    this.hints = [];
+  }
+
+  protected deleteHint(hint: IHint) {
+    SearchHistory.deleteHint(hint.key);
+    this.hints = this.typeaheadHints;
+  }
+
+  private async _onTypeahead() {
+    if (!this.valueInternal) {
+      this.isFetchingHints = false;
+      this.hints = [];
+      return;
+    }
+
+    try {
+      const query = this.$apollo.queries[TYPEAHEAD_RESOLVER];
+      // set query parameters
+      query.setVariables({
+        ...this.params,
+        term: this.valueInternal,
+      });
+      this.previousValueInternal = this.valueInternal;
+      await query.refetch();
+      this.isFetchingHints = false;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  private _handleTypeahead(bringUpHintsMenu = true) {
+    if (!this.valueInternal) {
+      this.hints = [];
+    } else {
+      this.hints = this.typeaheadHints;
+      this.menu = bringUpHintsMenu || this.menu;
+      this.isFetchingHints = false;
+    }
+  }
+
+  private _onChange() {
+    this.$emit("input", this.valueInternal);
+  }
+}
 </script>
 
 <style lang="scss" scoped>
-  .cd-home-search {
-    background: #DDD;
-  }
+.cd-home-search {
+  background: #ddd;
+}
 
-  .search-container {
-    max-width: 45rem;
-  }
+.search-container {
+  max-width: 45rem;
+}
 
-  .v-item-group {
-    background: #FFF;
-  }
+.v-item-group {
+  background: #fff;
+}
 </style>

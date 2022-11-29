@@ -2,12 +2,12 @@ import { Model } from '@vuex-orm/core'
 import { INITIAL_RANGE } from '@/constants'
 
 export interface ISearchResultsState {
-  sort: 'name' | 'dateCreated' | null
+  // sort: 'name' | 'dateCreated' | null
   publicationYear: [number, number]
   dataCoverage: [number, number]
-  creatorName: string,
-  repository: string,
-  contentType: string[]
+  // creatorName: string,
+  // repository: string,
+  // contentType: string[]
 }
 
 export default class SearchResults extends Model {
@@ -25,16 +25,12 @@ export default class SearchResults extends Model {
 
   static state(): ISearchResultsState {
     return {
-      sort: null,
+      // sort: null,
       publicationYear: INITIAL_RANGE,
       dataCoverage: INITIAL_RANGE,
-      creatorName: '',
-      repository: '',
-      contentType: []
+      // creatorName: '',
+      // repository: '',
+      // contentType: []
     }
-  }
-
-  print() {
-    console.log(this)
   }
 }
