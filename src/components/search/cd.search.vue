@@ -153,6 +153,7 @@
       this.previousValueInternal = this.value
       await this._onTypeahead()
       this.hints = !this.valueInternal ? [] : this.typeaheadHints
+      this.searchInput.focus()
 
       // https://www.learnrxjs.io/learn-rxjs/recipes/type-ahead
       fromEvent(this.searchInput.$el, 'input')
