@@ -59,7 +59,7 @@ interface CznetCreatorList {
 }
 
 interface IHint { 
-  type: 'typeahead' | 'history', 
+  type: 'db' | 'local', 
   key: string 
 }
 

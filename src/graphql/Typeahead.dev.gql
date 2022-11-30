@@ -1,24 +1,8 @@
 query Typeahead(
-  $term: String!, 
-  $pageSize: Float,
-  $publishedStart: Float,
-  $publishedEnd: Float,
-  $dataCoverageStart: Float,
-  $dataCoverageEnd: Float,
-  $creatorName: String,
-  $providerName: String,
-  $contentType: [String]
+  $term: String!
 ) {
   typeahead_cznet_dev(input: {
-    term: $term,
-    pageSize: $pageSize,
-    publishedStart: $publishedStart,
-    publishedEnd: $publishedEnd,
-    dataCoverageStart: $dataCoverageStart,
-    dataCoverageEnd: $dataCoverageEnd,
-    creatorName: $creatorName,
-    providerName: $providerName,
-    contentType: $contentType,
+    term: $term
    }) {
     highlights {
       score

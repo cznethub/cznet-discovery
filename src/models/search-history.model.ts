@@ -35,14 +35,23 @@ export default class SearchHistory extends Model implements ISearch {
   }
 
   public static search(searchString: string): IHint[] {
+    if (!(searchString?.trim())) {
+      return this.all()
+        .sort((a, b) => b.date - a.date)
+        .map(entry => ({ type: 'local', key: entry.key }))
+        .slice(0, 10) as IHint[]
+    }
+
+    const str = searchString.trim()
+
     return this.all()
       .filter((entry: ISearch) => {
         const val = entry.key.toLowerCase()
-        return val.includes(searchString.toLowerCase()) &&
-          val.length > searchString.length
+        return val.includes(str.toLowerCase()) &&
+          val.length > str.length
       })
       .sort((a, b) => b.date - a.date)
-      .map(entry => ({ type: 'history', key: entry.key })) || []
+      .map(entry => ({ type: 'local', key: entry.key })) || []
   }
 
   public static deleteHint(key: string) {

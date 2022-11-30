@@ -20,7 +20,6 @@
         outlined
         dense
         clearable
-        @click:clear="onClear"
         v-on="on"
       />
     </template>
@@ -42,19 +41,19 @@
           @click="onHintSelected($event, hint)"
         >
           <v-list-item-icon>
-            <v-icon dense v-if="hint.type === 'history'">mdi-history</v-icon>
+            <v-icon dense v-if="hint.type === 'local'">mdi-history</v-icon>
             <v-icon dense v-else>mdi-magnify</v-icon>
           </v-list-item-icon>
 
           <v-list-item-content>
             <v-list-item-title
-              :class="{ 'accent--text': hint.type === 'history' }"
+              :class="{ 'accent--text': hint.type === 'local' }"
               class="font-weight-regular"
               >{{ hint.key }}</v-list-item-title
             >
           </v-list-item-content>
 
-          <v-list-item-action class="ma-0 pa-0" v-if="hint.type === 'history'">
+          <v-list-item-action class="ma-0 pa-0" v-if="hint.type === 'local'">
             <v-tooltip bottom>
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
@@ -109,7 +108,6 @@ const typeaheadDebounceTime = 500;
 })
 export default class CdSearch extends Vue {
   @Prop() value!: string;
-  @Prop({ default: () => ({}) }) params!: { [key: string]: any };
   @Ref("search") searchInput;
   @Ref("hintElements") hintElements;
   @Ref("hintsGroup") hintsGroup;
@@ -124,11 +122,17 @@ export default class CdSearch extends Vue {
 
   protected get typeaheadHints(): IHint[] {
     if (!this[TYPEAHEAD_RESOLVER] || !this.valueInternal) {
-      return [];
+      return this.localHints;
     }
 
-    const hintsFromHistory = SearchHistory.search(this.valueInternal);
+    return [...this.localHints, ...this.dbHints];
+  }
 
+  protected get localHints(): IHint[] {
+    return SearchHistory.search(this.valueInternal);
+  }
+
+  protected get dbHints(): IHint[] {
     const minCharacters = 3;
     let hints = this[TYPEAHEAD_RESOLVER].map((h) => h.highlights)
       .flat()
@@ -139,17 +143,16 @@ export default class CdSearch extends Vue {
       .filter(
         (v: string) =>
           v !== this.valueInternal.toLowerCase() &&
-          !hintsFromHistory.some((h) => h.key === v)
+          !this.localHints.some((h) => h.key === v)
       );
 
     hints = [...new Set(hints)].slice(0, 10) as string[]; // get unique ones
-    hints = hints.map((key) => ({ type: "typeahead", key } as IHint));
-
-    return [...hintsFromHistory, ...hints];
+    hints = hints.map((key) => ({ type: "db", key } as IHint));
+    return hints
   }
 
   // Buetify doesn't handle well reasigning list items array
-  @Watch("hints", { deep: true, immediate: true })
+  @Watch("hints", { deep: true })
   protected onHintsChanged() {
     // Reinstantiate component to reset state.
     this.showList = false;
@@ -159,11 +162,18 @@ export default class CdSearch extends Vue {
     });
   }
 
+  @Watch('valueInternal')
+  onValueInternalChanged() {
+    if (!this.valueInternal) {
+      this.hints = this.localHints;
+    }
+  }
+
   async mounted() {
     this.valueInternal = this.value;
     this.previousValueInternal = this.value;
     await this._onTypeahead();
-    this.hints = !this.valueInternal ? [] : this.typeaheadHints;
+    this.hints = this.typeaheadHints;
     this.searchInput.focus();
 
     // https://www.learnrxjs.io/learn-rxjs/recipes/type-ahead
@@ -171,8 +181,8 @@ export default class CdSearch extends Vue {
       .pipe(
         tap(() => {
           this.isFetchingHints = !!this.valueInternal;
-          // We update hints to immediately show hints from history
-          this.hints = !this.valueInternal ? [] : this.typeaheadHints;
+          // Show hints from local history while the database ones load
+          this.hints = this.localHints;
           this.menu = true
         }),
         debounceTime(typeaheadDebounceTime),
@@ -218,6 +228,7 @@ export default class CdSearch extends Vue {
     }
   }
 
+  /** Handles moving up and down the list of hints using the arrow keys */
   protected onHintHighlighted() {
     const hintIndex = this.hintElements.findIndex((e) =>
       e.$el.classList.contains("v-list-item--highlighted")
@@ -225,9 +236,6 @@ export default class CdSearch extends Vue {
 
     if (hintIndex >= 0) {
       this.valueInternal = this.hints[hintIndex].key;
-    } else {
-      // this.valueInternal = this.previousValueInternal
-      // this.valueInternal = this.valueInput
     }
   }
 
@@ -246,19 +254,15 @@ export default class CdSearch extends Vue {
     }
   }
 
-  protected onClear() {
-    this.hints = [];
-  }
-
   protected deleteHint(hint: IHint) {
     SearchHistory.deleteHint(hint.key);
     this.hints = this.typeaheadHints;
   }
 
   private async _onTypeahead() {
-    if (!this.valueInternal) {
+    if (!this.valueInternal?.trim()) {
       this.isFetchingHints = false;
-      this.hints = [];
+      this.hints = this.typeaheadHints;
       return;
     }
 
@@ -266,7 +270,6 @@ export default class CdSearch extends Vue {
       const query = this.$apollo.queries[TYPEAHEAD_RESOLVER];
       // set query parameters
       query.setVariables({
-        ...this.params,
         term: this.valueInternal,
       });
       this.previousValueInternal = this.valueInternal;
@@ -278,10 +281,8 @@ export default class CdSearch extends Vue {
   }
 
   private _handleTypeahead(bringUpHintsMenu = true) {
-    if (!this.valueInternal) {
-      this.hints = [];
-    } else {
-      this.hints = this.typeaheadHints;
+    this.hints = this.typeaheadHints;
+    if (this.valueInternal) {
       this.menu = bringUpHintsMenu || this.menu;
       this.isFetchingHints = false;
     }
