@@ -82,7 +82,6 @@ import { TYPEAHEAD_RESOLVER, TYPEAHEAD_QUERY } from "@/constants";
 import { fromEvent, from } from "rxjs";
 import {
   debounceTime,
-  distinctUntilChanged,
   map,
   switchMap,
   tap,
@@ -187,7 +186,6 @@ export default class CdSearch extends Vue {
         }),
         debounceTime(typeaheadDebounceTime),
         map((e: any) => e.target.value),
-        distinctUntilChanged(),
         switchMap(() => from(this._onTypeahead()))
       )
       .subscribe(() => {
