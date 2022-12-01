@@ -38,7 +38,7 @@
               hide-details
             />
             <v-text-field
-              @change="onSliderChange('publicationYear', 0, $event)"
+              @change="onSliderChange('publicationYear', 1, $event)"
               :value="publicationYear[1]"
               type="number"
               small
@@ -389,8 +389,8 @@ export default class CdSearchResults extends Vue {
 
     // PUBLICATION YEAR
     if (this.filter.publicationYear.isActive) {
-      this.$set(queryParams, "publishedStart", this.dataCoverage[0]);
-      this.$set(queryParams, "publishedEnd", this.dataCoverage[1]);
+      this.$set(queryParams, "publishedStart", this.publicationYear[0]);
+      this.$set(queryParams, "publishedEnd", this.publicationYear[1]);
     }
 
     // DATA COVERAGE
@@ -427,8 +427,8 @@ export default class CdSearchResults extends Vue {
 
     // PUBLICATION YEAR
     if (this.filter.publicationYear.isActive) {
-      this.$set(queryParams, "publishedStart", this.dataCoverage[0]);
-      this.$set(queryParams, "publishedEnd", this.dataCoverage[1]);
+      this.$set(queryParams, "publishedStart", this.publicationYear[0]);
+      this.$set(queryParams, "publishedEnd", this.publicationYear[1]);
     }
 
     // DATA COVERAGE
@@ -448,7 +448,7 @@ export default class CdSearchResults extends Vue {
     }
 
     // CONTENT TYPE
-    if (this.filter.contentType.value.length) {
+    if (this.filter.contentType.value?.length) {
       queryParams.contentType = this.filter.contentType.value;
     }
 
@@ -512,9 +512,6 @@ export default class CdSearchResults extends Vue {
     try {
       const query = this.$apollo.queries[SEARCH_RESOLVER];
 
-      // set query parameters
-      query.setVariables(this.queryParams);
-
       // set the parameters on the route
       this.$router
         .push({
@@ -522,6 +519,10 @@ export default class CdSearchResults extends Vue {
           query: this.routeParams,
         })
         .catch(sameRouteNavigationErrorHandler);
+
+
+      // set query parameters
+      await query.setVariables(this.queryParams);
 
       SearchHistory.log(this.queryParams.term);
       const result = await query.refetch();
