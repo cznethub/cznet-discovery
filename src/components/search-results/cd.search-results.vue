@@ -311,7 +311,7 @@ const Search = require(`@/graphql/${SEARCH_QUERY}`);
       query: gql`
         ${Search}
       `,
-      variables: { term: " " },
+      variables: { term: ' ' },
       // errorPolicy: 'ignore'
     },
   },

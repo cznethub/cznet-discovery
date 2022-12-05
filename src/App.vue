@@ -19,14 +19,14 @@
           v-if="!$vuetify.breakpoint.mdAndDown"
         >
           <v-btn
-            color="primary"
+            color="white"
             v-for="path of paths"
             :key="path.to"
             v-bind="path.attrs"
             :id="`navbar-nav-${path.label.replaceAll(/[\/\s]/g, ``)}`"
             :elevation="0"
-            active-class="accent"
-            :class="path.isActive?.() ? 'accent' : ''"
+            active-class="is-active"
+            :class="path.isActive?.() ? 'is-active' : ''"
           >
             {{ path.label }}
           </v-btn>
@@ -293,5 +293,11 @@ export default class App extends Vue {
     border-radius: 0;
     height: 39px !important;
   }
+}
+
+.nav-items .v-btn.is-active,
+.mobile-nav-items .v-list-item.is-active {
+  background-color: #1976d2 !important;
+  color: #FFF;
 }
 </style>
