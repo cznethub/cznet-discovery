@@ -16,16 +16,17 @@
         v-slot="{ toggle }"
       >
         <v-card
-          class="my-4 ml-14 text-left"
+          class="my-4 mx-7 text-left"
           outlined
           width="400"
           height="auto"
           @click="toggle"
           :ripple="false"
+          elevation="1"
         >
           <template v-if="result">
             <div class="d-flex full-height card-wrapper">
-              <div class="card-icon">
+              <div class="card-icon primary lighten-3">
                 <div class="page-icons">
                   <div class="page-icon elevation-1">
                     <v-icon>mdi-text-long</v-icon>
@@ -39,7 +40,13 @@
                 </div>
               </div>
               <div class="card-content primary lighten-4">
-                <v-card-text class="pb-0"><div>{{ getResultCreationDate(result) }}</div></v-card-text>
+                <v-card-text class="pb-0 d-flex justify-space-between">
+                  <div>{{ getResultCreationDate(result) }}</div>
+                  <v-btn :href="result.url" target="_blank" small color="accent" depressed>
+                    <v-icon small left>mdi-open-in-new</v-icon>
+                    View
+                  </v-btn>
+                </v-card-text>
                 <v-card-title :title="result.name" class="text-body-1 text-truncate d-block">{{ result.name }}</v-card-title>
                 <v-card-text>
                   <div class="mb-4">
@@ -50,7 +57,7 @@
                       small
                     >{{ keyowrd }}</v-chip>
                   </div>
-                  <div>
+                  <div class="text-truncate" :title="getResultAuthors(result)">
                     {{ getResultAuthors(result) }}
                   </div>
                 </v-card-text>
@@ -155,14 +162,21 @@
 
   .v-card {
     transition: transform 0.15s ease-in-out;
+    border-radius: 1rem;
+    border: 0;
+
+    &::before {
+      border-radius: 1rem;
+    }
   }
 
   .card-icon {
-    width: 2rem;
+    width: 1rem;
     display: block;
     flex-shrink: 0;
-    background: #EFEFEF;
     position: relative;
+    border-top-left-radius: 1rem;
+    border-bottom-left-radius: 1rem;
 
     --dx: 50%;
     --m: 0.5;
@@ -184,12 +198,8 @@
         border: 1px solid #EFEFEF;
         padding: 10%;
         .v-icon {
-          color: #DDD !important;
+          opacity: 0.25;
         }
-        // display: flex;
-        // justify-content: center;
-        // align-items: center;
-        // font-size: var(--w);
       }
 
       .page-icon:nth-child(1) {
@@ -217,11 +227,14 @@
     }
   }
 
-  .card-content {
+  .card-content.primary.lighten-4 {
     flex: 1 1 auto;
     width: 0;
-    box-shadow: -4px 0px 15px -4px rgb(0 0 0 / 15%);
+    box-shadow: -4px 0px 15px -4px rgb(0 0 0 / 25%);
     z-index: 1;
-    border-left: 1px solid #cdcdcd;
+    border-left: 4px solid;
+    border-left-color: #afb9c0 !important;
+    border-top-right-radius: 1rem;
+    border-bottom-right-radius: 1rem;
   }
 </style>
