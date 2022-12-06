@@ -27,18 +27,27 @@
             <div class="d-flex full-height card-wrapper">
               <div class="card-icon">
                 <div class="page-icons">
-                  <div class="page-icon elevation-1"></div>
-                  <div class="page-icon elevation-1"></div>
+                  <div class="page-icon elevation-1">
+                    <v-icon>mdi-text-long</v-icon>
+                  </div>
+                  <div class="page-icon elevation-1">
+                    <v-icon>mdi-text-long</v-icon>
+                    <v-icon>mdi-chart-multiple</v-icon>
+                    <v-icon>mdi-chart-bar</v-icon>
+                    <v-icon>mdi-text-long</v-icon>
+                  </div>
                 </div>
               </div>
-              <div class="card-content">
+              <div class="card-content primary lighten-4">
                 <v-card-text class="pb-0"><div>{{ getResultCreationDate(result) }}</div></v-card-text>
                 <v-card-title :title="result.name" class="text-body-1 text-truncate d-block">{{ result.name }}</v-card-title>
                 <v-card-text>
                   <div class="mb-4">
                     <v-chip v-for="(keyowrd, index) of result.keywords.slice(0,3)" :key="index"
                       class="ma-1"
-                      small outlined
+                      color="primary"
+                      style="pointer-events: none;"
+                      small
                     >{{ keyowrd }}</v-chip>
                   </div>
                   <div>
@@ -99,7 +108,6 @@
         })
         
         const result = await query.refetch()
-        console.log(result)
       }
       catch(e) {
         console.log(e)
@@ -145,6 +153,10 @@
     overflow: visible;
   }
 
+  .v-card {
+    transition: transform 0.15s ease-in-out;
+  }
+
   .card-icon {
     width: 2rem;
     display: block;
@@ -163,13 +175,21 @@
       right: -1.8rem;
       top: var(--dy);
       transition:  all 0.15s ease-in-out;
-      
+ 
       .page-icon {
         width: var(--w);
         height: var(--h);
         background: #FFF;
         transition:  all 0.25s ease-in-out;
         border: 1px solid #EFEFEF;
+        padding: 10%;
+        .v-icon {
+          color: #DDD !important;
+        }
+        // display: flex;
+        // justify-content: center;
+        // align-items: center;
+        // font-size: var(--w);
       }
 
       .page-icon:nth-child(1) {
@@ -184,6 +204,9 @@
   }
 
   ::v-deep .v-card:hover {
+    transform: scale(1.05);
+    z-index: 1;
+
     .page-icons {
       transform: rotate(-15deg);
     }
@@ -199,6 +222,6 @@
     width: 0;
     box-shadow: -4px 0px 15px -4px rgb(0 0 0 / 15%);
     z-index: 1;
-    background: #FFF;
+    border-left: 1px solid #cdcdcd;
   }
 </style>
