@@ -1,0 +1,16 @@
+query Typeahead(
+  $term: String!
+) {
+  typeahead_cznet(input: {
+    term: $term
+   }) {
+    highlights {
+      score
+      path
+      texts {
+        type
+        value
+      }
+    }
+	}
+}
