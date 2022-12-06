@@ -15,7 +15,7 @@
       <div class="text-subtitle-2 mt-4 d-inline-block" style="max-width: 30rem;">If you have data or other research products that you want to contribute, visit the CZNet Data Submission Portal</div>
       <br>
 
-      <v-btn href="https://dsp.criticalzone.org" class="my-4" small color="primary">Contribute Data</v-btn>
+      <v-btn href="https://dsp.criticalzone.org" class="my-4" small color="accent">Contribute Data</v-btn>
     </v-container>
   </div>
 </template>

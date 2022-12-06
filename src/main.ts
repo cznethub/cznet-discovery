@@ -9,6 +9,7 @@ import App from './App.vue'
 import vuetify from '@/plugins/vuetify'
 import browserDetect from "vue-browser-detect-plugin"
 import VueRouter from 'vue-router'
+import VueSnip from 'vue-snip'
 
 import { router } from './router'
 import { orm } from '@/models/orm'
@@ -45,6 +46,7 @@ const store = new Vuex.Store({
 Vue.use(VueCookies)
 Vue.use(VueRouter)
 Vue.use(browserDetect)
+Vue.use(VueSnip)
 
 new Vue({
   store,

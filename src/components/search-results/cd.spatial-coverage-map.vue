@@ -1,158 +1,172 @@
 <template>
   <v-card class="cd-spatial-coverage-map">
-    <div ref="map" class="map-container">
-
-    </div>
+    <div ref="map" class="map-container"></div>
   </v-card>
 </template>
 
 <script lang="ts">
-  import { Component, Vue, Prop, Ref } from 'vue-property-decorator'
-  import { Loader, LoaderOptions } from "google-maps"
+import { Component, Vue, Prop, Ref } from "vue-property-decorator";
+import { Loader, LoaderOptions } from "google-maps";
 
-  @Component({
-    name: 'cd-spatial-coverage-map',
-    components: { },
-  })
-  export default class CdSpatialCoverageMap extends Vue {
-    @Prop() value!: string
-    @Prop() loader!: Loader
-    @Prop() loaderOptions!: LoaderOptions
+@Component({
+  name: "cd-spatial-coverage-map",
+  components: {},
+})
+export default class CdSpatialCoverageMap extends Vue {
+  @Prop() features!: any;
+  @Prop() loader!: Loader;
+  @Prop() loaderOptions!: LoaderOptions;
 
-    @Ref('map') mapContainer
-    protected map: google.maps.Map | null = null
-    protected marker: google.maps.Marker | null = null
-    protected rectangle: any = null
-    protected markerOptions: google.maps.MarkerOptions = {}
-    protected rectangleOptions: google.maps.RectangleOptions = {}
-    protected mapType: 'point' | 'box' | 'shape' = 'point'
+  @Ref("map") mapContainer;
+  protected map: google.maps.Map | null = null;
+  protected markers: google.maps.Marker[] = [];
+  protected rectangles: google.maps.Rectangle[] = [];
+  protected markerOptions: google.maps.MarkerOptions = {};
+  protected rectangleOptions: google.maps.RectangleOptions = {};
 
-    async mounted() {
-      await this.initMap()
-      this.loadDrawing()
-      if (this.map) {
-        if (this.mapType === 'box') {
-          // Zoom and center to rectangle
-          (this.map as google.maps.Map).fitBounds(this.rectangle.bounds)
-        }
-        else {
-          // Recenter at marker
-          // (this.map as google.maps.Map).setCenter({
-          //   lat: 0,
-          //   lng: 0,
-          // });
-          if (this.marker) {
-            (this.map as google.maps.Map).setCenter(this.marker.getPosition() as google.maps.LatLng);
-          }
-        }
-      }
-    }
-
-    created() {
-
-    }
-
-    protected async initMap() {
-      const google = await this.loader.load()
-
-      this.map = new google.maps.Map(this.mapContainer, {
-        center: { lat: 39.8097343, lng: -98.5556199 },
-        zoom: 5,
-      })
-
-      // Icon base from: http://kml4earth.appspot.com/icons.html
-      const iconBase = "http://earth.google.com/images/kml-icons/"
-      const icons = {
-        track_directional: {
-          icon: iconBase + "track-directional/track-8.png",
-        }
-      }
-
-      this.markerOptions = { 
-        ...this.markerOptions, 
-        // animation: google.maps.Animation.DROP,
-        icon: {
-          url: icons.track_directional.icon,
-          anchor: new google.maps.Point(20, 35),
-          scaledSize: new google.maps.Size(40, 40)
-        }
-      }
-
-      this.rectangleOptions = {
-        ...this.rectangleOptions,
-        fillColor: "#1976d2",
-        fillOpacity: 0.25,
-        strokeWeight: 2,
-        strokeColor: "#1976d2",
-        editable: false,
-        zIndex: 1,
-        draggable: false,
-      }
-      
-    }
-
-    protected loadDrawing() {
-      if (this.mapType === "point") {
-        this.loadPoint()
-      } else {
-        // this.loadRectangle()
-      }
-    }
-
-    protected clearMarkers() {
-      if (this.marker) {
-        this.marker.setMap(null);
-        this.marker = null;
-      }
-    }
-
-    protected loadPoint() {
-      if (this.map) {
-        this.clearMarkers()
-
-        const marker = new google.maps.Marker({
-          ...this.markerOptions,
-          position: { lat: 0, lng: 0 },
-          map: this.map,
-        })
+  async mounted() {
+    await this.initMap();
+    this.loadDrawing();
+    if (this.map) {
+        const bounds = new google.maps.LatLngBounds();
+        this.markers.forEach((marker) => {
+          const pos = marker.getPosition() as google.maps.LatLng;
+          bounds.extend(new google.maps.LatLng(pos.lat(), pos.lng()));
+        });
         
-        this.marker = marker
-      }
+        this.map.fitBounds(bounds);
+
+        // TODO: check if this overrides the marker bounds
+        this.rectangles.forEach((rectangle) => {
+          this.map?.fitBounds(rectangle.getBounds());
+        });
     }
+  }
 
-    protected clearRectangles() {
-      if (this.rectangle) {
-        this.rectangle.setMap(null)
-        this.rectangle = null;
+  created() {}
+
+  protected async initMap() {
+    const google = await this.loader.load();
+
+    this.map = new google.maps.Map(this.mapContainer, {
+      center: { lat: 39.8097343, lng: -98.5556199 },
+      zoom: 5,
+    });
+
+    // Icon base from: http://kml4earth.appspot.com/icons.html
+    const iconBase = "http://earth.google.com/images/kml-icons/";
+    const icons = {
+      track_directional: {
+        icon: iconBase + "track-directional/track-8.png",
+      },
+    };
+
+    this.markerOptions = {
+      ...this.markerOptions,
+      // animation: google.maps.Animation.DROP,
+      icon: {
+        url: icons.track_directional.icon,
+        anchor: new google.maps.Point(20, 35),
+        scaledSize: new google.maps.Size(40, 40),
+      },
+    };
+
+    this.rectangleOptions = {
+      ...this.rectangleOptions,
+      fillColor: "#1976d2",
+      fillOpacity: 0.25,
+      strokeWeight: 2,
+      strokeColor: "#1976d2",
+      editable: false,
+      zIndex: 1,
+      draggable: false,
+    };
+  }
+
+  protected loadDrawing() {
+    const features = this.features.map((f) => f.geometry).filter((f) => f);
+    if (features.length) {
+      const points = features
+        .filter((f) => f.type === "Point")
+        .map((f) => ({ lat: f.coordinates[1], lng: f.coordinates[0] }));
+
+      // TODO: get rectangles from data
+      const rectangles = [];
+
+      if (points.length) {
+        this.loadMarkers(points);
       }
-    }
 
-    protected loadRectangle() {
-      if (this.map) {
-        this.clearRectangles()
-
-        this.rectangle = new google.maps.Rectangle({
-          ...this.rectangleOptions,
-          bounds: {
-            north: 0,
-            south: 0,
-            east: 0,
-            west: 0,
-          },
-          map: this.map,
-        })
+      if (rectangles.length) {
+        this.loadRectangles(rectangles);
       }
     }
   }
+
+  protected clearMarkers() {
+    if (this.markers.length) {
+      this.markers.forEach((m) => {
+        m.setMap(null);
+      });
+      this.markers = [];
+    }
+  }
+
+  protected loadMarkers(markers: { lat: number; lng: number }[]) {
+    if (this.map) {
+      this.clearMarkers();
+
+      markers.forEach((m) => {
+        const marker = new google.maps.Marker({
+          ...this.markerOptions,
+          position: { lat: m.lat, lng: m.lng },
+          map: this.map as google.maps.Map,
+        });
+
+        this.markers.push(marker);
+      });
+    }
+  }
+
+  protected clearRectangles() {
+    if (this.rectangles.length) {
+      this.rectangles.forEach((r) => {
+        r.setMap(null);
+      });
+      this.rectangles = [];
+    }
+  }
+
+  protected loadRectangles(rectangles) {
+    if (this.map) {
+      this.clearRectangles();
+
+      rectangles.forEach((r) => {
+        const rectangle = new google.maps.Rectangle({
+          ...this.rectangleOptions,
+          bounds: {
+            north: r.northlimit,
+            south: r.southlimit,
+            east: r.eastlimit,
+            west: r.westlimit,
+          },
+          map: this.map as google.maps.Map,
+        });
+
+        this.rectangles.push(rectangle);
+      });
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>
-  .map-container {
-    min-width: 20rem;
-    min-height: 10rem;
-  }
+.map-container {
+  min-width: 20rem;
+  min-height: 10rem;
+}
 
-  .cd-spatial-coverage-map {
-    padding: 2px;
-  }
+.cd-spatial-coverage-map {
+  padding: 2px;
+}
 </style>

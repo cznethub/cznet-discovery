@@ -144,7 +144,7 @@
         </div>
 
         <div class="text-center mt-8">
-          <v-btn @click="clearFilters">Clear Filters</v-btn>
+          <v-btn @click="clearFilters" :disabled="!isSomeFilterActive">Clear Filters</v-btn>
         </div>
       </v-container>
 
@@ -225,11 +225,20 @@
                   Publication Date: {{ getResultPublicationDate(result) }}
                 </div>
                 <p
-                  class="mt-4"
+                  class="mt-4 mb-1"
+                  :class="{ 'snip-3': !result.showMore }"
                   v-html="getResultFieldHighlightedHtml(result, 'description')"
                 ></p>
 
-                <div class="d-flex gap-1 justify-space-between flex-wrap">
+                <v-btn
+                  x-small
+                  text
+                  color="primary"
+                  @click="$set(result, 'showMore', !result.showMore)"
+                  >Show {{ result.showMore ? 'less' : 'more'}}...</v-btn
+                >
+
+                <div class="d-flex gap-1 justify-space-between flex-wrap mt-4">
                   <div>
                     <a class="mb-4 d-block" :href="result.url">{{
                       result.url
@@ -250,12 +259,17 @@
                     </div>
                   </div>
 
-                  <!-- <div v-if="result.spatialCoverage" class="map-container" :id="`map-${ result._id}`">
+                  <div
+                    v-if="hasSpatialFeatures(result)"
+                    class="map-container"
+                    :id="`map-${result._id}`"
+                  >
                     <cd-spatial-coverage-map
                       :loader="loader"
                       :loader-options="options"
+                      :features="result.spatialCoverage.geojson"
                     />
-                  </div> -->
+                  </div>
                 </div>
               </div>
             </template>
@@ -311,24 +325,24 @@ const Search = require(`@/graphql/${SEARCH_QUERY}`);
       query: gql`
         ${Search}
       `,
-      variables: { term: ' ' },
+      variables: { term: " " },
       // errorPolicy: 'ignore'
     },
   },
 })
 export default class CdSearchResults extends Vue {
-  protected loader = loader;
-  protected options = options;
-  protected isIntersecting = false;
-  protected searchQuery = "";
-  protected pageNumber = 1;
-  protected pageSize = 15;
-  protected hasMore = true;
-  protected isSearching = false;
-  protected isFetchingMore = false;
-  protected sort: "name" | "dateCreated" | null = null;
-  // protected view: 'list' | 'map' = 'list'
-  protected filter: ISearchFilter = {
+  public loader = loader;
+  public options = options;
+  public isIntersecting = false;
+  public searchQuery = "";
+  public pageNumber = 1;
+  public pageSize = 15;
+  public hasMore = true;
+  public isSearching = false;
+  public isFetchingMore = false;
+  public sort: "name" | "dateCreated" | null = null;
+  // public view: 'list' | 'map' = 'list'
+  public filter: ISearchFilter = {
     publicationYear: {
       min: MIN_YEAR,
       max: MAX_YEAR,
@@ -354,34 +368,43 @@ export default class CdSearchResults extends Vue {
     creatorName: "",
   };
 
-  protected get publicationYear() {
+  public get publicationYear() {
     return SearchResults.$state.publicationYear;
   }
 
-  protected set publicationYear(range: [number, number]) {
+  public set publicationYear(range: [number, number]) {
     // TODO: validate input
     SearchResults.commit((state) => {
       state.publicationYear = range;
     });
   }
 
-  protected get dataCoverage() {
+  public get dataCoverage() {
     return SearchResults.$state.dataCoverage;
   }
 
-  protected set dataCoverage(range: [number, number]) {
+  public set dataCoverage(range: [number, number]) {
     // TODO: validate input
     SearchResults.commit((state) => {
       state.dataCoverage = range;
     });
   }
 
-  protected get results() {
+  public get results() {
     return this[SEARCH_RESOLVER] || [];
   }
 
+  public get isSomeFilterActive() {
+    return this.filter.publicationYear.isActive ||
+      this.filter.publicationYear.isActive ||
+      this.filter.dataCoverage.isActive ||
+      this.filter.contentType.value.length ||
+      this.filter.repository.value ||
+      this.filter.creatorName
+  }
+
   /** Typeahead query parameters */
-  protected get typeaheadParams() {
+  public get typeaheadParams() {
     const queryParams: { [key: string]: any } = {
       pageSize: this.pageSize,
       term: this.searchQuery,
@@ -418,7 +441,7 @@ export default class CdSearchResults extends Vue {
   }
 
   /** GraphQL query parameters */
-  protected get queryParams() {
+  public get queryParams() {
     const queryParams: { [key: string]: any } = {
       pageSize: this.pageSize,
       pageNumber: this.pageNumber,
@@ -461,7 +484,7 @@ export default class CdSearchResults extends Vue {
   }
 
   /** Route query parameters with short keys. These are parameters needed to replicate a search. */
-  protected get routeParams() {
+  public get routeParams() {
     return {
       q: this.searchQuery,
       cn: this.filter.creatorName || undefined,
@@ -484,7 +507,7 @@ export default class CdSearchResults extends Vue {
     }
   }
 
-  protected onIntersect(entries, observer) {
+  public onIntersect(entries, observer) {
     this.isIntersecting = entries[0].intersectionRatio >= 0.5;
     if (
       this.isIntersecting &&
@@ -498,11 +521,11 @@ export default class CdSearchResults extends Vue {
   }
 
   @Watch("sort")
-  protected onSortChange() {
+  public onSortChange() {
     this.onSearch();
   }
 
-  protected async onSearch() {
+  public async onSearch() {
     if (!this.searchQuery) {
       return;
     }
@@ -520,7 +543,6 @@ export default class CdSearchResults extends Vue {
         })
         .catch(sameRouteNavigationErrorHandler);
 
-
       // set query parameters
       await query.setVariables(this.queryParams);
 
@@ -536,7 +558,7 @@ export default class CdSearchResults extends Vue {
   }
 
   /** Gets the next page of results and appends them to the current results list. */
-  protected async fetchMore() {
+  public async fetchMore() {
     this.pageNumber++;
     this.isFetchingMore = true;
     try {
@@ -561,11 +583,11 @@ export default class CdSearchResults extends Vue {
     this.isFetchingMore = false;
   }
 
-  protected getResultAuthors(result) {
+  public getResultAuthors(result) {
     return result.creator?.List.map((c) => c.name).join(", ");
   }
 
-  protected getResultCreationDate(result) {
+  public getResultCreationDate(result) {
     return new Date(result.dateCreated).toLocaleDateString("en-us", {
       year: "numeric",
       month: "long",
@@ -573,7 +595,7 @@ export default class CdSearchResults extends Vue {
     });
   }
 
-  protected getResultPublicationDate(result) {
+  public getResultPublicationDate(result) {
     return new Date(result.datePublished).toLocaleDateString("en-us", {
       year: "numeric",
       month: "long",
@@ -581,11 +603,11 @@ export default class CdSearchResults extends Vue {
     });
   }
 
-  protected getResultKeywords(result) {
+  public getResultKeywords(result) {
     return result.keywords.join(", ");
   }
 
-  protected getResultFunding(result) {
+  public getResultFunding(result) {
     if (result.funding) {
       return result.funding.map((f) => f.name || f.funder.name).join(", ");
     }
@@ -597,7 +619,7 @@ export default class CdSearchResults extends Vue {
    *  @param index: 0 or 1 (min or max).
    *  @param value: the value to set.
    */
-  protected onSliderChange(path: string, index: 0 | 1, value: number) {
+  public onSliderChange(path: string, index: 0 | 1, value: number) {
     // Conditional to prevent change event triggers on focus change where the value has not changed.
     if (this[path][index] !== value) {
       this.$set(this.filter[path], "isActive", true);
@@ -606,12 +628,12 @@ export default class CdSearchResults extends Vue {
     }
   }
 
-  protected onSliderControlChange(path: any) {
+  public onSliderControlChange(path: any) {
     this.$set(this.filter[path], "isActive", true);
     this.onSearch();
   }
 
-  protected getCreatorsHighlightedHtml(result: Cznet) {
+  public getCreatorsHighlightedHtml(result: Cznet) {
     if (!result.creator) {
       return "";
     }
@@ -639,7 +661,7 @@ export default class CdSearchResults extends Vue {
 
   // TODO: turn this method into a filter
   /** Applies highlights to a string or string[] field and returns the new content as HTML */
-  protected getResultFieldHighlightedHtml(result: Cznet, path: string) {
+  public getResultFieldHighlightedHtml(result: Cznet, path: string) {
     const div = document.createElement("DIV");
     div.innerHTML = Array.isArray(result[path])
       ? result[path].join(", ")
@@ -663,13 +685,18 @@ export default class CdSearchResults extends Vue {
     return content;
   }
 
-  protected clearFilters() {
+  public clearFilters() {
+    const wasSomeActive = this.isSomeFilterActive
+
     this.filter.publicationYear.isActive = false;
     this.filter.dataCoverage.isActive = false;
     this.filter.contentType.value = [];
     this.filter.repository.value = "";
     this.filter.creatorName = "";
-    this.onSearch();
+
+    if (wasSomeActive) {
+      this.onSearch();
+    }
   }
 
   /** Load route query parameters into component values. */
@@ -706,6 +733,10 @@ export default class CdSearchResults extends Vue {
       this.sort =
         (this.$route.query["s"] as "name" | "dateCreated") || this.sort;
     }
+  }
+
+  public hasSpatialFeatures(result): boolean {
+    return result.spatialCoverage?.geojson?.some((f) => f.geometry);
   }
 }
 </script>

@@ -5,15 +5,14 @@
         ref="search"
         @keydown.up="onDetectCrossover('up')"
         @keydown.down="onDetectCrossover('down')"
-        @keyup.up="onHintHighlighted('down')"
-        @keyup.down="onHintHighlighted('down')"
+        @keyup.up="onHintHighlighted()"
+        @keyup.down="onHintHighlighted()"
         @keydown.enter="onSearch"
         v-model.trim.lazy="valueInternal"
-        class="cz-search"
+        class="cz-search white"
         prepend-inner-icon="mdi-magnify"
         placeholder="Search the CZNet catalog"
         rounded
-        background-color="#FFF"
         full-width
         hide-details
         flat
@@ -111,15 +110,15 @@ export default class CdSearch extends Vue {
   @Ref("hintElements") hintElements;
   @Ref("hintsGroup") hintsGroup;
 
-  protected valueInternal = "";
-  protected previousValueInternal = "";
-  protected hints: IHint[] = []; // used to reactively bind to template
-  protected menu = false;
-  protected isFetchingHints = false;
-  protected showList = true;
-  protected detectCrossover = false;
+  public valueInternal = "";
+  public previousValueInternal = "";
+  public hints: IHint[] = []; // used to reactively bind to template
+  public menu = false;
+  public isFetchingHints = false;
+  public showList = true;
+  public detectCrossover = false;
 
-  protected get typeaheadHints(): IHint[] {
+  public get typeaheadHints(): IHint[] {
     if (!this[TYPEAHEAD_RESOLVER] || !this.valueInternal) {
       return this.localHints;
     }
@@ -127,11 +126,11 @@ export default class CdSearch extends Vue {
     return [...this.localHints, ...this.dbHints];
   }
 
-  protected get localHints(): IHint[] {
+  public get localHints(): IHint[] {
     return SearchHistory.search(this.valueInternal);
   }
 
-  protected get dbHints(): IHint[] {
+  public get dbHints(): IHint[] {
     const minCharacters = 3;
     let hints = this[TYPEAHEAD_RESOLVER].map((h) => h.highlights)
       .flat()
@@ -152,7 +151,7 @@ export default class CdSearch extends Vue {
 
   // Buetify doesn't handle well reasigning list items array
   @Watch("hints", { deep: true })
-  protected onHintsChanged() {
+  public onHintsChanged() {
     // Reinstantiate component to reset state.
     this.showList = false;
     this.detectCrossover = false;
@@ -193,7 +192,7 @@ export default class CdSearch extends Vue {
       });
   }
 
-  protected onSearch() {
+  public onSearch() {
     this._onChange();
     this.previousValueInternal = this.valueInternal;
     if (this.valueInternal && this.$route.name !== "search") {
@@ -206,7 +205,7 @@ export default class CdSearch extends Vue {
   /** Detects when the user crosses over from the beginning or end of the list items.
    * Then restores original value, hide the menu, and focus the input
    */
-  protected onDetectCrossover(direction: "up" | "down") {
+  public onDetectCrossover(direction: "up" | "down") {
     const hintIndex = this.hintElements.findIndex((e) =>
       e.$el.classList.contains("v-list-item--highlighted")
     );
@@ -227,7 +226,7 @@ export default class CdSearch extends Vue {
   }
 
   /** Handles moving up and down the list of hints using the arrow keys */
-  protected onHintHighlighted() {
+  public onHintHighlighted() {
     const hintIndex = this.hintElements.findIndex((e) =>
       e.$el.classList.contains("v-list-item--highlighted")
     );
@@ -237,7 +236,7 @@ export default class CdSearch extends Vue {
     }
   }
 
-  protected async onHintSelected(event: PointerEvent, hint: IHint) {
+  public async onHintSelected(event: PointerEvent, hint: IHint) {
     // We only act on mouse events. The enter key is already captured in the input.
     // The value is already populated by onHintHighlighted.
     if (
@@ -252,7 +251,7 @@ export default class CdSearch extends Vue {
     }
   }
 
-  protected deleteHint(hint: IHint) {
+  public deleteHint(hint: IHint) {
     SearchHistory.deleteHint(hint.key);
     this.hints = this.typeaheadHints;
   }

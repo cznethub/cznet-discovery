@@ -1,7 +1,7 @@
 <template>
   <v-app app>
     <v-app-bar
-      color="primary lighten-4"
+      color="secondary lighten-4"
       ref="appBar"
       id="app-bar"
       elevate-on-scroll
@@ -188,20 +188,20 @@ const INITIAL_SNACKBAR = {
   components: {},
 })
 export default class App extends Vue {
-  protected isLoading = true;
-  protected onToast!: Subscription;
-  protected onOpenDialog!: Subscription;
-  protected showMobileNavigation = false;
-  protected snackbarColors = {
+  public isLoading = true;
+  public onToast!: Subscription;
+  public onOpenDialog!: Subscription;
+  public showMobileNavigation = false;
+  public snackbarColors = {
     success: { snackbar: "primary", actionButton: "primary darken-2" },
     error: { snackbar: "error darken-2", actionButton: "error darken-3" },
     info: { snackbar: "primary", actionButton: "primary darken-2" },
     default: { snackbar: undefined, actionButton: undefined },
   };
-  protected snackbar: IToast & { isActive: boolean; isInfinite: boolean } =
+  public snackbar: IToast & { isActive: boolean; isInfinite: boolean } =
     INITIAL_SNACKBAR;
-  protected dialog: IDialog & { isActive: boolean } = INITIAL_DIALOG;
-  protected paths: any[] = [
+  public dialog: IDialog & { isActive: boolean } = INITIAL_DIALOG;
+  public paths: any[] = [
     {
       attrs: { to: "/" },
       label: "Discover Data",
