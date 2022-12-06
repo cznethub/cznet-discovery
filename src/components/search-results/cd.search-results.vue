@@ -240,9 +240,9 @@
                   >Show {{ result.showMore ? "less" : "more" }}...</v-btn
                 >
 
-                <div class="d-flex gap-1 justify-space-between flex-wrap mt-4">
+                <div class="d-flex gap-1 justify-space-between flex-wrap mt-2">
                   <div>
-                    <a class="mb-4 d-block" :href="result.url">{{
+                    <a class="mb-2 d-block" :href="result.url">{{
                       result.url
                     }}</a>
                     <div class="mb-2">
