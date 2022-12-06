@@ -240,7 +240,7 @@
                   >Show {{ result.showMore ? "less" : "more" }}...</v-btn
                 >
 
-                <div class="d-flex gap-1 justify-space-between flex-wrap mt-2">
+                <div class="d-flex gap-1 justify-space-between flex-wrap flex-lg-nowrap mt-2">
                   <div>
                     <a class="mb-2 d-block" :href="result.url">{{
                       result.url
@@ -263,7 +263,6 @@
 
                   <div
                     v-if="hasSpatialFeatures(result)"
-                    class="map-container"
                     :id="`map-${result._id}`"
                   >
                     <cd-spatial-coverage-map
