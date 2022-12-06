@@ -26,6 +26,10 @@
 </script>
 
 <style lang="scss" scoped>
+  .cd-home-search {
+    background-color: #5c7ca7;
+  }
+
   .search-container {
     max-width: 45rem;
   }
