@@ -144,7 +144,9 @@
         </div>
 
         <div class="text-center mt-8">
-          <v-btn @click="clearFilters" :disabled="!isSomeFilterActive">Clear Filters</v-btn>
+          <v-btn @click="clearFilters" :disabled="!isSomeFilterActive"
+            >Clear Filters</v-btn
+          >
         </div>
       </v-container>
 
@@ -235,7 +237,7 @@
                   text
                   color="primary"
                   @click="$set(result, 'showMore', !result.showMore)"
-                  >Show {{ result.showMore ? 'less' : 'more'}}...</v-btn
+                  >Show {{ result.showMore ? "less" : "more" }}...</v-btn
                 >
 
                 <div class="d-flex gap-1 justify-space-between flex-wrap mt-4">
@@ -395,12 +397,14 @@ export default class CdSearchResults extends Vue {
   }
 
   public get isSomeFilterActive() {
-    return this.filter.publicationYear.isActive ||
+    return (
+      this.filter.publicationYear.isActive ||
       this.filter.publicationYear.isActive ||
       this.filter.dataCoverage.isActive ||
       this.filter.contentType.value.length ||
       this.filter.repository.value ||
       this.filter.creatorName
+    );
   }
 
   /** Typeahead query parameters */
@@ -686,7 +690,7 @@ export default class CdSearchResults extends Vue {
   }
 
   public clearFilters() {
-    const wasSomeActive = this.isSomeFilterActive
+    const wasSomeActive = this.isSomeFilterActive;
 
     this.filter.publicationYear.isActive = false;
     this.filter.dataCoverage.isActive = false;

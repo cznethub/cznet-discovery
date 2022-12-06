@@ -79,12 +79,7 @@ import { Component, Vue, Prop, Ref, Watch } from "vue-property-decorator";
 import { sameRouteNavigationErrorHandler } from "@/constants";
 import { TYPEAHEAD_RESOLVER, TYPEAHEAD_QUERY } from "@/constants";
 import { fromEvent, from } from "rxjs";
-import {
-  debounceTime,
-  map,
-  switchMap,
-  tap,
-} from "rxjs/operators";
+import { debounceTime, map, switchMap, tap } from "rxjs/operators";
 import gql from "graphql-tag";
 import SearchHistory from "@/models/search-history.model";
 
@@ -146,7 +141,7 @@ export default class CdSearch extends Vue {
 
     hints = [...new Set(hints)].slice(0, 10) as string[]; // get unique ones
     hints = hints.map((key) => ({ type: "db", key } as IHint));
-    return hints
+    return hints;
   }
 
   // Buetify doesn't handle well reasigning list items array
@@ -160,7 +155,7 @@ export default class CdSearch extends Vue {
     });
   }
 
-  @Watch('valueInternal')
+  @Watch("valueInternal")
   onValueInternalChanged() {
     if (!this.valueInternal) {
       this.hints = this.localHints;
@@ -181,7 +176,7 @@ export default class CdSearch extends Vue {
           this.isFetchingHints = !!this.valueInternal;
           // Show hints from local history while the database ones load
           this.hints = this.localHints;
-          this.menu = true
+          this.menu = true;
         }),
         debounceTime(typeaheadDebounceTime),
         map((e: any) => e.target.value),
