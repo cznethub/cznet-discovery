@@ -37,7 +37,7 @@
           ref="hintElements"
           :key="index"
           dense
-          @click="onHintSelected($event, hint)"
+          @pointerdown="onHintSelected($event, hint)"
         >
           <v-list-item-icon>
             <v-icon dense v-if="hint.type === 'local'">mdi-history</v-icon>
@@ -232,12 +232,9 @@ export default class CdSearch extends Vue {
   }
 
   public async onHintSelected(event: PointerEvent, hint: IHint) {
-    // We only act on mouse events. The enter key is already captured in the input.
+    // We only act on pointer down event. The enter key is already captured in the input.
     // The value is already populated by onHintHighlighted.
-    if (
-      event.type === "click" &&
-      ["mouse", "pen", "touch"].includes(event.pointerType)
-    ) {
+    if (event.type === "pointerdown") {
       this.valueInternal = hint.key;
       this.isFetchingHints = !!this.valueInternal;
       this.onSearch();
