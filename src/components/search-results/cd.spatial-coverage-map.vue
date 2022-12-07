@@ -40,7 +40,10 @@ export default class CdSpatialCoverageMap extends Vue {
 
         if (this.markers.length === 1) {
           // For single point coverages, use default zoom
-          this.map.setZoom(DEFAULT_ZOOM)
+          const map = this.map;
+          setTimeout(() => {
+            map.setZoom(DEFAULT_ZOOM);
+          }, 100)
         }
 
         // TODO: check if this overrides the marker bounds
