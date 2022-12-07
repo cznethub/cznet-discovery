@@ -8,6 +8,8 @@
 import { Component, Vue, Prop, Ref } from "vue-property-decorator";
 import { Loader, LoaderOptions } from "google-maps";
 
+const DEFAULT_ZOOM = 5;
+
 @Component({
   name: "cd-spatial-coverage-map",
   components: {},
@@ -36,6 +38,11 @@ export default class CdSpatialCoverageMap extends Vue {
         
         this.map.fitBounds(bounds);
 
+        if (this.markers.length === 1) {
+          // For single point coverages, use default zoom
+          this.map.setZoom(DEFAULT_ZOOM)
+        }
+
         // TODO: check if this overrides the marker bounds
         this.rectangles.forEach((rectangle) => {
           this.map?.fitBounds(rectangle.getBounds());
@@ -50,7 +57,7 @@ export default class CdSpatialCoverageMap extends Vue {
 
     this.map = new google.maps.Map(this.mapContainer, {
       center: { lat: 39.8097343, lng: -98.5556199 },
-      zoom: 5,
+      zoom: DEFAULT_ZOOM,
       gestureHandling: 'greedy'
     });
 
