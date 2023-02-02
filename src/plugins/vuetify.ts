@@ -9,7 +9,7 @@ export default new Vuetify({
     options: { customProperties: true },
     themes: {
       light: {
-        primary: colors.blue.darken2,
+        primary: colors.teal.darken2,
         secondary: '#184848',
         accent: colors.blue,
         error: colors.red.accent3,
@@ -18,14 +18,14 @@ export default new Vuetify({
         info: colors.blueGrey,
         navbar: '#FFF'
       },
-      dark: {
-        primary: colors.blueGrey,
-        secondary: colors.teal.darken1,
-        accent: colors.amber,
-        error: colors.red.accent3,
-        success: colors.teal.accent4,
-        info: colors.blueGrey,
-      },
+      // dark: {
+      //   primary: colors.blueGrey,
+      //   secondary: colors.teal.darken1,
+      //   accent: colors.amber,
+      //   error: colors.red.accent3,
+      //   success: colors.teal.accent4,
+      //   info: colors.blueGrey,
+      // },
     },
   },
 });
