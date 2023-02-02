@@ -10,7 +10,7 @@ import vuetify from '@/plugins/vuetify'
 import browserDetect from "vue-browser-detect-plugin"
 import VueRouter from 'vue-router'
 
-import { router } from './router'
+import { router } from './router/router'
 import { orm } from '@/models/orm'
 import { persistedPaths } from './models/persistedPaths'
 import { APP_NAME } from './constants'
