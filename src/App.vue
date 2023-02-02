@@ -1,7 +1,7 @@
 <template>
   <v-app app>
     <v-app-bar
-      color="secondary lighten-4"
+      color="navbar"
       ref="appBar"
       id="app-bar"
       elevate-on-scroll
@@ -25,8 +25,8 @@
             v-bind="path.attrs"
             :id="`navbar-nav-${path.label.replaceAll(/[\/\s]/g, ``)}`"
             :elevation="0"
-            active-class="is-active"
-            :class="path.isActive?.() ? 'is-active' : ''"
+            active-class="primary"
+            :class="path.isActive?.() ? 'primary' : ''"
           >
             {{ path.label }}
           </v-btn>
@@ -160,7 +160,7 @@
 import { Component, Vue } from "vue-property-decorator";
 // import { setupRouteGuards } from "./router"
 import { Subscription } from "rxjs";
-import { DEFAULT_TOAST_DURATION } from "./constants";
+import { APP_NAME, DEFAULT_TOAST_DURATION } from "./constants";
 import Notification, { IDialog, IToast } from "./models/notifications.model";
 
 const INITIAL_DIALOG = {
@@ -208,11 +208,11 @@ export default class App extends Vue {
       icon: "mdi-bookmark-multiple",
       isActive: () => this.$route.name === "search",
     },
-    {
-      attrs: { href: "https://dsp.criticalzone.org/" },
-      label: "Contribute Data",
-      icon: "mdi-book-plus",
-    },
+    // {
+    //   attrs: { href: "https://dsp.criticalzone.org/" },
+    //   label: "Contribute Data",
+    //   icon: "mdi-book-plus",
+    // },
     { attrs: { to: "/about" }, label: "About", icon: "mdi-help" },
     {
       attrs: { to: "/contact" },
@@ -222,7 +222,7 @@ export default class App extends Vue {
   ];
 
   async created() {
-    document.title = "CZNet Discovery";
+    document.title = APP_NAME;
 
     this.onToast = Notification.toast$.subscribe((toast: IToast) => {
       this.snackbar = { ...this.snackbar, ...toast };
@@ -295,9 +295,9 @@ export default class App extends Vue {
   }
 }
 
-.nav-items .v-btn.is-active,
-.mobile-nav-items .v-list-item.is-active {
-  background-color: #1976d2 !important;
-  color: #FFF;
-}
+// .nav-items .v-btn.is-active,
+// .mobile-nav-items .v-list-item.is-active {
+//   background-color: #1976d2 !important;
+//   color: #FFF;
+// }
 </style>

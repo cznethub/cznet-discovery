@@ -106,16 +106,16 @@
           dense
         />
 
-        <!-- <v-select
+        <v-select
           :items="filter.czProjects.options"
           v-model="filter.czProjects.value"
           class="mb-6"
           clearable
           outlined
-          label="CZ project"
+          label="I-GUIDE project"
           hide-details
           dense
-        /> -->
+        />
 
         <v-select
           :items="filter.repository.options"
@@ -354,19 +354,19 @@ export default class CdSearchResults extends Vue {
       max: MAX_YEAR,
       isActive: false,
     },
-    // czProjects: {
-    //   options: ['Drylands Cluster'],
-    //   value: null
-    // },
+    czProjects: {
+      options: ['Drylands Cluster'],
+      value: ''
+    },
     contentType: {
       options: ["Dataset", "Notebook/Code", "Software"],
       value: [],
     },
     repository: {
       options: ["HydroShare", "EarthChem Library"],
-      value: "",
+      value: '',
     },
-    creatorName: "",
+    creatorName: '',
   };
 
   public get publicationYear() {

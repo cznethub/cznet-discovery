@@ -5,8 +5,7 @@
       class="text--secondary text-body-2 my-4 d-inline-block"
       style="max-width: 35rem"
     >
-      Click on the links below to view and access CZNet's latest featured data
-      and other research products
+      Click on the links below to view and access I-GUIDE's latest featured data and other research products  
     </div>
     <v-slide-group v-model="selected" center-active class="pa-4" show-arrows>
       <v-slide-item
@@ -25,7 +24,7 @@
         >
           <template v-if="result">
             <div class="d-flex full-height card-wrapper">
-              <div class="card-icon secondary lighten-3">
+              <div class="card-icon info lighten-3">
                 <div class="page-icons">
                   <div class="page-icon elevation-1">
                     <v-icon>mdi-text-long</v-icon>
@@ -38,14 +37,13 @@
                   </div>
                 </div>
               </div>
-              <div class="card-content secondary lighten-4">
+              <div class="card-content info lighten-4">
                 <v-card-text class="pb-0 d-flex justify-space-between">
                   <div>{{ getResultCreationDate(result) }}</div>
                   <v-btn
                     :href="result.url"
                     target="_blank"
                     small
-                    color="accent"
                     depressed
                   >
                     <v-icon small left>mdi-open-in-new</v-icon>
@@ -61,7 +59,7 @@
                       v-for="(keyowrd, index) of result.keywords.slice(0, 3)"
                       :key="index"
                       class="ma-1"
-                      color="secondary"
+                      color="secondary lighten-2"
                       style="pointer-events: none"
                       small
                       >{{ keyowrd }}</v-chip
@@ -242,7 +240,7 @@ export default class CdFeaturedDatasets extends Vue {
   }
 }
 
-.card-content.secondary.lighten-4 {
+.card-content {
   flex: 1 1 auto;
   width: 0;
   box-shadow: -4px 0px 15px -4px rgb(0 0 0 / 25%);

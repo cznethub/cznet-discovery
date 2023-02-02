@@ -11,7 +11,7 @@
         v-model.trim.lazy="valueInternal"
         class="cz-search white"
         prepend-inner-icon="mdi-magnify"
-        placeholder="Search the CZNet catalog"
+        :placeholder="`Search the ${appName} catalog`"
         rounded
         full-width
         hide-details
@@ -76,7 +76,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Ref, Watch } from "vue-property-decorator";
-import { sameRouteNavigationErrorHandler } from "@/constants";
+import { APP_NAME, sameRouteNavigationErrorHandler } from "@/constants";
 import { TYPEAHEAD_RESOLVER, TYPEAHEAD_QUERY } from "@/constants";
 import { fromEvent, from } from "rxjs";
 import { debounceTime, map, switchMap, tap } from "rxjs/operators";
@@ -104,6 +104,8 @@ export default class CdSearch extends Vue {
   @Ref("search") searchInput;
   @Ref("hintElements") hintElements;
   @Ref("hintsGroup") hintsGroup;
+
+  protected appName = APP_NAME;
 
   public valueInternal = "";
   public previousValueInternal = "";

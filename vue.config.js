@@ -43,6 +43,6 @@ module.exports = {
     'vuetify',
   ],
   publicPath: process.env.NODE_ENV === 'production'
-  ? '/cznet-discovery'
+  ? '/' + process.env.VUE_APP_PRODUCTION_DIR
   : '/'
 }

@@ -14,10 +14,10 @@
       }"
     >
       <div class="text-h3 my-4 text-center has-text-shadow">
-        Critical Zone Collaborative Network
+        {{ bannerTitle }}
       </div>
-      <div class="text-h4 mt-4 mb-12 has-text-shadow">
-        Data Discovery Portal
+      <div class="text-h5 mt-4 mb-12 has-text-shadow text-center">
+        {{ bannerSubtitle }}
       </div>
       <div class="search-container full-width px-4 text-center mb-4">
         <div class="has-text-shadow font-weight-normal text-h6 mb-4">
@@ -31,18 +31,22 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
+import { BANNER_TITLE, BANNER_SUBTITLE } from "@/constants";
 import CdSearch from "@/components/search/cd.search.vue";
 
 @Component({
   name: "cd-home-search",
   components: { CdSearch },
 })
-export default class CdHomeSearch extends Vue {}
+export default class CdHomeSearch extends Vue {
+  protected bannerTitle = BANNER_TITLE
+  protected bannerSubtitle = BANNER_SUBTITLE
+}
 </script>
 
 <style lang="scss" scoped>
 .cd-home-search {
-  background-color: #5c7ca7;
+  background-color: var(--v-navbar-base);
 }
 
 .search-container {
