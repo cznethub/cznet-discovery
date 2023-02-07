@@ -129,7 +129,7 @@
           dense
         />
 
-        <div>
+        <!-- <div>
           <div class="text-body-2">Content type</div>
           <v-checkbox
             v-for="(option, index) of filter.contentType.options"
@@ -141,7 +141,7 @@
             hide-details
             dense
           />
-        </div>
+        </div> -->
 
         <div class="text-center mt-8">
           <v-btn @click="clearFilters" :disabled="!isSomeFilterActive"
@@ -358,10 +358,10 @@ export default class CdSearchResults extends Vue {
     //   options: ['Drylands Cluster'],
     //   value: null
     // },
-    contentType: {
-      options: ["Dataset", "Notebook/Code", "Software"],
-      value: [],
-    },
+    // contentType: {
+    //   options: ["Dataset", "Notebook/Code", "Software"],
+    //   value: [],
+    // },
     repository: {
       options: ["HydroShare", "EarthChem Library"],
       value: "",
@@ -400,7 +400,7 @@ export default class CdSearchResults extends Vue {
       this.filter.publicationYear.isActive ||
       this.filter.publicationYear.isActive ||
       this.filter.dataCoverage.isActive ||
-      this.filter.contentType.value.length ||
+      // this.filter.contentType.value.length ||
       this.filter.repository.value ||
       this.filter.creatorName
     );
@@ -436,9 +436,9 @@ export default class CdSearchResults extends Vue {
     }
 
     // CONTENT TYPE
-    if (this.filter.contentType.value.length) {
-      queryParams.contentType = this.filter.contentType.value;
-    }
+    // if (this.filter.contentType.value.length) {
+    //   queryParams.contentType = this.filter.contentType.value;
+    // }
 
     return queryParams;
   }
@@ -474,9 +474,9 @@ export default class CdSearchResults extends Vue {
     }
 
     // CONTENT TYPE
-    if (this.filter.contentType.value?.length) {
-      queryParams.contentType = this.filter.contentType.value;
-    }
+    // if (this.filter.contentType.value?.length) {
+    //   queryParams.contentType = this.filter.contentType.value;
+    // }
 
     // SORT BY
     if (this.sort) {
@@ -498,7 +498,7 @@ export default class CdSearchResults extends Vue {
       dc: this.filter.dataCoverage.isActive
         ? this.dataCoverage.map((n) => n.toString()) || undefined
         : undefined,
-      ct: this.filter.contentType.value || undefined,
+      // ct: this.filter.contentType.value || undefined,
       s: this.sort || undefined,
     };
   }
@@ -693,7 +693,7 @@ export default class CdSearchResults extends Vue {
 
     this.filter.publicationYear.isActive = false;
     this.filter.dataCoverage.isActive = false;
-    this.filter.contentType.value = [];
+    // this.filter.contentType.value = [];
     this.filter.repository.value = "";
     this.filter.creatorName = "";
 
@@ -711,7 +711,7 @@ export default class CdSearchResults extends Vue {
     // REPOSITORY
     this.filter.repository.value = (this.$route.query["r"] as string) || "";
     // CONTENT TYPE
-    this.filter.contentType.value = (this.$route.query["ct"] as string[]) || [];
+    // this.filter.contentType.value = (this.$route.query["ct"] as string[]) || [];
 
     // PUBLICATION YEAR
     if (this.$route.query["py"]) {

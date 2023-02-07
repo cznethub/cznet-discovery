@@ -74,10 +74,10 @@ interface ISearchFilter {
     max: number, 
     isActive: boolean
   },
-  contentType: {
-    options: string[],
-    value: string[]
-  },
+  // contentType: {
+  //   options: string[],
+  //   value: string[]
+  // },
   repository: {
     options: string[],
     value: string
