@@ -31,7 +31,7 @@
     />
 
     <v-list max-height="20rem">
-      <v-list-item-group v-if="showList" ref="hintsGroup">
+      <v-list-item-group v-if="showList">
         <v-list-item
           v-for="(hint, index) of hints"
           ref="hintElements"
@@ -62,7 +62,7 @@
                   v-on="on"
                   @click.stop="deleteHint(hint)"
                 >
-                  <v-icon>mdi-close</v-icon>
+                  <v-icon ref="btnDeleteHint">mdi-close</v-icon>
                 </v-btn>
               </template>
               <span>Delete</span>
@@ -103,7 +103,7 @@ export default class CdSearch extends Vue {
   @Prop() value!: string;
   @Ref("search") searchInput;
   @Ref("hintElements") hintElements;
-  @Ref("hintsGroup") hintsGroup;
+  @Ref("btnDeleteHint") btnDeleteHint;
 
   protected appName = APP_NAME;
 
@@ -236,6 +236,12 @@ export default class CdSearch extends Vue {
   public async onHintSelected(event: PointerEvent, hint: IHint) {
     // We only act on pointer down event. The enter key is already captured in the input.
     // The value is already populated by onHintHighlighted.
+
+    // Ignore clicks on the action buttons
+    if (this.btnDeleteHint.map(btn => btn.$el).includes(event.target)) {
+      return
+    }
+
     if (event.type === "pointerdown") {
       this.valueInternal = hint.key;
       this.isFetchingHints = !!this.valueInternal;
