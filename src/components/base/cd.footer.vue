@@ -2,38 +2,31 @@
   <v-container flat class="footer text--secondary d-flex flex-column align-center full-width body-2">
     <div class="d-lg-flex justify-space-between full-width">
       <div class="has-space-bottom-2x">
-        <div class="has-space-bottom text-h6 mb-1">Contact Us</div>
-        <p><router-link to="/contact">Contact</router-link></p>
-        <p><a :href="'mailto:' + supportEmail">Email Support</a></p>
-        <p>Learn more about <a href="https://www.i-guide.org/"
-          target="_blank">I-GUIDE</a>
-        </p>
-        <p>Visit <a href="https://www.i-guide.org/" target="_blank">i-guide.org</a></p>
+        <div class="has-space-bottom text-h6">Contact Us</div>
+        <router-link to="/contact">Contact</router-link>
+        <p>Learn more about the <a href="https://www.criticalzone.org/"
+          target="_blank">CZNet</a> and <a href="https://criticalzone.org/hub" target="_blank">CZ Hub</a></p>
+        <p>Visit <a href="https://www.cuahsi.org/" target="_blank">cuahsi.org</a></p>
       </div>
 
       <div>
-        <div class="has-space-bottom text-h6 mb-1">Open Source</div>
-        <p>The I-GUIDE Data Submission Portal is Open Source. Find us on <a href="https://github.com/cznethub/dsp" target="_blank">GitHub</a>.</p>
+        <div class="has-space-bottom text-h6">Open Source</div>
+        <p>The Data Submission Portal is Open Source. Find us on <a href="https://github.com/cznethub/dsp" target="_blank">GitHub</a>.</p>
         <p>Report a bug <a href="https://github.com/cznethub/dsp/issues" target="_blank">here</a></p>
         <p>This is Version {{ version }} of the Data Discovery Portal</p>
       </div>
     </div>
 
-    <v-divider />
+    <v-divider></v-divider>
 
-    <div class="d-flex align-center flex-column gap-1 flex-sm-row has-space-top-2x">
-      <div class="d-flex align-center gap-1 flex-1">
-        <img :src="require('@/assets/img/nsf.png')" alt="NSF Logo" height="80px" />
-        <div>(c) {{ year }} I-GUIDE All Rights Reserved<br>
-Institute for Geospatial Understanding through an Integrative Discovery Environment (I-GUIDE) is supported by the National Science Foundation</div>
-      </div>
-      <p class="flex-1">This material is based upon work supported by the National Science Foundation (NSF) under award No. 2118329. Any opinions, findings, conclusions, or recommendations expressed in this material are those of the authors and do not necessarily reflect the views of the NSF.</p>
+    <div class="text-center d-flex flex-column align-center has-space-top-2x">
+      <p>(c) {{year}} CUAHSI. ﻿This material is based upon work supported by the National Science Foundation (NSF) under awards 2012893, 2012593, and 2012748.<br>
+      Any opinions, findings, conclusions, or recommendations expressed in this material are those of the authors and do not necessarily reflect the views of the NSF.</p>
     </div>
   </v-container>
 </template>
 
 <script lang="ts">
-  import { SUPPORT_EMAIL } from '@/constants'
   import { Component, Vue } from 'vue-property-decorator'
 
   @Component({
@@ -41,7 +34,6 @@ Institute for Geospatial Understanding through an Integrative Discovery Environm
     components: { },
   })
   export default class CdFooter extends Vue {
-    protected supportEmail = SUPPORT_EMAIL
     protected get version() {
       return process.env.VUE_APP_VERSION || '0'
     }
@@ -55,9 +47,5 @@ Institute for Geospatial Understanding through an Integrative Discovery Environm
 <style lang="scss" scoped>
   .footer {
     padding: 2rem 0;
-  }
-
-  .flex-1 {
-    flex: 1;
   }
 </style>

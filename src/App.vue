@@ -158,7 +158,6 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-// import { setupRouteGuards } from "./router"
 import { Subscription } from "rxjs";
 import { APP_NAME, DEFAULT_TOAST_DURATION } from "./constants";
 import Notification, { IDialog, IToast } from "./models/notifications.model";
@@ -208,11 +207,11 @@ export default class App extends Vue {
       icon: "mdi-bookmark-multiple",
       isActive: () => this.$route.name === "search",
     },
-    // {
-    //   attrs: { href: "https://dsp.criticalzone.org/" },
-    //   label: "Contribute Data",
-    //   icon: "mdi-book-plus",
-    // },
+    {
+      attrs: { href: "https://dsp.criticalzone.org/" },
+      label: "Contribute Data",
+      icon: "mdi-book-plus",
+    },
     { attrs: { to: "/about" }, label: "About", icon: "mdi-help" },
     {
       attrs: { to: "/contact" },
@@ -233,10 +232,6 @@ export default class App extends Vue {
       this.dialog = { ...INITIAL_DIALOG, ...dialog };
       this.dialog.isActive = true;
     });
-
-    // Guards are setup after checking authorization and loading access tokens
-    // because they depend on user logged in status
-    // setupRouteGuards()
 
     this.isLoading = false;
   }

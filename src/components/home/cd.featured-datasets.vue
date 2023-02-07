@@ -5,7 +5,7 @@
       class="text--secondary text-body-2 my-4 d-inline-block"
       style="max-width: 35rem"
     >
-      Click on the links below to view and access I-GUIDE's latest featured data and other research products  
+      Click on the links below to view and access CZNet's latest featured data and other research products
     </div>
     <v-slide-group v-model="selected" center-active class="pa-4" show-arrows>
       <v-slide-item

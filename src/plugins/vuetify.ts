@@ -6,26 +6,23 @@ Vue.use(Vuetify);
 
 export default new Vuetify({
   theme: {
-    options: { customProperties: true },
     themes: {
       light: {
-        primary: colors.teal.darken2,
-        secondary: '#184848',
+        primary: colors.blue.darken2,
+        secondary: colors.blueGrey,
         accent: colors.blue,
         error: colors.red.accent3,
         success: colors.teal.accent4,
-        warning: colors.teal.accent4,
         info: colors.blueGrey,
-        navbar: '#FFF'
       },
-      // dark: {
-      //   primary: colors.blueGrey,
-      //   secondary: colors.teal.darken1,
-      //   accent: colors.amber,
-      //   error: colors.red.accent3,
-      //   success: colors.teal.accent4,
-      //   info: colors.blueGrey,
-      // },
+      dark: {
+        primary: colors.blueGrey,
+        secondary: colors.teal.darken1,
+        accent: colors.amber,
+        error: colors.red.accent3,
+        success: colors.teal.accent4,
+        info: colors.blueGrey,
+      },
     },
   },
 });
