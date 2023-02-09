@@ -106,16 +106,20 @@
           dense
         />
 
-        <!-- <v-select
-          :items="filter.czProjects.options"
-          v-model="filter.czProjects.value"
+        <v-select
+          :items="filter.project.options"
+          v-model="filter.project.value"
+          @change="onSearch"
           class="mb-6"
+          multiple
+          small-chips
+          deletable-chips
           clearable
           outlined
           label="CZ project"
           hide-details
           dense
-        /> -->
+        />
 
         <v-select
           :items="filter.repository.options"
@@ -354,19 +358,28 @@ export default class CdSearchResults extends Vue {
       max: MAX_YEAR,
       isActive: false,
     },
-    // czProjects: {
-    //   options: ['Drylands Cluster'],
-    //   value: null
-    // },
+    project: {
+      options: [
+        'CZO Boulder',
+        'CZO Calhoun',
+        'CZO Catalina-Jemez',
+        'CZO Christina',
+        'CZO Luquillo',
+        'CZO National',
+        'CZO Sierra',
+        'Drylands Cluster',
+      ],
+      value: []
+    },
     // contentType: {
     //   options: ["Dataset", "Notebook/Code", "Software"],
     //   value: [],
     // },
     repository: {
       options: ["HydroShare", "EarthChem Library"],
-      value: "",
+      value: '',
     },
-    creatorName: "",
+    creatorName: '',
   };
 
   public get publicationYear() {
@@ -402,6 +415,7 @@ export default class CdSearchResults extends Vue {
       this.filter.dataCoverage.isActive ||
       // this.filter.contentType.value.length ||
       this.filter.repository.value ||
+      this.filter.project.value ||
       this.filter.creatorName
     );
   }
@@ -432,6 +446,11 @@ export default class CdSearchResults extends Vue {
 
     // REPOSITORY
     if (this.filter.repository.value) {
+      queryParams.providerName = this.filter.repository.value;
+    }
+
+    // PROJECT
+    if (this.filter.project.value) {
       queryParams.providerName = this.filter.repository.value;
     }
 
@@ -473,6 +492,11 @@ export default class CdSearchResults extends Vue {
       queryParams.providerName = this.filter.repository.value;
     }
 
+    // PROJECT
+    if (this.filter.project.value) {
+      queryParams.project = this.filter.project.value;
+    }
+
     // CONTENT TYPE
     // if (this.filter.contentType.value?.length) {
     //   queryParams.contentType = this.filter.contentType.value;
@@ -499,6 +523,7 @@ export default class CdSearchResults extends Vue {
         ? this.dataCoverage.map((n) => n.toString()) || undefined
         : undefined,
       // ct: this.filter.contentType.value || undefined,
+      p: this.filter.project.value || undefined,
       s: this.sort || undefined,
     };
   }
@@ -694,8 +719,9 @@ export default class CdSearchResults extends Vue {
     this.filter.publicationYear.isActive = false;
     this.filter.dataCoverage.isActive = false;
     // this.filter.contentType.value = [];
-    this.filter.repository.value = "";
-    this.filter.creatorName = "";
+    this.filter.project.value = [];
+    this.filter.repository.value = '';
+    this.filter.creatorName = '';
 
     if (wasSomeActive) {
       this.onSearch();
@@ -707,11 +733,14 @@ export default class CdSearchResults extends Vue {
     // SEARCH QUERY
     this.searchQuery = this.$route.query["q"] as string;
     // CREATOR NAME
-    this.filter.creatorName = (this.$route.query["cn"] as string) || "";
+    this.filter.creatorName = (this.$route.query["cn"] as string) || '';
     // REPOSITORY
-    this.filter.repository.value = (this.$route.query["r"] as string) || "";
+    this.filter.repository.value = (this.$route.query["r"] as string) || '';
     // CONTENT TYPE
     // this.filter.contentType.value = (this.$route.query["ct"] as string[]) || [];
+    // PROJECT
+    this.filter.project.value = [this.$route.query["p"]].flat() as string[];
+    
 
     // PUBLICATION YEAR
     if (this.$route.query["py"]) {
@@ -780,5 +809,9 @@ export default class CdSearchResults extends Vue {
 
 .grayed-out {
   opacity: 0.55;
+}
+
+::v-deep .v-select--chips .v-select__selections .v-chip--select:first-child {
+  margin-top: 1rem;
 }
 </style>
