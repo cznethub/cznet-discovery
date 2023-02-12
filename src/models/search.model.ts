@@ -26,7 +26,7 @@ export default class Search extends Model {
   }
 
   /** Performs a search and stores the result in state.results.
-   * @returns a boolean indicating if the query has more pages that can be fetched with fetchMore method
+   * @returns a boolean indicating if the query has more pages that can be fetched with `fetchMore` method
    */
   public static async search(params: ISearchParams) {
     const strParams = stringifyParamValues(params)
@@ -45,7 +45,7 @@ export default class Search extends Model {
     return data.length === params.pageSize
   }
 
-  /** Fetches the next page indicated by params.pageNumber and appends the incoming items to the current results
+  /** Fetches the next page indicated by params.pageNumber and appends the incoming items to `state.results`
    * @returns a boolean indicating if the query has more pages that can be fetched
    */
   public static async fetchMore(params: ISearchParams): Promise<boolean> {
@@ -70,9 +70,10 @@ export default class Search extends Model {
     return incoming.length === params.pageSize
   }
 
-  public static async typeahead(params: ITypeaheadParams) {
+  /** Performs a typeahead search and returns the results */
+  public static async typeahead(params: ITypeaheadParams): Promise<any[]> {
     const strParams = stringifyParamValues(params)
-    const response = await fetch(ENDPOINTS.typeahead + '?' + new URLSearchParams(strParams), {
+    const response: Response = await fetch(ENDPOINTS.typeahead + '?' + new URLSearchParams(strParams), {
       mode: 'no-cors'
     })
     if (!response.ok) {

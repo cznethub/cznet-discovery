@@ -413,8 +413,8 @@ export default class CdSearchResults extends Vue {
   /** Typeahead query parameters */
   public get typeaheadParams() {
     const queryParams: ITypeaheadParams = {
-      pageSize: this.pageSize,
       term: this.searchQuery,
+      pageSize: this.pageSize,
     };
 
     // PUBLICATION YEAR

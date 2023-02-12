@@ -103,7 +103,7 @@ export default class CdFeaturedDatasets extends Vue {
 
   public async getFeaturedDatasets() {
     try {
-      Search.search({
+      await Search.search({
         pageSize: numFeatured,
         pageNumber: 1,
         term: "Groundwater temperature",

@@ -157,7 +157,7 @@ export default class CdSearch extends Vue {
   async mounted() {
     this.valueInternal = this.value;
     this.previousValueInternal = this.value;
-    await this._onTypeahead();
+    try { await this._onTypeahead(); } catch(e) {}
     this.hints = this.typeaheadHints;
     this.searchInput.focus();
 
