@@ -88,3 +88,30 @@ interface ISearchFilter {
   }
   creatorName: string
 }
+
+interface ISearchParams {
+  term: string,
+  pageSize: number,
+  pageNumber: number,
+  publishedStart?: Date,
+  publishedEnd?: Date,
+  dataCoverageStart?: Date,
+  dataCoverageEnd?: Date,
+  creatorName?: string,
+  providerName?: string
+  project?: string[],
+  sortBy?: 'name' | 'dateCreated'
+}
+
+interface ITypeaheadParams {
+  term: string,
+  pageSize?: number,
+  publishedStart?: Date,
+  publishedEnd?: Date,
+  dataCoverageStart?: Date,
+  dataCoverageEnd?: Date,
+  creatorName?: string,
+  providerName?: string
+  project?: string[],
+  sortBy?: 'name' | 'dateCreated'
+}

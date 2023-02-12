@@ -34,7 +34,7 @@ export default class SearchHistory extends Model implements ISearch {
     SearchHistory.insert({ data: { key, date: Date.now() } })
   }
 
-  public static search(searchString: string): IHint[] {
+  public static searchHints(searchString: string): IHint[] {
     if (!(searchString?.trim())) {
       return this.all()
         .sort((a, b) => b.date - a.date)

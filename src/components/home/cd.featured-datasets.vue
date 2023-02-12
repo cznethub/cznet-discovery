@@ -81,31 +81,20 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import { SEARCH_RESOLVER, SEARCH_QUERY } from "@/constants";
 import CdHomeSearch from "@/components/home/cd.home-search.vue";
-import gql from "graphql-tag";
+import Search from "@/models/search.model";
 
-const Search = require(`@/graphql/${SEARCH_QUERY}`);
 const numFeatured = 10;
 
 @Component({
   name: "cd-featured-datasets",
-  components: { CdHomeSearch },
-  apollo: {
-    [SEARCH_RESOLVER]: {
-      query: gql`
-        ${Search}
-      `,
-      variables: { term: " " },
-      // errorPolicy: 'ignore'
-    },
-  },
+  components: { CdHomeSearch }
 })
 export default class CdFeaturedDatasets extends Vue {
   public selected: number | null = null;
 
   public get results() {
-    return this[SEARCH_RESOLVER] || new Array(numFeatured).fill(null);
+    return Search.$state.results || new Array(numFeatured).fill(null)
   }
 
   created() {
@@ -114,14 +103,11 @@ export default class CdFeaturedDatasets extends Vue {
 
   public async getFeaturedDatasets() {
     try {
-      const query = this.$apollo.queries[SEARCH_RESOLVER];
-      query.setVariables({
+      Search.search({
         pageSize: numFeatured,
         pageNumber: 1,
         term: "Groundwater temperature",
-      });
-
-      const result = await query.refetch();
+      })
     } catch (e) {
       console.log(e);
     }

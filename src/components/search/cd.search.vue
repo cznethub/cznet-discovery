@@ -77,27 +77,16 @@
 <script lang="ts">
 import { Component, Vue, Prop, Ref, Watch } from "vue-property-decorator";
 import { APP_NAME, sameRouteNavigationErrorHandler } from "@/constants";
-import { TYPEAHEAD_RESOLVER, TYPEAHEAD_QUERY } from "@/constants";
 import { fromEvent, from } from "rxjs";
 import { debounceTime, map, switchMap, tap } from "rxjs/operators";
-import gql from "graphql-tag";
 import SearchHistory from "@/models/search-history.model";
+import Search from "@/models/search.model";
 
-const Typeahead = require(`@/graphql/${TYPEAHEAD_QUERY}`);
 const typeaheadDebounceTime = 500;
 
 @Component({
   name: "cd-search",
-  components: {},
-  apollo: {
-    [TYPEAHEAD_RESOLVER]: {
-      query: gql`
-        ${Typeahead}
-      `,
-      variables: { term: " " },
-      // errorPolicy: 'ignore'
-    },
-  },
+  components: {}
 })
 export default class CdSearch extends Vue {
   @Prop() value!: string;
@@ -114,9 +103,10 @@ export default class CdSearch extends Vue {
   public isFetchingHints = false;
   public showList = true;
   public detectCrossover = false;
+  public rawDbHints: any[] = [];
 
   public get typeaheadHints(): IHint[] {
-    if (!this[TYPEAHEAD_RESOLVER] || !this.valueInternal) {
+    if (!this.rawDbHints || !this.valueInternal) {
       return this.localHints;
     }
 
@@ -124,12 +114,12 @@ export default class CdSearch extends Vue {
   }
 
   public get localHints(): IHint[] {
-    return SearchHistory.search(this.valueInternal);
+    return SearchHistory.searchHints(this.valueInternal);
   }
 
   public get dbHints(): IHint[] {
     const minCharacters = 3;
-    let hints = this[TYPEAHEAD_RESOLVER].map((h) => h.highlights)
+    let hints = this.rawDbHints.map((h) => h.highlights)
       .flat()
       .map((h) => h.texts)
       .flat()
@@ -234,7 +224,7 @@ export default class CdSearch extends Vue {
   }
 
   public async onHintSelected(event: PointerEvent, hint: IHint) {
-    // We only act on pointer down event. The enter key is already captured in the input.
+    // We only act on 'pointerdown' event. The enter key is already captured in the input.
     // The value is already populated by onHintHighlighted.
 
     // Ignore clicks on the action buttons
@@ -264,13 +254,8 @@ export default class CdSearch extends Vue {
     }
 
     try {
-      const query = this.$apollo.queries[TYPEAHEAD_RESOLVER];
-      // set query parameters
-      query.setVariables({
-        term: this.valueInternal,
-      });
       this.previousValueInternal = this.valueInternal;
-      await query.refetch();
+      this.rawDbHints = await Search.typeahead({ term: this.valueInternal })
       this.isFetchingHints = false;
     } catch (e) {
       console.log(e);
