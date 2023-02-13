@@ -580,7 +580,7 @@ export default class CdSearchResults extends Vue {
   }
 
   public getResultAuthors(result) {
-    return result.creator?.List.map((c) => c.name).join(", ");
+    return result.creator?.['@list'].map((c) => c.name).join(", ");
   }
 
   public getResultCreationDate(result) {
@@ -634,7 +634,7 @@ export default class CdSearchResults extends Vue {
       return "";
     }
     const div = document.createElement("DIV");
-    div.innerHTML = result.creator.List.map((c) => c.name).join(", ");
+    div.innerHTML = result.creator['@list'].map((c) => c.name).join(", ");
 
     let content = div.textContent || div.innerText || "";
 

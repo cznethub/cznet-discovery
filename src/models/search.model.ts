@@ -30,9 +30,7 @@ export default class Search extends Model {
    */
   public static async search(params: ISearchParams) {
     const strParams = stringifyParamValues(params)
-    const response: Response = await fetch(ENDPOINTS.search + '?' + new URLSearchParams(strParams), {
-      mode: 'no-cors'
-    })
+    const response: Response = await fetch(ENDPOINTS.search + '?' + new URLSearchParams(strParams))
 
     if (!response.ok) {
       throw new Error('Network response was not OK');
@@ -50,9 +48,7 @@ export default class Search extends Model {
    */
   public static async fetchMore(params: ISearchParams): Promise<boolean> {
     const strParams = stringifyParamValues(params)
-    const response: Response = await fetch(ENDPOINTS.search + '?' + new URLSearchParams(strParams), {
-      mode: 'no-cors'
-    })
+    const response: Response = await fetch(ENDPOINTS.search + '?' + new URLSearchParams(strParams))
 
     if (!response.ok) {
       throw new Error('Network response was not OK');
@@ -73,9 +69,7 @@ export default class Search extends Model {
   /** Performs a typeahead search and returns the results */
   public static async typeahead(params: ITypeaheadParams): Promise<any[]> {
     const strParams = stringifyParamValues(params)
-    const response: Response = await fetch(ENDPOINTS.typeahead + '?' + new URLSearchParams(strParams), {
-      mode: 'no-cors'
-    })
+    const response: Response = await fetch(ENDPOINTS.typeahead + '?' + new URLSearchParams(strParams))
     if (!response.ok) {
       throw new Error('Network response was not OK');
     }

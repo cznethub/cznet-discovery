@@ -114,7 +114,7 @@ export default class CdFeaturedDatasets extends Vue {
   }
 
   public getResultAuthors(result) {
-    return result.creator?.List.map((c) => c.name).join(", ");
+    return result.creator?.['@list'].map((c) => c.name).join(", ");
   }
 
   public getResultCreationDate(result) {
