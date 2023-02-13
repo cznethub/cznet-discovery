@@ -9,11 +9,13 @@ import App from './App.vue'
 import vuetify from '@/plugins/vuetify'
 import browserDetect from "vue-browser-detect-plugin"
 import VueRouter from 'vue-router'
+import VueI18n from 'vue-i18n'
 
 import { router } from './router/router'
 import { orm } from '@/models/orm'
 import { persistedPaths } from './models/persistedPaths'
 import { APP_NAME } from './constants'
+import { messages } from './i18n/messages'
 
 // Uncomment to filter out errors
 // Vue.config.errorHandler = (err, vm, info) => {
@@ -42,10 +44,19 @@ const store = new Vuex.Store({
 Vue.use(VueCookies)
 Vue.use(VueRouter)
 Vue.use(browserDetect)
+Vue.use(VueI18n)
+
+// Create VueI18n instance
+const i18n = new VueI18n({
+  locale: 'en',
+  fallbackLocale: 'en',
+  messages,
+})
 
 new Vue({
   store,
   vuetify,
   router,
+  i18n,
   render: (h) => h(App)
 }).$mount('#app')

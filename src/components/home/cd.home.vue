@@ -6,16 +6,16 @@
     <v-divider></v-divider>
 
     <v-container class="text-center py-12">
-      <div class="display-1 mt-4">Contribute Data or Research Products</div>
+      <div class="display-1 mt-4">{{ $t("home.contribute.title") }}</div>
       <div class="text--secondary text-body-2 mt-2 mb-4 d-inline-block" style="max-width: 35rem;">
-        This Data Discovery Portal provides tools for discovering and accessing data related to the Critical Zone Collaborative network and the Earth's Critical Zone
+        {{ $t("home.contribute.subtitle") }}
       </div>
       <br>
 
-      <div class="text-subtitle-2 mt-4 d-inline-block" style="max-width: 30rem;">If you have data or other research products that you want to contribute, visit the CZNet Data Submission Portal</div>
+      <div class="text-subtitle-2 mt-4 d-inline-block" style="max-width: 30rem;">{{ $t("home.contribute.body") }}</div>
       <br>
 
-      <v-btn href="https://dsp.criticalzone.org" class="my-4" small color="accent">Contribute Data</v-btn>
+      <v-btn :href="$t('home.contribute.buttonUrl')" class="my-4" small color="accent">{{ $t("home.contribute.buttonText") }}</v-btn>
     </v-container>
   </div>
 </template>

@@ -116,7 +116,7 @@
           deletable-chips
           clearable
           outlined
-          label="CZ project"
+          :label="$t('searchResults.filters.projectLabel')"
           hide-details
           dense
         />

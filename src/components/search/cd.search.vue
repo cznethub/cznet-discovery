@@ -11,7 +11,7 @@
         v-model.trim.lazy="valueInternal"
         class="cz-search white"
         prepend-inner-icon="mdi-magnify"
-        :placeholder="`Search the ${appName} catalog`"
+        :placeholder="$t(`home.search.inputPlaceholder`)"
         rounded
         full-width
         hide-details
