@@ -11,7 +11,7 @@ query Search(
   $sortBy: String,
   $contentType: [String]
 ) {
-  filtering_cznet_dev(input: {
+  filtering(input: {
     term: $term,
     pageSize: $pageSize,
     pageNumber: $pageNumber,

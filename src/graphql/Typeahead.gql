@@ -1,7 +1,7 @@
 query Typeahead(
   $term: String!
 ) {
-  typeahead_cznet(input: {
+  typeahead(input: {
     term: $term
    }) {
     highlights {
