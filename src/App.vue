@@ -213,12 +213,6 @@ export default class App extends Vue {
     //   label: "Contribute Data",
     //   icon: "mdi-book-plus",
     // },
-    { attrs: { to: "/about" }, label: "About", icon: "mdi-help" },
-    {
-      attrs: { to: "/contact" },
-      label: "Contact",
-      icon: "mdi-book-open-blank-variant",
-    },
   ];
 
   async created() {

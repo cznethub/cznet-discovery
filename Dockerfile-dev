@@ -1,0 +1,6 @@
+FROM node:14
+WORKDIR /app
+EXPOSE 5003
+COPY docker-entrypoint.sh .
+RUN chmod +x docker-entrypoint.sh
+CMD ["./docker-entrypoint.sh"]
