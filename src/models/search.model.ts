@@ -1,6 +1,6 @@
 import { Model } from '@vuex-orm/core'
 import { ENDPOINTS } from '@/constants'
-import { stringifyParamValues } from '@/util'
+import { getQueryString } from '@/util'
 
 export interface ISearchState {
   results: any[]
@@ -30,8 +30,7 @@ export default class Search extends Model {
    * @returns a boolean indicating if the query has more pages that can be fetched with `fetchMore` method
    */
   public static async search(params: ISearchParams) {
-    const strParams = stringifyParamValues(params)
-    const response: Response = await fetch(ENDPOINTS.search + '?' + new URLSearchParams(strParams))
+    const response: Response = await fetch(`${ENDPOINTS.search}?${getQueryString(params)}`);
 
     if (!response.ok) {
       throw new Error('Network response was not OK');
@@ -48,8 +47,7 @@ export default class Search extends Model {
    * @returns a boolean indicating if the query has more pages that can be fetched
    */
   public static async fetchMore(params: ISearchParams): Promise<boolean> {
-    const strParams = stringifyParamValues(params)
-    const response: Response = await fetch(ENDPOINTS.search + '?' + new URLSearchParams(strParams))
+    const response: Response = await fetch(`${ENDPOINTS.search}?${getQueryString(params)}`);
 
     if (!response.ok) {
       throw new Error('Network response was not OK');
@@ -69,8 +67,7 @@ export default class Search extends Model {
 
   /** Performs a typeahead search and returns the results */
   public static async typeahead(params: ITypeaheadParams): Promise<any[]> {
-    const strParams = stringifyParamValues(params)
-    const response: Response = await fetch(ENDPOINTS.typeahead + '?' + new URLSearchParams(strParams))
+    const response: Response = await fetch(`${ENDPOINTS.typeahead}?${getQueryString(params)}`);
     if (!response.ok) {
       throw new Error('Network response was not OK');
     }

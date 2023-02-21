@@ -480,7 +480,7 @@ export default class CdSearchResults extends Vue {
 
     // PROJECT
     if (this.filter.project.value.length) {
-      queryParams.clusters = encodeURIComponent(JSON.stringify(this.filter.project.value));
+      queryParams.clusters = this.filter.project.value;
     }
 
     // CONTENT TYPE
