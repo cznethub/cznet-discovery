@@ -6,7 +6,7 @@ import CdFooter from '@/components/base/cd.footer.vue'
 export const routes: RouteConfig[] = [
   {
     name: 'home',
-    path: '/discover',
+    path: '/',
     components: {
       content: CdHome,
       footer: CdFooter
@@ -14,7 +14,7 @@ export const routes: RouteConfig[] = [
   },
   {
     name: 'search',
-    path: '/discover/search',
+    path: '/search',
     components: {
       content: CdSearchResults,
       footer: CdFooter
@@ -22,10 +22,6 @@ export const routes: RouteConfig[] = [
   },
   {
     path: '*',
-    redirect: '/discover',
-  },
-  {
-    path: '/discover/*',
-    redirect: '/discover',
+    redirect: '/',
   },
 ]
