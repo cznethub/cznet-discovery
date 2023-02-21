@@ -99,7 +99,7 @@ interface ISearchParams {
   dataCoverageEnd?: Date,
   creatorName?: string,
   providerName?: string
-  project?: string[],
+  clusters?: string, /** JSON stringified array */
   sortBy?: 'name' | 'dateCreated'
 }
 
