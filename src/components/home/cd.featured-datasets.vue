@@ -39,7 +39,7 @@
               </div>
               <div class="card-content info lighten-4">
                 <v-card-text class="pb-0 d-flex justify-space-between">
-                  <div>{{ getResultCreationDate(result) }}</div>
+                  <div><span v-if="result.dateCreated">{{ getResultCreationDate(result) }}</span></div>
                   <v-btn
                     :href="result.url"
                     target="_blank"
@@ -118,6 +118,9 @@ export default class CdFeaturedDatasets extends Vue {
   }
 
   public getResultCreationDate(result) {
+    if (!result.dateCreated) {
+      return ''
+    }
     return new Date(result.dateCreated).toLocaleDateString("en-us", {
       year: "numeric",
       month: "long",
