@@ -25,6 +25,9 @@ export const messages = {
       filters: {
         projectLabel: 'CZ Project'
       }
+    },
+    footer: {
+      supportEmail: 'example@example.com'
     }
   }
 }

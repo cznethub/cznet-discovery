@@ -76,8 +76,8 @@
                   class="my-1"
                   v-html="getCreatorsHighlightedHtml(result)"
                 ></div>
-                <div class="my-1">{{ getResultCreationDate(result) }}</div>
-                <div class="my-1" v-if="result.datePublished">
+                <div v-if="result.dateCreated" class="my-1">{{ getResultCreationDate(result) }}</div>
+                <div v-if="result.datePublished" class="my-1">
                   Publication Date: {{ getResultPublicationDate(result) }}
                 </div>
                 <p
@@ -156,12 +156,10 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
-import { MIN_YEAR, MAX_YEAR } from "@/constants";
 import { sameRouteNavigationErrorHandler } from "@/constants";
 import { Loader, LoaderOptions } from "google-maps";
 import CdSpatialCoverageMap from "@/components/search-results/cd.spatial-coverage-map.vue";
 import CdSearch from "@/components/search/cd.search.vue";
-import SearchResults from "@/models/search-results.model";
 import SearchHistory from "@/models/search-history.model";
 import Search from "@/models/search.model";
 import Notification from "@/models/notifications.model";
@@ -296,10 +294,13 @@ export default class CdSearchResults extends Vue {
   }
 
   public getResultAuthors(result) {
-    return result.creator?.['@list'].map((c) => c.name).join(", ");
+    return result.creator;
   }
 
   public getResultCreationDate(result) {
+    if (!result.dateCreated) {
+      return ''
+    }
     return new Date(result.dateCreated).toLocaleDateString("en-us", {
       year: "numeric",
       month: "long",
@@ -308,6 +309,10 @@ export default class CdSearchResults extends Vue {
   }
 
   public getResultPublicationDate(result) {
+    if (!result.datePublished) {
+      return ''
+    }
+
     return new Date(result.datePublished).toLocaleDateString("en-us", {
       year: "numeric",
       month: "long",
@@ -332,13 +337,13 @@ export default class CdSearchResults extends Vue {
       return "";
     }
     const div = document.createElement("DIV");
-    div.innerHTML = result.creator['@list'].map((c) => c.name).join(", ");
+    div.innerHTML = result.creator;
 
     let content = div.textContent || div.innerText || "";
 
     if (result.highlights) {
       let hits = result.highlights
-        .filter((highlight) => highlight.path === "creator.@list.name")
+        .filter((highlight) => highlight.path === "creator.name")
         .map((hit) =>
           hit.texts.filter((t) => t.type === "hit").map((t) => t.value)
         )

@@ -106,7 +106,7 @@ export default class CdFeaturedDatasets extends Vue {
       await Search.search({
         pageSize: numFeatured,
         pageNumber: 1,
-        term: "Groundwater temperature",
+        term: "Water",
       })
     } catch (e) {
       console.log(e);
@@ -114,7 +114,7 @@ export default class CdFeaturedDatasets extends Vue {
   }
 
   public getResultAuthors(result) {
-    return result.creator?.['@list'].map((c) => c.name).join(", ");
+    return result.creator;
   }
 
   public getResultCreationDate(result) {
@@ -247,5 +247,13 @@ export default class CdFeaturedDatasets extends Vue {
   & > .v-slide-group__prev {
     box-shadow: 4px 0px 4px -4px rgba(0,0,0,0.25);
   }
+}
+
+::v-deep .v-slide-group__content {
+  flex: none;
+}
+
+::v-deep .v-slide-group__wrapper {
+  justify-content: center;
 }
 </style>

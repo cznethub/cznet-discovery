@@ -204,7 +204,7 @@ export default class App extends Vue {
   public paths: any[] = [
     {
       attrs: { to: "/" },
-      label: "Discover Data",
+      label: "Home",
       icon: "mdi-bookmark-multiple",
       isActive: () => this.$route.name === "search",
     },

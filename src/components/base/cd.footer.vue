@@ -4,7 +4,7 @@
       <div class="has-space-bottom-2x">
         <div class="has-space-bottom text-h6 mb-1">Contact Us</div>
         <p><router-link to="/contact">Contact</router-link></p>
-        <p><a :href="'mailto:' + supportEmail">Email Support</a></p>
+        <p><a :href="'mailto:' + $t('footer.supportEmail')">Email Support</a></p>
         <p>Learn more about <a href="https://www.i-guide.org/"
           target="_blank">I-GUIDE</a>
         </p>
@@ -33,7 +33,6 @@ Institute for Geospatial Understanding through an Integrative Discovery Environm
 </template>
 
 <script lang="ts">
-  import { SUPPORT_EMAIL } from '@/constants'
   import { Component, Vue } from 'vue-property-decorator'
 
   @Component({
@@ -41,7 +40,6 @@ Institute for Geospatial Understanding through an Integrative Discovery Environm
     components: { },
   })
   export default class CdFooter extends Vue {
-    protected supportEmail = SUPPORT_EMAIL
     protected get version() {
       return process.env.VUE_APP_VERSION || '0'
     }
