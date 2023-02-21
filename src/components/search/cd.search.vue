@@ -228,7 +228,7 @@ export default class CdSearch extends Vue {
     // The value is already populated by onHintHighlighted.
 
     // Ignore clicks on the action buttons
-    if (this.btnDeleteHint.map(btn => btn.$el).includes(event.target)) {
+    if (this.btnDeleteHint && this.btnDeleteHint.map(btn => btn.$el).includes(event.target)) {
       return
     }
 

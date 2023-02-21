@@ -21,7 +21,8 @@ export default class Search extends Model {
 
   static state(): any {
     return {
-      results: []
+      results: [],
+      clusters: []
     }
   }
 
@@ -75,5 +76,21 @@ export default class Search extends Model {
     }
     const data = await response.json()
     return data
+  }
+
+  /** Fetches the list of clusters and updates the state */
+  public static async fetchClusters(): Promise<void> {
+    const response: Response = await fetch(ENDPOINTS.clusters)
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch clusters');
+    }
+
+    const clusters = await response.json();
+    if (clusters) {
+      this.commit((state) => {
+        state.clusters = clusters
+      })
+    }
   }
 }

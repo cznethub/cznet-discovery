@@ -3,7 +3,7 @@ export function stringifyParamValues(params: ISearchParams | ITypeaheadParams):
 { [key:string]: string } {
   return Object.fromEntries(
     Object.entries(params)
-      .filter(([key, value]) => !!value)
+      .filter(([key, value]) => Array.isArray(value) ? value.length > 0 : !!value)
       .map(([key, value]) => [key, String(value)])
   )
 }

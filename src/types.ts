@@ -83,7 +83,7 @@ interface ISearchFilter {
     value: string
   },
   project: {
-    options: string[],
+    // options: string[],
     value: string[]
   }
   creatorName: string

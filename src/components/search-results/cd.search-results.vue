@@ -107,7 +107,7 @@
         />
 
         <v-select
-          :items="filter.project.options"
+          :items="clusters"
           v-model="filter.project.value"
           @change="onSearch"
           class="mb-6"
@@ -314,6 +314,7 @@ import CdSearch from "@/components/search/cd.search.vue";
 import SearchResults from "@/models/search-results.model";
 import SearchHistory from "@/models/search-history.model";
 import Search from "@/models/search.model";
+import Notification from "@/models/notifications.model";
 
 const options: LoaderOptions = { libraries: ["drawing"] };
 const loader: Loader = new Loader(
@@ -349,16 +350,7 @@ export default class CdSearchResults extends Vue {
       isActive: false,
     },
     project: {
-      options: [
-        'CZO Boulder',
-        'CZO Calhoun',
-        'CZO Catalina-Jemez',
-        'CZO Christina',
-        'CZO Luquillo',
-        'CZO National',
-        'CZO Sierra',
-        'Drylands Cluster',
-      ],
+      // Options are loaded via api during app `created` hook.
       value: []
     },
     // contentType: {
@@ -396,6 +388,10 @@ export default class CdSearchResults extends Vue {
 
   public get results() {
     return Search.$state.results
+  }
+
+  public get clusters() {
+    return Search.$state.clusters
   }
 
   public get isSomeFilterActive() {
@@ -563,6 +559,13 @@ export default class CdSearchResults extends Vue {
       this.hasMore = await Search.search(this.queryParams)
     } catch (e) {
       console.log(e);
+      Search.commit((state) => {
+        state.results = [];
+      })
+      Notification.toast({
+        message: `Failed to perform search`,
+        type: 'error',
+      })
     }
     this.isSearching = false;
   }
@@ -711,7 +714,7 @@ export default class CdSearchResults extends Vue {
     // this.filter.contentType.value = (this.$route.query["ct"] as string[]) || [];
 
     // PROJECT
-    this.filter.project.value = [this.$route.query["p"]].flat() as string[];
+    this.filter.project.value = this.$route.query["p"] ? [this.$route.query["p"]].flat() as string[] : [];
 
     // PUBLICATION YEAR
     if (this.$route.query["py"]) {

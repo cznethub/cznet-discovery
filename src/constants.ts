@@ -18,5 +18,6 @@ export const API_BASE = process.env.VUE_APP_API_URL || ''
 
 export const ENDPOINTS: { [key: string]: string } = {
   search: `${API_BASE}/search`,
-  typeahead: `${API_BASE}/typeahead`
+  typeahead: `${API_BASE}/typeahead`,
+  clusters: `${API_BASE}/clusters`,
 }
