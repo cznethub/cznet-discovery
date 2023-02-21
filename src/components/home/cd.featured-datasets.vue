@@ -1,11 +1,11 @@
 <template>
   <v-container class="cd-featured-datasets text-center py-12">
-    <div class="display-1 my-4">Featured Data and Research Products</div>
+    <div class="display-1 my-4">{{ $t("home.featuredData.title") }}</div>
     <div
       class="text--secondary text-body-2 my-4 d-inline-block"
       style="max-width: 35rem"
     >
-      Click on the links below to view and access I-GUIDE's latest featured data and other research products  
+      {{ $t("home.featuredData.subtitle") }}
     </div>
     <v-slide-group v-model="selected" center-active class="pa-4" show-arrows>
       <v-slide-item
@@ -81,31 +81,20 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import { SEARCH_RESOLVER, SEARCH_QUERY } from "@/constants";
 import CdHomeSearch from "@/components/home/cd.home-search.vue";
-import gql from "graphql-tag";
+import Search from "@/models/search.model";
 
-const Search = require(`@/graphql/${SEARCH_QUERY}`);
 const numFeatured = 10;
 
 @Component({
   name: "cd-featured-datasets",
-  components: { CdHomeSearch },
-  apollo: {
-    [SEARCH_RESOLVER]: {
-      query: gql`
-        ${Search}
-      `,
-      variables: { term: " " },
-      // errorPolicy: 'ignore'
-    },
-  },
+  components: { CdHomeSearch }
 })
 export default class CdFeaturedDatasets extends Vue {
   public selected: number | null = null;
 
   public get results() {
-    return this[SEARCH_RESOLVER] || new Array(numFeatured).fill(null);
+    return Search.$state.results || new Array(numFeatured).fill(null)
   }
 
   created() {
@@ -114,21 +103,18 @@ export default class CdFeaturedDatasets extends Vue {
 
   public async getFeaturedDatasets() {
     try {
-      const query = this.$apollo.queries[SEARCH_RESOLVER];
-      query.setVariables({
+      await Search.search({
         pageSize: numFeatured,
         pageNumber: 1,
         term: "Groundwater temperature",
-      });
-
-      const result = await query.refetch();
+      })
     } catch (e) {
       console.log(e);
     }
   }
 
   public getResultAuthors(result) {
-    return result.creator?.List.map((c) => c.name).join(", ");
+    return result.creator?.['@list'].map((c) => c.name).join(", ");
   }
 
   public getResultCreationDate(result) {

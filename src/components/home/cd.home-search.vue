@@ -14,14 +14,14 @@
       }"
     >
       <div class="text-h3 my-4 text-center has-text-shadow">
-        {{ bannerTitle }}
+        {{ $t("home.search.title") }}
       </div>
       <div class="text-h5 mt-4 mb-12 has-text-shadow text-center">
-        {{ bannerSubtitle }}
+        {{ $t("home.search.subtitle") }}
       </div>
       <div class="search-container full-width px-4 text-center mb-4">
         <div class="has-text-shadow font-weight-normal text-h6 mb-4">
-          Enter search terms here:
+          {{ $t("home.search.inputLabel") }}
         </div>
         <cd-search />
       </div>
@@ -31,7 +31,6 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import { BANNER_TITLE, BANNER_SUBTITLE } from "@/constants";
 import CdSearch from "@/components/search/cd.search.vue";
 
 @Component({
@@ -39,8 +38,7 @@ import CdSearch from "@/components/search/cd.search.vue";
   components: { CdSearch },
 })
 export default class CdHomeSearch extends Vue {
-  protected bannerTitle = BANNER_TITLE
-  protected bannerSubtitle = BANNER_SUBTITLE
+
 }
 </script>
 

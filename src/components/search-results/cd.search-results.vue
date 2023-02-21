@@ -107,12 +107,16 @@
         />
 
         <v-select
-          :items="filter.czProjects.options"
-          v-model="filter.czProjects.value"
+          :items="clusters"
+          v-model="filter.project.value"
+          @change="onSearch"
           class="mb-6"
+          multiple
+          small-chips
+          deletable-chips
           clearable
           outlined
-          label="I-GUIDE project"
+          :label="$t('searchResults.filters.projectLabel')"
           hide-details
           dense
         />
@@ -129,7 +133,7 @@
           dense
         />
 
-        <div>
+        <!-- <div>
           <div class="text-body-2">Content type</div>
           <v-checkbox
             v-for="(option, index) of filter.contentType.options"
@@ -141,7 +145,7 @@
             hide-details
             dense
           />
-        </div>
+        </div> -->
 
         <div class="text-center mt-8">
           <v-btn @click="clearFilters" :disabled="!isSomeFilterActive"
@@ -302,34 +306,25 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
-import { SEARCH_RESOLVER, SEARCH_QUERY, MIN_YEAR, MAX_YEAR } from "@/constants";
+import { MIN_YEAR, MAX_YEAR } from "@/constants";
 import { sameRouteNavigationErrorHandler } from "@/constants";
 import { Loader, LoaderOptions } from "google-maps";
 import CdSpatialCoverageMap from "@/components/search-results/cd.spatial-coverage-map.vue";
 import CdSearch from "@/components/search/cd.search.vue";
 import SearchResults from "@/models/search-results.model";
-import gql from "graphql-tag";
 import SearchHistory from "@/models/search-history.model";
+import Search from "@/models/search.model";
+import Notification from "@/models/notifications.model";
 
 const options: LoaderOptions = { libraries: ["drawing"] };
 const loader: Loader = new Loader(
   process.env.VUE_APP_GOOGLE_MAPS_API_KEY,
   options
 );
-const Search = require(`@/graphql/${SEARCH_QUERY}`);
 
 @Component({
   name: "cd-search-results",
-  components: { CdSearch, CdSpatialCoverageMap },
-  apollo: {
-    [SEARCH_RESOLVER]: {
-      query: gql`
-        ${Search}
-      `,
-      variables: { term: " " },
-      // errorPolicy: 'ignore'
-    },
-  },
+  components: { CdSearch, CdSpatialCoverageMap }
 })
 export default class CdSearchResults extends Vue {
   public loader = loader;
@@ -354,14 +349,14 @@ export default class CdSearchResults extends Vue {
       max: MAX_YEAR,
       isActive: false,
     },
-    czProjects: {
-      options: ['Drylands Cluster'],
-      value: ''
+    project: {
+      // Options are loaded via api during app `created` hook.
+      value: []
     },
-    contentType: {
-      options: ["Dataset", "Notebook/Code", "Software"],
-      value: [],
-    },
+    // contentType: {
+    //   options: ["Dataset", "Notebook/Code", "Software"],
+    //   value: [],
+    // },
     repository: {
       options: ["HydroShare", "EarthChem Library"],
       value: '',
@@ -392,7 +387,11 @@ export default class CdSearchResults extends Vue {
   }
 
   public get results() {
-    return this[SEARCH_RESOLVER] || [];
+    return Search.$state.results
+  }
+
+  public get clusters() {
+    return Search.$state.clusters
   }
 
   public get isSomeFilterActive() {
@@ -400,17 +399,18 @@ export default class CdSearchResults extends Vue {
       this.filter.publicationYear.isActive ||
       this.filter.publicationYear.isActive ||
       this.filter.dataCoverage.isActive ||
-      this.filter.contentType.value.length ||
+      // this.filter.contentType.value.length ||
       this.filter.repository.value ||
+      this.filter.project.value ||
       this.filter.creatorName
     );
   }
 
   /** Typeahead query parameters */
   public get typeaheadParams() {
-    const queryParams: { [key: string]: any } = {
-      pageSize: this.pageSize,
+    const queryParams: ITypeaheadParams = {
       term: this.searchQuery,
+      pageSize: this.pageSize,
     };
 
     // PUBLICATION YEAR
@@ -435,20 +435,25 @@ export default class CdSearchResults extends Vue {
       queryParams.providerName = this.filter.repository.value;
     }
 
-    // CONTENT TYPE
-    if (this.filter.contentType.value.length) {
-      queryParams.contentType = this.filter.contentType.value;
+    // PROJECT
+    if (this.filter.project.value) {
+      queryParams.providerName = this.filter.repository.value;
     }
+
+    // CONTENT TYPE
+    // if (this.filter.contentType.value.length) {
+    //   queryParams.contentType = this.filter.contentType.value;
+    // }
 
     return queryParams;
   }
 
-  /** GraphQL query parameters */
-  public get queryParams() {
-    const queryParams: { [key: string]: any } = {
+  /** Search query parameters */
+  public get queryParams(): ISearchParams {
+    const queryParams: ISearchParams = {
+      term: this.searchQuery,
       pageSize: this.pageSize,
       pageNumber: this.pageNumber,
-      term: this.searchQuery,
     };
 
     // PUBLICATION YEAR
@@ -473,10 +478,15 @@ export default class CdSearchResults extends Vue {
       queryParams.providerName = this.filter.repository.value;
     }
 
-    // CONTENT TYPE
-    if (this.filter.contentType.value?.length) {
-      queryParams.contentType = this.filter.contentType.value;
+    // PROJECT
+    if (this.filter.project.value.length) {
+      queryParams.clusters = this.filter.project.value;
     }
+
+    // CONTENT TYPE
+    // if (this.filter.contentType.value?.length) {
+    //   queryParams.contentType = this.filter.contentType.value;
+    // }
 
     // SORT BY
     if (this.sort) {
@@ -498,7 +508,8 @@ export default class CdSearchResults extends Vue {
       dc: this.filter.dataCoverage.isActive
         ? this.dataCoverage.map((n) => n.toString()) || undefined
         : undefined,
-      ct: this.filter.contentType.value || undefined,
+      // ct: this.filter.contentType.value || undefined,
+      p: this.filter.project.value || undefined,
       s: this.sort || undefined,
     };
   }
@@ -536,8 +547,6 @@ export default class CdSearchResults extends Vue {
     this.isSearching = true;
 
     try {
-      const query = this.$apollo.queries[SEARCH_RESOLVER];
-
       // set the parameters on the route
       this.$router
         .push({
@@ -546,40 +555,27 @@ export default class CdSearchResults extends Vue {
         })
         .catch(sameRouteNavigationErrorHandler);
 
-      // set query parameters
-      await query.setVariables(this.queryParams);
-
       SearchHistory.log(this.queryParams.term);
-      const result = await query.refetch();
-      this.hasMore = result.data?.[SEARCH_RESOLVER].length === this.pageSize;
-      // console.log('refetch results: ')
-      // console.log(result.data[SEARCH_RESOLVER].map(r => r.highlights))
+      this.hasMore = await Search.search(this.queryParams)
     } catch (e) {
       console.log(e);
+      Search.commit((state) => {
+        state.results = [];
+      })
+      Notification.toast({
+        message: `Failed to perform search`,
+        type: 'error',
+      })
     }
     this.isSearching = false;
   }
 
-  /** Gets the next page of results and appends them to the current results list. */
+  /** Get the next page of results. */
   public async fetchMore() {
     this.pageNumber++;
     this.isFetchingMore = true;
     try {
-      const result = await this.$apollo.queries[SEARCH_RESOLVER].fetchMore({
-        variables: this.queryParams,
-        updateQuery: (existing, incoming) => {
-          this.hasMore =
-            incoming.fetchMoreResult[SEARCH_RESOLVER].length === this.pageSize;
-          return {
-            [SEARCH_RESOLVER]: [
-              ...(existing[SEARCH_RESOLVER] || []),
-              ...incoming.fetchMoreResult[SEARCH_RESOLVER],
-            ],
-          };
-        },
-      });
-      // console.log('fetchMore results: ')
-      // console.log(result)
+      this.hasMore = await Search.fetchMore(this.queryParams)
     } catch (e) {
       console.log(e);
     }
@@ -587,7 +583,7 @@ export default class CdSearchResults extends Vue {
   }
 
   public getResultAuthors(result) {
-    return result.creator?.List.map((c) => c.name).join(", ");
+    return result.creator?.['@list'].map((c) => c.name).join(", ");
   }
 
   public getResultCreationDate(result) {
@@ -641,7 +637,7 @@ export default class CdSearchResults extends Vue {
       return "";
     }
     const div = document.createElement("DIV");
-    div.innerHTML = result.creator.List.map((c) => c.name).join(", ");
+    div.innerHTML = result.creator['@list'].map((c) => c.name).join(", ");
 
     let content = div.textContent || div.innerText || "";
 
@@ -693,9 +689,10 @@ export default class CdSearchResults extends Vue {
 
     this.filter.publicationYear.isActive = false;
     this.filter.dataCoverage.isActive = false;
-    this.filter.contentType.value = [];
-    this.filter.repository.value = "";
-    this.filter.creatorName = "";
+    // this.filter.contentType.value = [];
+    this.filter.project.value = [];
+    this.filter.repository.value = '';
+    this.filter.creatorName = '';
 
     if (wasSomeActive) {
       this.onSearch();
@@ -706,12 +703,18 @@ export default class CdSearchResults extends Vue {
   private _loadRouteParams() {
     // SEARCH QUERY
     this.searchQuery = this.$route.query["q"] as string;
+
     // CREATOR NAME
-    this.filter.creatorName = (this.$route.query["cn"] as string) || "";
+    this.filter.creatorName = (this.$route.query["cn"] as string) || '';
+
     // REPOSITORY
-    this.filter.repository.value = (this.$route.query["r"] as string) || "";
+    this.filter.repository.value = (this.$route.query["r"] as string) || '';
+
     // CONTENT TYPE
-    this.filter.contentType.value = (this.$route.query["ct"] as string[]) || [];
+    // this.filter.contentType.value = (this.$route.query["ct"] as string[]) || [];
+
+    // PROJECT
+    this.filter.project.value = this.$route.query["p"] ? [this.$route.query["p"]].flat() as string[] : [];
 
     // PUBLICATION YEAR
     if (this.$route.query["py"]) {
@@ -722,6 +725,7 @@ export default class CdSearchResults extends Vue {
           number
         ]) || this.publicationYear;
     }
+
     // DATA COVERAGE
     if (this.$route.query["dc"]) {
       this.filter.dataCoverage.isActive = true;
@@ -731,6 +735,7 @@ export default class CdSearchResults extends Vue {
           number
         ]) || this.dataCoverage;
     }
+    
     // SORT
     if (this.$route.query["s"]) {
       this.sort =
@@ -780,5 +785,9 @@ export default class CdSearchResults extends Vue {
 
 .grayed-out {
   opacity: 0.55;
+}
+
+::v-deep .v-select--chips .v-select__selections .v-chip--select:first-child {
+  margin-top: 1rem;
 }
 </style>

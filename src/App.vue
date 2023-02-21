@@ -158,10 +158,10 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-// import { setupRouteGuards } from "./router"
 import { Subscription } from "rxjs";
 import { APP_NAME, DEFAULT_TOAST_DURATION } from "./constants";
 import Notification, { IDialog, IToast } from "./models/notifications.model";
+import Search from "@/models/search.model";
 
 const INITIAL_DIALOG = {
   title: "",
@@ -218,6 +218,13 @@ export default class App extends Vue {
   async created() {
     document.title = APP_NAME;
 
+    try {
+      Search.fetchClusters()
+    }
+    catch(e) {
+      console.error('Failed to fetch clusters', e);
+    }
+
     this.onToast = Notification.toast$.subscribe((toast: IToast) => {
       this.snackbar = { ...this.snackbar, ...toast };
       this.snackbar.isActive = true;
@@ -227,10 +234,6 @@ export default class App extends Vue {
       this.dialog = { ...INITIAL_DIALOG, ...dialog };
       this.dialog.isActive = true;
     });
-
-    // Guards are setup after checking authorization and loading access tokens
-    // because they depend on user logged in status
-    // setupRouteGuards()
 
     this.isLoading = false;
   }

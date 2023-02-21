@@ -74,17 +74,44 @@ interface ISearchFilter {
     max: number, 
     isActive: boolean
   },
-  contentType: {
-    options: string[],
-    value: string[]
-  },
+  // contentType: {
+  //   options: string[],
+  //   value: string[]
+  // },
   repository: {
     options: string[],
     value: string
   },
-  czProjects: {
-    options: string[],
-    value: string
+  project: {
+    // options: string[],
+    value: string[]
   }
   creatorName: string
+}
+
+interface ISearchParams {
+  term: string,
+  pageSize: number,
+  pageNumber: number,
+  publishedStart?: Date,
+  publishedEnd?: Date,
+  dataCoverageStart?: Date,
+  dataCoverageEnd?: Date,
+  creatorName?: string,
+  providerName?: string
+  clusters?: string[],
+  sortBy?: 'name' | 'dateCreated'
+}
+
+interface ITypeaheadParams {
+  term: string,
+  pageSize?: number,
+  publishedStart?: Date,
+  publishedEnd?: Date,
+  dataCoverageStart?: Date,
+  dataCoverageEnd?: Date,
+  creatorName?: string,
+  providerName?: string
+  project?: string[],
+  sortBy?: 'name' | 'dateCreated'
 }
