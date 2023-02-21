@@ -24,4 +24,8 @@ export const routes: RouteConfig[] = [
     path: '*',
     redirect: '/discover',
   },
+  {
+    path: '/discover/*',
+    redirect: '/discover',
+  },
 ]

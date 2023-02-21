@@ -15,7 +15,7 @@
       <div class="text-subtitle-2 mt-4 d-inline-block" style="max-width: 30rem;">{{ $t("home.contribute.body") }}</div>
       <br>
 
-      <v-btn :href="$t('home.contribute.buttonUrl')" class="my-4" small color="accent">{{ $t("home.contribute.buttonText") }}</v-btn>
+      <v-btn :href="$t('home.contribute.buttonUrl')" class="my-4" small color="accent" disabled>{{ $t("home.contribute.buttonText") }}</v-btn>
     </v-container>
   </div>
 </template>

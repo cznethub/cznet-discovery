@@ -5,18 +5,18 @@ export const messages = {
     home: {
       featuredData: {
         title: `Featured Data and Research Products`,
-        subtitle: `Click on the links below to view and access CZNet's latest featured data and other research products`
+        subtitle: `Click on the links below to view and access I-GUIDE's latest featured data and other research products`
       },
       search: {
-        title: `Critical Zone Collaborative Network`,
-        subtitle: `Data Discovery Portal`,
+        title: `Integrative Discovery Starts Here!`,
+        subtitle: `Institute for Geospatial Understanding through an Integrative Discovery Environment (I-GUIDE)`,
         inputLabel: `Enter search terms here:`,
-        inputPlaceholder: `Search the CZNet Discovery catalog`
+        inputPlaceholder: `Search the I-GUIDE catalog`
       },
       contribute: {
         title: `Contribute Data or Research Products`,
-        subtitle: `This Data Discovery Portal provides tools for discovering and accessing data related to the Critical Zone Collaborative network and the Earth's Critical Zone`,
-        body: `If you have data or other research products that you want to contribute, visit the CZNet Data Submission Portal`,
+        subtitle: `The I-GUIDE platform is designed to harness the vast, diverse, and distributed geospatial data at different spatial and temporal scales and make them broadly accessible and usable to convergence research and education enabled by cutting-edge cyberGIS and cyberinfrastructure.`,
+        body: `If you have data or other research products that you want to contribute, visit the I-GUIDE Submission Portal`,
         buttonText: `Contribute Data`,
         buttonUrl: `https://dsp.criticalzone.org`
       }
