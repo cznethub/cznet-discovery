@@ -220,11 +220,11 @@
                 <a
                   class="result-title text-body-1 text-decoration-none"
                   :href="result.url"
-                  v-html="getResultFieldHighlightedHtml(result, 'name')"
+                  v-html="highlight(result, 'name')"
                 ></a>
                 <div
                   class="my-1"
-                  v-html="getCreatorsHighlightedHtml(result)"
+                  v-html="highlightCreators(result)"
                 ></div>
                 <div class="my-1">{{ getResultCreationDate(result) }}</div>
                 <div class="my-1" v-if="result.datePublished">
@@ -233,7 +233,7 @@
                 <p
                   class="mt-4 mb-1"
                   :class="{ 'snip-3': !result.showMore }"
-                  v-html="getResultFieldHighlightedHtml(result, 'description')"
+                  v-html="highlight(result, 'description')"
                 ></p>
 
                 <v-btn
@@ -252,9 +252,7 @@
                     <div class="mb-2">
                       <strong>Keywords: </strong
                       ><span
-                        v-html="
-                          getResultFieldHighlightedHtml(result, 'keywords')
-                        "
+                        v-html="highlight(result, 'keywords')"
                       ></span>
                     </div>
                     <div class="mb-2" v-if="result.funding">
@@ -632,7 +630,7 @@ export default class CdSearchResults extends Vue {
     this.onSearch();
   }
 
-  public getCreatorsHighlightedHtml(result: Cznet) {
+  public highlightCreators(result: Cznet) {
     if (!result.creator) {
       return "";
     }
@@ -658,9 +656,8 @@ export default class CdSearchResults extends Vue {
     return content;
   }
 
-  // TODO: turn this method into a filter
   /** Applies highlights to a string or string[] field and returns the new content as HTML */
-  public getResultFieldHighlightedHtml(result: Cznet, path: string) {
+  public highlight(result: Cznet, path: string) {
     const div = document.createElement("DIV");
     div.innerHTML = Array.isArray(result[path])
       ? result[path].join(", ")
