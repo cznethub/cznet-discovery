@@ -251,12 +251,4 @@ export default class CdFeaturedDatasets extends Vue {
     box-shadow: 4px 0px 4px -4px rgba(0,0,0,0.25);
   }
 }
-
-::v-deep .v-slide-group__content {
-  flex: none;
-}
-
-::v-deep .v-slide-group__wrapper {
-  justify-content: center;
-}
 </style>
