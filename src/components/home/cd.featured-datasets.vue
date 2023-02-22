@@ -2,7 +2,7 @@
   <v-container class="cd-featured-datasets text-center py-12">
     <div class="display-1 my-4">{{ $t("home.featuredData.title") }}</div>
     <div
-      class="text--secondary text-body-2 my-4 d-inline-block"
+      class="text--secondary text-body-1 my-4 d-inline-block"
       style="max-width: 35rem"
     >
       {{ $t("home.featuredData.subtitle") }}

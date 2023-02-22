@@ -7,12 +7,12 @@
 
     <v-container class="text-center py-12">
       <div class="display-1 mt-4">{{ $t("home.contribute.title") }}</div>
-      <div class="text--secondary text-body-2 mt-2 mb-4 d-inline-block" style="max-width: 35rem;">
+      <div class="text--secondary text-body-1 mt-2 mb-4 d-inline-block" style="max-width: 35rem;">
         {{ $t("home.contribute.subtitle") }}
       </div>
       <br>
 
-      <div class="text-subtitle-2 mt-4 d-inline-block" style="max-width: 30rem;">{{ $t("home.contribute.body") }}</div>
+      <div class="text-body-1 mt-4 d-inline-block" style="max-width: 30rem;">{{ $t("home.contribute.body") }}</div>
       <br>
 
       <v-btn :href="$t('home.contribute.buttonUrl')" class="my-4" small color="accent">{{ $t("home.contribute.buttonText") }}</v-btn>
