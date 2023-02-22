@@ -14,9 +14,9 @@ export interface IToast {
 export interface IDialog {
   title: string
   content: string
-  confirmText: string
+  confirmText?: string
   secondaryActionText?: string
-  cancelText: string
+  cancelText?: string
   onConfirm: () => any
   onSecondaryAction?: () => any
   onCancel?: () => any
