@@ -14,6 +14,7 @@ export default new Vuetify({
         error: colors.red.accent3,
         success: colors.teal.accent4,
         info: colors.blueGrey,
+        navbar: colors.blueGrey.lighten4
       },
       dark: {
         primary: colors.blueGrey,

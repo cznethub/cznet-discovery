@@ -51,7 +51,7 @@
       </v-container>
     </v-main>
 
-    <v-footer class="mt-8 navbar darken-1">
+    <v-footer class="mt-8 navbar lighten-1">
       <router-view name="footer" />
     </v-footer>
 

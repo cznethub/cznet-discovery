@@ -1,12 +1,12 @@
 <template>
   <v-container class="cd-featured-datasets text-center py-12">
     <div class="display-1 my-4">{{ $t("home.featuredData.title") }}</div>
-    <div
-      class="text--secondary text-body-1 my-4 d-inline-block"
+    <v-subheader
+      class="text-body-1 my-4 d-inline-block"
       style="max-width: 35rem"
     >
       {{ $t("home.featuredData.subtitle") }}
-    </div>
+    </v-subheader>
     <v-slide-group v-model="selected" center-active class="pa-4" show-arrows>
       <v-slide-item
         v-for="(result, index) in results"
@@ -40,12 +40,7 @@
               <div class="card-content info lighten-4">
                 <v-card-text class="pb-0 d-flex justify-space-between">
                   <div>{{ getResultCreationDate(result) }}</div>
-                  <v-btn
-                    :href="result.url"
-                    target="_blank"
-                    small
-                    depressed
-                  >
+                  <v-btn class="primary lighten-1" :href="result.url" target="_blank" small depressed>
                     <v-icon small left>mdi-open-in-new</v-icon>
                     View
                   </v-btn>
@@ -88,13 +83,13 @@ const numFeatured = 10;
 
 @Component({
   name: "cd-featured-datasets",
-  components: { CdHomeSearch }
+  components: { CdHomeSearch },
 })
 export default class CdFeaturedDatasets extends Vue {
   public selected: number | null = null;
 
   public get results() {
-    return Search.$state.results || new Array(numFeatured).fill(null)
+    return Search.$state.results || new Array(numFeatured).fill(null);
   }
 
   created() {
@@ -107,14 +102,14 @@ export default class CdFeaturedDatasets extends Vue {
         pageSize: numFeatured,
         pageNumber: 1,
         term: "Groundwater temperature",
-      })
+      });
     } catch (e) {
       console.log(e);
     }
   }
 
   public getResultAuthors(result) {
-    return result.creator?.['@list'].map((c) => c.name).join(", ");
+    return result.creator?.["@list"].map((c) => c.name).join(", ");
   }
 
   public getResultCreationDate(result) {
@@ -241,11 +236,11 @@ export default class CdFeaturedDatasets extends Vue {
   z-index: 2;
 
   & > .v-slide-group__next {
-    box-shadow: -4px 0px 4px -4px rgba(0,0,0,0.25);
+    box-shadow: -4px 0px 4px -4px rgba(0, 0, 0, 0.25);
   }
 
   & > .v-slide-group__prev {
-    box-shadow: 4px 0px 4px -4px rgba(0,0,0,0.25);
+    box-shadow: 4px 0px 4px -4px rgba(0, 0, 0, 0.25);
   }
 }
 </style>
