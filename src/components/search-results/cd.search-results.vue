@@ -258,7 +258,7 @@
                     <div class="mb-2" v-if="result.funding">
                       <strong>Funded by: </strong>{{ getResultFunding(result) }}
                     </div>
-                    <div class="mb-2" v-if="result.license.text">
+                    <div class="mb-2" v-if="result.license?.text">
                       <strong>License: </strong>{{ result.license.text }}
                     </div>
                   </div>
@@ -270,7 +270,7 @@
                     <cd-spatial-coverage-map
                       :loader="loader"
                       :loader-options="options"
-                      :features="result.spatialCoverage.geojson"
+                      :features="result.spatialCoverage?.geojson"
                     />
                   </div>
                 </div>
@@ -601,7 +601,7 @@ export default class CdSearchResults extends Vue {
   }
 
   public getResultKeywords(result) {
-    return result.keywords.join(", ");
+    return result.keywords?.join(", ");
   }
 
   public getResultFunding(result) {
