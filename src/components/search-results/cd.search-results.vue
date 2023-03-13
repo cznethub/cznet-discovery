@@ -55,7 +55,7 @@
             v-model="filter.dataCoverage.isActive"
             @change="onSearch"
             dense
-            label="Data coverage"
+            label="Data temporal coverage"
             hide-details
           />
           <v-range-slider
@@ -220,6 +220,7 @@
                 <a
                   class="result-title text-body-1 text-decoration-none"
                   :href="result.url"
+                  target="_blank"
                   v-html="highlight(result, 'name')"
                 ></a>
                 <div

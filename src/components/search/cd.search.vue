@@ -187,6 +187,7 @@ export default class CdSearch extends Vue {
         .push({ name: "search", query: { q: this.valueInternal } })
         .catch(sameRouteNavigationErrorHandler);
     }
+    this.menu = false;
   }
 
   /** Detects when the user crosses over from the beginning or end of the list items.

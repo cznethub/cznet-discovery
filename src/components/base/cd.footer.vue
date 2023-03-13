@@ -11,8 +11,8 @@
 
       <div>
         <div class="has-space-bottom text-h6">Open Source</div>
-        <p>The Data Submission Portal is Open Source. Find us on <a href="https://github.com/cznethub/dsp" target="_blank">GitHub</a>.</p>
-        <p>Report a bug <a href="https://github.com/cznethub/dsp/issues" target="_blank">here</a></p>
+        <p>The CZNet Catalog and Discover system are Open Source. Find us on <a href="https://github.com/cznethub/cznet-discovery" target="_blank">GitHub</a>.</p>
+        <p>Report a bug <a href="https://github.com/cznethub/cznet-discovery/issues " target="_blank">here</a></p>
         <p>This is Version {{ version }} of the Data Discovery Portal</p>
       </div>
     </div>
