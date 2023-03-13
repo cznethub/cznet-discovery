@@ -3,13 +3,14 @@ import { ENDPOINTS } from '@/constants'
 import { getQueryString } from '@/util'
 
 export interface ISearchState {
-  results: any[]
+  results: IResult[],
+  clusters: string[]
 }
 
 export default class Search extends Model {
   static entity = 'search'
-  
-  static fields () {
+
+  static fields() {
     return {
 
     }
@@ -19,7 +20,7 @@ export default class Search extends Model {
     return this.store().state.entities[this.entity]
   }
 
-  static state(): any {
+  static state(): ISearchState {
     return {
       results: [],
       clusters: []
@@ -35,12 +36,12 @@ export default class Search extends Model {
     if (!response.ok) {
       throw new Error('Network response was not OK');
     }
-    
-    const data = await response.json()
+
+    const rawResults: any[] = await response.json()
     this.commit(state => {
-      state.results = data
+      state.results = rawResults.map(this._parseResult)
     })
-    return data.length === params.pageSize
+    return rawResults.length === params.pageSize
   }
 
   /** Fetches the next page indicated by params.pageNumber and appends the incoming items to `state.results`
@@ -83,11 +84,30 @@ export default class Search extends Model {
       throw new Error('Failed to fetch clusters');
     }
 
-    const clusters = await response.json();
+    const clusters: string[] = await response.json();
     if (clusters) {
       this.commit((state) => {
         state.clusters = clusters
       })
+    }
+  }
+
+  /** Transform raw result data from API into `IResult` shaped objects */
+  private static _parseResult(rawResult: any): IResult {
+    return {
+      creator: rawResult.creator?.['@list']?.map(c => c.name) || [],
+      dateCreated: rawResult.dateCreated || '',
+      datePublished: rawResult.datePublished || '',
+      description: rawResult.description || '',
+      funding: rawResult.funding?.map((f) => f.name || f.funder.name) || [],
+      highlights: rawResult.highlights || [],
+      id: rawResult['@id'],
+      keywords: rawResult.keywords || [],
+      license: rawResult.license?.text || '',
+      name: rawResult.name || '',
+      score: rawResult.score || 0,
+      spatialCoverage: rawResult.spatialCoverage?.geojson || [],
+      url: rawResult.url || '',
     }
   }
 }

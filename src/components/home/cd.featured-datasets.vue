@@ -39,7 +39,7 @@
               </div>
               <div class="card-content info lighten-4">
                 <v-card-text class="pb-0 d-flex justify-space-between">
-                  <div>{{ getResultCreationDate(result) }}</div>
+                  <div>{{ formatDate(result.creationDate) }}</div>
                   <v-btn class="primary lighten-1" :href="result.url" target="_blank" small depressed>
                     <v-icon small left>mdi-open-in-new</v-icon>
                     View
@@ -76,6 +76,7 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
+import { formatDate } from "@/util";
 import CdHomeSearch from "@/components/home/cd.home-search.vue";
 import Search from "@/models/search.model";
 
@@ -87,9 +88,12 @@ const numFeatured = 10;
 })
 export default class CdFeaturedDatasets extends Vue {
   public selected: number | null = null;
-
-  public get results() {
-    return Search.$state.results || new Array(numFeatured).fill(null);
+  public formatDate = formatDate
+  
+  public get results(): IResult[] {
+    return Search.$state.results.length
+      ? Search.$state.results
+      : new Array(numFeatured).fill(null);
   }
 
   created() {
@@ -103,41 +107,14 @@ export default class CdFeaturedDatasets extends Vue {
         pageNumber: 1,
         term: "Groundwater temperature",
       });
+
     } catch (e) {
       console.log(e);
     }
   }
 
   public getResultAuthors(result) {
-    return result.creator?.["@list"].map((c) => c.name).join(", ");
-  }
-
-  public getResultCreationDate(result) {
-    return new Date(result.dateCreated).toLocaleDateString("en-us", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  }
-
-  public getResultPublicationDate(result) {
-    return new Date(result.datePublished).toLocaleDateString("en-us", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  }
-
-  public getResultKeywords(result) {
-    return result.keywords.join(", ");
-  }
-
-  public getResultFunding(result) {
-    if (result.funding) {
-      return result.funding.map((f) => f.name || f.funder.name).join(", ");
-    }
-
-    return "";
+    return result.creator.join(", ");
   }
 }
 </script>

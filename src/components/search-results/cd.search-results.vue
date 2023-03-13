@@ -215,7 +215,7 @@
               <div
                 v-for="result of results"
                 class="mb-16 text-body-2"
-                :key="result._id"
+                :key="result.id"
               >
                 <a
                   class="result-title text-body-1 text-decoration-none"
@@ -226,9 +226,9 @@
                   class="my-1"
                   v-html="highlightCreators(result)"
                 ></div>
-                <div class="my-1">{{ getResultCreationDate(result) }}</div>
+                <div class="my-1">{{ formatDate(result.dateCreated) }}</div>
                 <div class="my-1" v-if="result.datePublished">
-                  Publication Date: {{ getResultPublicationDate(result) }}
+                  Publication Date: {{ formatDate(result.datePublished) }}
                 </div>
                 <p
                   class="mt-4 mb-1"
@@ -255,22 +255,22 @@
                         v-html="highlight(result, 'keywords')"
                       ></span>
                     </div>
-                    <div class="mb-2" v-if="result.funding">
-                      <strong>Funded by: </strong>{{ getResultFunding(result) }}
+                    <div class="mb-2" v-if="result.funding.length">
+                      <strong>Funded by: </strong>{{ result.funding.join(", ") }}
                     </div>
-                    <div class="mb-2" v-if="result.license?.text">
-                      <strong>License: </strong>{{ result.license.text }}
+                    <div class="mb-2" v-if="result.license">
+                      <strong>License: </strong>{{ result.license }}
                     </div>
                   </div>
 
                   <div
                     v-if="hasSpatialFeatures(result)"
-                    :id="`map-${result._id}`"
+                    :id="`map-${result.id}`"
                   >
                     <cd-spatial-coverage-map
                       :loader="loader"
                       :loader-options="options"
-                      :features="result.spatialCoverage?.geojson"
+                      :features="result.spatialCoverage"
                     />
                   </div>
                 </div>
@@ -307,6 +307,7 @@ import { Component, Vue, Watch } from "vue-property-decorator";
 import { MIN_YEAR, MAX_YEAR } from "@/constants";
 import { sameRouteNavigationErrorHandler } from "@/constants";
 import { Loader, LoaderOptions } from "google-maps";
+import { formatDate } from "@/util";
 import CdSpatialCoverageMap from "@/components/search-results/cd.spatial-coverage-map.vue";
 import CdSearch from "@/components/search/cd.search.vue";
 import SearchResults from "@/models/search-results.model";
@@ -361,6 +362,7 @@ export default class CdSearchResults extends Vue {
     },
     creatorName: '',
   };
+  public formatDate = formatDate
 
   public get publicationYear() {
     return SearchResults.$state.publicationYear;
@@ -402,48 +404,6 @@ export default class CdSearchResults extends Vue {
       this.filter.project.value ||
       this.filter.creatorName
     );
-  }
-
-  /** Typeahead query parameters */
-  public get typeaheadParams() {
-    const queryParams: ITypeaheadParams = {
-      term: this.searchQuery,
-      pageSize: this.pageSize,
-    };
-
-    // PUBLICATION YEAR
-    if (this.filter.publicationYear.isActive) {
-      this.$set(queryParams, "publishedStart", this.publicationYear[0]);
-      this.$set(queryParams, "publishedEnd", this.publicationYear[1]);
-    }
-
-    // DATA COVERAGE
-    if (this.filter.dataCoverage.isActive) {
-      this.$set(queryParams, "dataCoverageStart", this.dataCoverage[0]);
-      this.$set(queryParams, "dataCoverageEnd", this.dataCoverage[1]);
-    }
-
-    // CREATOR NAME
-    if (this.filter.creatorName) {
-      queryParams.creatorName = this.filter.creatorName;
-    }
-
-    // REPOSITORY
-    if (this.filter.repository.value) {
-      queryParams.providerName = this.filter.repository.value;
-    }
-
-    // PROJECT
-    if (this.filter.project.value) {
-      queryParams.providerName = this.filter.repository.value;
-    }
-
-    // CONTENT TYPE
-    // if (this.filter.contentType.value.length) {
-    //   queryParams.contentType = this.filter.contentType.value;
-    // }
-
-    return queryParams;
   }
 
   /** Search query parameters */
@@ -581,35 +541,7 @@ export default class CdSearchResults extends Vue {
   }
 
   public getResultAuthors(result) {
-    return result.creator?.['@list'].map((c) => c.name).join(", ");
-  }
-
-  public getResultCreationDate(result) {
-    return new Date(result.dateCreated).toLocaleDateString("en-us", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  }
-
-  public getResultPublicationDate(result) {
-    return new Date(result.datePublished).toLocaleDateString("en-us", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  }
-
-  public getResultKeywords(result) {
-    return result.keywords?.join(", ");
-  }
-
-  public getResultFunding(result) {
-    if (result.funding) {
-      return result.funding.map((f) => f.name || f.funder.name).join(", ");
-    }
-
-    return "";
+    return result.creator?.['@list']?.map((c) => c.name).join(", ");
   }
 
   /** @param path: the filter object to act on.
@@ -630,12 +562,12 @@ export default class CdSearchResults extends Vue {
     this.onSearch();
   }
 
-  public highlightCreators(result: Cznet) {
+  public highlightCreators(result: IResult) {
     if (!result.creator) {
-      return "";
+      return '';
     }
     const div = document.createElement("DIV");
-    div.innerHTML = result.creator['@list'].map((c) => c.name).join(", ");
+    div.innerHTML = result.creator.join(", ");
 
     let content = div.textContent || div.innerText || "";
 
@@ -657,7 +589,7 @@ export default class CdSearchResults extends Vue {
   }
 
   /** Applies highlights to a string or string[] field and returns the new content as HTML */
-  public highlight(result: Cznet, path: string) {
+  public highlight(result: IResult, path: string) {
     const div = document.createElement("DIV");
     div.innerHTML = Array.isArray(result[path])
       ? result[path].join(", ")
@@ -740,8 +672,8 @@ export default class CdSearchResults extends Vue {
     }
   }
 
-  public hasSpatialFeatures(result): boolean {
-    return result.spatialCoverage?.geojson?.some((f) => f.geometry);
+  public hasSpatialFeatures(result: IResult): boolean {
+    return result.spatialCoverage?.some((feature) => feature.geometry);
   }
 }
 </script>

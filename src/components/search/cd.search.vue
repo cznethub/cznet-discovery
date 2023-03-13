@@ -159,7 +159,7 @@ export default class CdSearch extends Vue {
     this.previousValueInternal = this.value;
     try { await this._onTypeahead(); } catch(e) {}
     this.hints = this.typeaheadHints;
-    this.searchInput.focus();
+    this.searchInput?.focus();
 
     // https://www.learnrxjs.io/learn-rxjs/recipes/type-ahead
     fromEvent(this.searchInput.$el, "input")

@@ -1,61 +1,24 @@
-interface Cznet {
-  // Context: CznetContext
-  Id: string
-  Type: string
-  _id: string
-  // about: CznetAbout
-  additionalType: String
-  // author: CznetAuthor
-  citation: string[]
-  creativeWorkStatus: String
-  creator: CznetCreator
-  dateCreated: string
-  dateModified: string
-  datePublished: string
-  description: string
-  // distribution: CznetDistribution
-  // funder: CznetFunder
-  // funding: [CznetFunding]
-  highlights: CznetHighlight[]
-  // identifier: [CznetIdentifier]
-  inLanguage: string
-  // includedInDataCatalog: CznetIncludedInDataCatalog
-  isAccessibleForFree: Boolean
-  keywords: string[]
-  // license: CznetLicense
-  name: string
-  // provider: CznetProvider
-  // publisher: CznetPublisher
-  sameAs: string
-  score: number
-  // spatialCoverage: CznetSpatialCoverage
-  // subjectOf: CznetSubjectOf
-  // temporalCoverage: CznetTemporalCoverage
-  url: string
-}
-
-interface CznetHighlight {
-  path: string
-  score: number
-  texts: CznetHighlightText[]
-}
-
-interface CznetHighlightText {
-  type: string
-  value: string
-}
-
-interface CznetCreator {
-  List: CznetCreatorList[]
-}
-
-interface CznetCreatorList {
-  Type: string
-  // address: CznetCreatorListAddress
-  // affiliation: CznetCreatorListAffiliation
-  email: String
-  name: String
-  url: String
+interface IResult {
+  id: string,
+  creator: string[],
+  dateCreated: string,
+  datePublished: string,
+  description: string,
+  highlights: { 
+    path: string,
+    score: number,
+    texts: { 
+      type: string,
+      value: string 
+    }[]
+  }[],
+  license: string,
+  keywords: string[],
+  name: string,
+  score: number // unused for now...
+  url: string,
+  funding: string[],
+  spatialCoverage: any[]
 }
 
 interface IHint { 
@@ -105,13 +68,4 @@ interface ISearchParams {
 
 interface ITypeaheadParams {
   term: string,
-  pageSize?: number,
-  publishedStart?: Date,
-  publishedEnd?: Date,
-  dataCoverageStart?: Date,
-  dataCoverageEnd?: Date,
-  creatorName?: string,
-  providerName?: string
-  project?: string[],
-  sortBy?: 'name' | 'dateCreated'
 }

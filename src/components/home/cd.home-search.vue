@@ -4,7 +4,7 @@
     class="cd-home-search"
     alt="Snowy mountains over landscape with pine trees and a river"
     :src="require('@/assets/img/bg2.jpg')"
-    height="650"
+    height="450"
   >
     <v-container
       class="d-flex flex-column justify-center align-center full-height pa-12"

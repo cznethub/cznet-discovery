@@ -30,3 +30,11 @@ export function getQueryString(params: ISearchParams | ITypeaheadParams): string
   const arrayParams = _stringifyArrayParamValues(params);
   return `${new URLSearchParams(primitiveParams)}${arrayParams}`
 }
+
+export function formatDate(date: string): string {
+  return new Date(date).toLocaleDateString("en-us", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
