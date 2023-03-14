@@ -23,7 +23,7 @@ export const messages = {
     },
     searchResults: {
       filters: {
-        projectLabel: 'CZ Project'
+        projectLabel: 'CZ project'
       }
     }
   }

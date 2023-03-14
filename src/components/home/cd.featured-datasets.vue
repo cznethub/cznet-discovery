@@ -39,7 +39,7 @@
               </div>
               <div class="card-content info lighten-4">
                 <v-card-text class="pb-0 d-flex justify-space-between">
-                  <div>{{ formatDate(result.creationDate) }}</div>
+                  <div>{{ formatDate(result.dateCreated) }}</div>
                   <v-btn class="primary lighten-1" :href="result.url" target="_blank" small depressed>
                     <v-icon small left>mdi-open-in-new</v-icon>
                     View
