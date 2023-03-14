@@ -9,7 +9,7 @@
     </v-subheader>
     <v-slide-group v-model="selected" center-active class="pa-4" show-arrows>
       <v-slide-item
-        v-for="(result, index) in results"
+        v-for="(result, index) in datasets"
         :key="index"
         v-slot="{ toggle }"
       >
@@ -39,8 +39,18 @@
               </div>
               <div class="card-content info lighten-4">
                 <v-card-text class="pb-0 d-flex justify-space-between">
-                  <div>{{ formatDate(result.dateCreated) }}</div>
-                  <v-btn class="primary lighten-1" :href="result.url" target="_blank" small depressed>
+                  <div>
+                    <template v-if="result.dateCreated">{{
+                      formatDate(result.dateCreated)
+                    }}</template>
+                  </div>
+                  <v-btn
+                    class="primary lighten-1"
+                    :href="result.url"
+                    target="_blank"
+                    small
+                    depressed
+                  >
                     <v-icon small left>mdi-open-in-new</v-icon>
                     View
                   </v-btn>
@@ -49,7 +59,7 @@
                   <div class="snip-2">{{ result.name }}</div>
                 </v-card-title>
                 <v-card-text>
-                  <div class="mb-4">
+                  <div v-if="result.keywords.length" class="mb-4">
                     <v-chip
                       v-for="(keyowrd, index) of result.keywords.slice(0, 3)"
                       :key="index"
@@ -77,43 +87,19 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import { formatDate } from "@/util";
+import { FEATURED_DATASETS } from "@/components/home/featured-datasets";
 import CdHomeSearch from "@/components/home/cd.home-search.vue";
-import Search from "@/models/search.model";
-
-const numFeatured = 10;
 
 @Component({
   name: "cd-featured-datasets",
   components: { CdHomeSearch },
 })
 export default class CdFeaturedDatasets extends Vue {
-  public selected: number | null = null;
-  public formatDate = formatDate
-  
-  public get results(): IResult[] {
-    return Search.$state.results.length
-      ? Search.$state.results
-      : new Array(numFeatured).fill(null);
-  }
+  protected selected: number | null = null;
+  protected formatDate = formatDate;
+  protected datasets = FEATURED_DATASETS;
 
-  created() {
-    this.getFeaturedDatasets();
-  }
-
-  public async getFeaturedDatasets() {
-    try {
-      await Search.search({
-        pageSize: numFeatured,
-        pageNumber: 1,
-        term: "Groundwater temperature",
-      });
-
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  public getResultAuthors(result) {
+  protected getResultAuthors(result) {
     return result.creator.join(", ");
   }
 }
