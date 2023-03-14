@@ -224,6 +224,11 @@ export default class CdSearch extends Vue {
     }
   }
 
+  public browse(term: string) {
+    this.valueInternal = term;
+    this.onSearch();
+  }
+
   public async onHintSelected(event: PointerEvent, hint: IHint) {
     // We only act on 'pointerdown' event. The enter key is already captured in the input.
     // The value is already populated by onHintHighlighted.

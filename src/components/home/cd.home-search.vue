@@ -16,21 +16,25 @@
       <div class="text-h3 my-4 text-center has-text-shadow">
         {{ $t("home.search.title") }}
       </div>
-      <div class="text-h5 mt-4 mb-12 has-text-shadow text-center">
+      <div class="text-h5 mt-2 mb-12 has-text-shadow text-center">
         {{ $t("home.search.subtitle") }}
       </div>
       <div class="search-container full-width px-4 text-center mb-4">
-        <div class="has-text-shadow font-weight-normal text-h6 mb-4">
+        <div class="has-text-shadow font-weight-normal text-h6 mb-2">
           {{ $t("home.search.inputLabel") }}
         </div>
-        <cd-search />
+        <cd-search ref="search" />
+        <div class="has-text-shadow text-h5 mt-12">
+          Not sure what you are looking for?
+        </div>
+        <v-btn @click="searchInput.browse('CZNet')" class="has-text-shadow" color="white" text>Browse CZNet data products</v-btn>
       </div>
     </v-container>
   </v-parallax>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Ref } from "vue-property-decorator";
 import CdSearch from "@/components/search/cd.search.vue";
 
 @Component({
@@ -38,7 +42,7 @@ import CdSearch from "@/components/search/cd.search.vue";
   components: { CdSearch },
 })
 export default class CdHomeSearch extends Vue {
-
+  @Ref("search") searchInput;
 }
 </script>
 
