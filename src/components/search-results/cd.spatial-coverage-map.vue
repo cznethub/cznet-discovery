@@ -30,26 +30,26 @@ export default class CdSpatialCoverageMap extends Vue {
     await this.initMap();
     this.loadDrawing();
     if (this.map) {
-        const bounds = new google.maps.LatLngBounds();
-        this.markers.forEach((marker) => {
-          const pos = marker.getPosition() as google.maps.LatLng;
-          bounds.extend(new google.maps.LatLng(pos.lat(), pos.lng()));
-        });
-        
-        this.map.fitBounds(bounds);
+      const bounds = new google.maps.LatLngBounds();
+      this.markers.forEach((marker) => {
+        const pos = marker.getPosition() as google.maps.LatLng;
+        bounds.extend(new google.maps.LatLng(pos.lat(), pos.lng()));
+      });
 
-        if (this.markers.length === 1) {
-          // For single point coverages, use default zoom
-          const map = this.map;
-          setTimeout(() => {
-            map.setZoom(DEFAULT_ZOOM);
-          }, 100)
-        }
+      this.map.fitBounds(bounds);
 
-        // TODO: check if this overrides the marker bounds
-        this.rectangles.forEach((rectangle) => {
-          this.map?.fitBounds(rectangle.getBounds());
-        });
+      if (this.markers.length === 1) {
+        // For single point coverages, use default zoom
+        const map = this.map;
+        setTimeout(() => {
+          map.setZoom(DEFAULT_ZOOM);
+        }, 100);
+      }
+
+      // TODO: check if this overrides the marker bounds
+      this.rectangles.forEach((rectangle) => {
+        this.map?.fitBounds(rectangle.getBounds());
+      });
     }
   }
 
@@ -61,7 +61,7 @@ export default class CdSpatialCoverageMap extends Vue {
     this.map = new google.maps.Map(this.mapContainer, {
       center: { lat: 39.8097343, lng: -98.5556199 },
       zoom: DEFAULT_ZOOM,
-      gestureHandling: 'greedy'
+      gestureHandling: "greedy",
     });
 
     // Icon base from: http://kml4earth.appspot.com/icons.html
@@ -97,12 +97,27 @@ export default class CdSpatialCoverageMap extends Vue {
   protected loadDrawing() {
     const features = this.features.map((f) => f.geometry).filter((f) => f);
     if (features.length) {
-      const points = features
+      const points: google.maps.ReadonlyLatLngLiteral[] = features
         .filter((f) => f.type === "Point")
-        .map((f) => ({ lat: f.coordinates[1], lng: f.coordinates[0] }));
+        .map(
+          (f) =>
+            ({
+              lat: f.coordinates[1],
+              lng: f.coordinates[0],
+            } as google.maps.ReadonlyLatLngLiteral)
+        );
 
-      // TODO: get rectangles from data
-      const rectangles = [];
+      const rectangles: google.maps.LatLngBoundsLiteral[] = features
+        .filter((f) => f.type === "Polygon")
+        .map(
+          (f) =>
+            ({
+              north: f.coordinates[0],
+              south: f.coordinates[1],
+              east: f.coordinates[2],
+              west: f.coordinates[3],
+            } as google.maps.LatLngBoundsLiteral)
+        );
 
       if (points.length) {
         this.loadMarkers(points);
@@ -123,7 +138,7 @@ export default class CdSpatialCoverageMap extends Vue {
     }
   }
 
-  protected loadMarkers(markers: { lat: number; lng: number }[]) {
+  protected loadMarkers(markers: google.maps.ReadonlyLatLngLiteral[]) {
     if (this.map) {
       this.clearMarkers();
 
@@ -148,19 +163,14 @@ export default class CdSpatialCoverageMap extends Vue {
     }
   }
 
-  protected loadRectangles(rectangles) {
+  protected loadRectangles(rectangles: google.maps.LatLngBoundsLiteral[]) {
     if (this.map) {
       this.clearRectangles();
 
       rectangles.forEach((r) => {
         const rectangle = new google.maps.Rectangle({
           ...this.rectangleOptions,
-          bounds: {
-            north: r.northlimit,
-            south: r.southlimit,
-            east: r.eastlimit,
-            west: r.westlimit,
-          },
+          bounds: r,
           map: this.map as google.maps.Map,
         });
 

@@ -37,7 +37,7 @@ export default class Search extends Model {
       throw new Error('Network response was not OK');
     }
 
-    const rawResults: any[] = await response.json()
+    const rawResults: any[] = await response.json();
     this.commit(state => {
       state.results = rawResults.map(this._parseResult)
     })
