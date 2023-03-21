@@ -21,7 +21,7 @@
           <v-btn
             color="white"
             v-for="path of paths"
-            :key="path.to"
+            :key="path.attrs.to || path.attrs.href"
             v-bind="path.attrs"
             :id="`navbar-nav-${path.label.replaceAll(/[\/\s]/g, ``)}`"
             :elevation="0"
@@ -67,7 +67,7 @@
             v-for="path of paths"
             @click="showMobileNavigation = false"
             :id="`drawer-nav-${path.label.replaceAll(/[\/\s]/g, ``)}`"
-            :key="path.to"
+            :key="path.attrs.to || path.attrs.href"
             :class="path.isActive?.() ? 'accent' : ''"
             v-bind="path.attrs"
             active-class="accent white--text"
