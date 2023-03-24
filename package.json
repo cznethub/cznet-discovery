@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",
+    "@cznethub/cznet-vue-core": "file:../cznet-vue-core",
     "@vue/cli-plugin-babel": "^4.5.17",
     "@vue/cli-plugin-typescript": "^4.5.17",
     "@vue/cli-service": "^4.5.17",

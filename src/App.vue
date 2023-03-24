@@ -79,7 +79,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <cd-notifications />
+    <cz-notifications />
 
     <link
       href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
@@ -95,12 +95,14 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import { APP_NAME } from "./constants";
-import CdNotifications from '@/components/base/cz.notifications.vue'
 import Search from "@/models/search.model";
+import { Notifications, CzNotifications } from '@cznethub/cznet-vue-core'
 
 @Component({
   name: "app",
-  components: { CdNotifications },
+  components: { 
+    CzNotifications
+  },
 })
 export default class App extends Vue {
   public isLoading = true;
@@ -124,6 +126,19 @@ export default class App extends Vue {
       icon: "mdi-book-open-blank-variant",
     },
   ];
+
+  mounted() {
+    Notifications.toast({
+      message: `Failed to perform search`,
+      type: 'error',
+    })
+
+    Notifications.openDialog({
+      title: 'some title',
+      content: 'some content',
+      onConfirm: () => {}
+    })
+  }
 
   async created() {
     document.title = APP_NAME;
