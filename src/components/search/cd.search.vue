@@ -86,7 +86,7 @@ const typeaheadDebounceTime = 500;
 
 @Component({
   name: "cd-search",
-  components: {}
+  components: {},
 })
 export default class CdSearch extends Vue {
   @Prop() value!: string;
@@ -119,15 +119,24 @@ export default class CdSearch extends Vue {
 
   public get dbHints(): IHint[] {
     const minCharacters = 3;
-    let hints = this.rawDbHints.map((h) => h.highlights)
+    const valueInternal = this.valueInternal.toLocaleLowerCase();
+    let hints = this.rawDbHints
+      .map((h) => h.highlights)
       .flat()
       .map((h) => h.texts)
       .flat()
-      .filter((t) => t.type === "hit" && t.value.length > minCharacters)
+      .filter(
+        (t) =>
+          t.type === "hit" &&
+          t.value.length > minCharacters &&
+          t.value
+            .toLowerCase()
+            .indexOf(valueInternal) >= 0
+      )
       .map((t) => t.value.toLowerCase())
       .filter(
         (v: string) =>
-          v !== this.valueInternal.toLowerCase() &&
+          v !== valueInternal &&
           !this.localHints.some((h) => h.key === v)
       );
 
@@ -157,7 +166,9 @@ export default class CdSearch extends Vue {
   async mounted() {
     this.valueInternal = this.value;
     this.previousValueInternal = this.value;
-    try { await this._onTypeahead(); } catch(e) {}
+    try {
+      await this._onTypeahead();
+    } catch (e) {}
     this.hints = this.typeaheadHints;
     this.searchInput?.focus();
 
@@ -234,8 +245,11 @@ export default class CdSearch extends Vue {
     // The value is already populated by onHintHighlighted.
 
     // Ignore clicks on the action buttons
-    if (this.btnDeleteHint && this.btnDeleteHint.map(btn => btn.$el).includes(event.target)) {
-      return
+    if (
+      this.btnDeleteHint &&
+      this.btnDeleteHint.map((btn) => btn.$el).includes(event.target)
+    ) {
+      return;
     }
 
     if (event.type === "pointerdown") {
@@ -261,7 +275,7 @@ export default class CdSearch extends Vue {
 
     try {
       this.previousValueInternal = this.valueInternal;
-      this.rawDbHints = await Search.typeahead({ term: this.valueInternal })
+      this.rawDbHints = await Search.typeahead({ term: this.valueInternal });
       this.isFetchingHints = false;
     } catch (e) {
       console.log(e);
