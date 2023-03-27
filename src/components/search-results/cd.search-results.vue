@@ -173,7 +173,8 @@
                 style="white-space: nowrap"
                 >Sort results by:</small
               >
-              <v-btn-toggle class="d-table-cell" v-model="sort" dense>
+              <v-btn-toggle class="d-table-cell" v-model="sort" dense mandatory>
+                <v-btn small value="relevance">Relevance</v-btn>
                 <v-btn small value="dateCreated">Date</v-btn>
                 <v-btn small value="name">Title</v-btn>
               </v-btn-toggle>
@@ -223,11 +224,10 @@
                   target="_blank"
                   v-html="highlight(result, 'name')"
                 ></a>
-                <div
-                  class="my-1"
-                  v-html="highlightCreators(result)"
-                ></div>
-                <div class="my-1" v-if="result.dateCreated">{{ formatDate(result.dateCreated) }}</div>
+                <div class="my-1" v-html="highlightCreators(result)"></div>
+                <div class="my-1" v-if="result.dateCreated">
+                  {{ formatDate(result.dateCreated) }}
+                </div>
                 <div class="my-1" v-if="result.datePublished">
                   Publication Date: {{ formatDate(result.datePublished) }}
                 </div>
@@ -245,19 +245,20 @@
                   >Show {{ result.showMore ? "less" : "more" }}...</v-btn
                 >
 
-                <div class="d-flex gap-1 justify-space-between flex-wrap flex-lg-nowrap mt-2">
+                <div
+                  class="d-flex gap-1 justify-space-between flex-wrap flex-lg-nowrap mt-2"
+                >
                   <div>
                     <a class="mb-2 d-block" :href="result.url">{{
                       result.url
                     }}</a>
                     <div class="mb-2">
                       <strong>Keywords: </strong
-                      ><span
-                        v-html="highlight(result, 'keywords')"
-                      ></span>
+                      ><span v-html="highlight(result, 'keywords')"></span>
                     </div>
                     <div class="mb-2" v-if="result.funding.length">
-                      <strong>Funded by: </strong>{{ result.funding.join(", ") }}
+                      <strong>Funded by: </strong
+                      >{{ result.funding.join(", ") }}
                     </div>
                     <div class="mb-2" v-if="result.license">
                       <strong>License: </strong>{{ result.license }}
@@ -324,7 +325,7 @@ const loader: Loader = new Loader(
 
 @Component({
   name: "cd-search-results",
-  components: { CdSearch, CdSpatialCoverageMap }
+  components: { CdSearch, CdSpatialCoverageMap },
 })
 export default class CdSearchResults extends Vue {
   public loader = loader;
@@ -336,7 +337,7 @@ export default class CdSearchResults extends Vue {
   public hasMore = true;
   public isSearching = false;
   public isFetchingMore = false;
-  public sort: "name" | "dateCreated" | null = null;
+  public sort: "name" | "dateCreated" | "relevance" = "relevance";
   // public view: 'list' | 'map' = 'list'
   public filter: ISearchFilter = {
     publicationYear: {
@@ -351,7 +352,7 @@ export default class CdSearchResults extends Vue {
     },
     project: {
       // Options are loaded via api during app `created` hook.
-      value: []
+      value: [],
     },
     // contentType: {
     //   options: ["Dataset", "Notebook/Code", "Software"],
@@ -359,11 +360,11 @@ export default class CdSearchResults extends Vue {
     // },
     repository: {
       options: ["HydroShare", "EarthChem Library"],
-      value: '',
+      value: "",
     },
-    creatorName: '',
+    creatorName: "",
   };
-  public formatDate = formatDate
+  public formatDate = formatDate;
 
   public get publicationYear() {
     return SearchResults.$state.publicationYear;
@@ -388,11 +389,11 @@ export default class CdSearchResults extends Vue {
   }
 
   public get results() {
-    return Search.$state.results
+    return Search.$state.results;
   }
 
   public get clusters() {
-    return Search.$state.clusters
+    return Search.$state.clusters;
   }
 
   public get isSomeFilterActive() {
@@ -515,16 +516,16 @@ export default class CdSearchResults extends Vue {
         .catch(sameRouteNavigationErrorHandler);
 
       SearchHistory.log(this.queryParams.term);
-      this.hasMore = await Search.search(this.queryParams)
+      this.hasMore = await Search.search(this.queryParams);
     } catch (e) {
       console.log(e);
       Search.commit((state) => {
         state.results = [];
-      })
+      });
       Notification.toast({
         message: `Failed to perform search`,
-        type: 'error',
-      })
+        type: "error",
+      });
     }
     this.isSearching = false;
   }
@@ -534,15 +535,11 @@ export default class CdSearchResults extends Vue {
     this.pageNumber++;
     this.isFetchingMore = true;
     try {
-      this.hasMore = await Search.fetchMore(this.queryParams)
+      this.hasMore = await Search.fetchMore(this.queryParams);
     } catch (e) {
       console.log(e);
     }
     this.isFetchingMore = false;
-  }
-
-  public getResultAuthors(result) {
-    return result.creator?.['@list']?.map((c) => c.name).join(", ");
   }
 
   /** @param path: the filter object to act on.
@@ -565,7 +562,7 @@ export default class CdSearchResults extends Vue {
 
   public highlightCreators(result: IResult) {
     if (!result.creator) {
-      return '';
+      return "";
     }
     const div = document.createElement("DIV");
     div.innerHTML = result.creator.join(", ");
@@ -621,8 +618,8 @@ export default class CdSearchResults extends Vue {
     this.filter.dataCoverage.isActive = false;
     // this.filter.contentType.value = [];
     this.filter.project.value = [];
-    this.filter.repository.value = '';
-    this.filter.creatorName = '';
+    this.filter.repository.value = "";
+    this.filter.creatorName = "";
 
     if (wasSomeActive) {
       this.onSearch();
@@ -635,16 +632,18 @@ export default class CdSearchResults extends Vue {
     this.searchQuery = this.$route.query["q"] as string;
 
     // CREATOR NAME
-    this.filter.creatorName = (this.$route.query["cn"] as string) || '';
+    this.filter.creatorName = (this.$route.query["cn"] as string) || "";
 
     // REPOSITORY
-    this.filter.repository.value = (this.$route.query["r"] as string) || '';
+    this.filter.repository.value = (this.$route.query["r"] as string) || "";
 
     // CONTENT TYPE
     // this.filter.contentType.value = (this.$route.query["ct"] as string[]) || [];
 
     // PROJECT
-    this.filter.project.value = this.$route.query["p"] ? [this.$route.query["p"]].flat() as string[] : [];
+    this.filter.project.value = this.$route.query["p"]
+      ? ([this.$route.query["p"]].flat() as string[])
+      : [];
 
     // PUBLICATION YEAR
     if (this.$route.query["py"]) {
@@ -665,11 +664,11 @@ export default class CdSearchResults extends Vue {
           number
         ]) || this.dataCoverage;
     }
-    
+
     // SORT
     if (this.$route.query["s"]) {
       this.sort =
-        (this.$route.query["s"] as "name" | "dateCreated") || this.sort;
+        (this.$route.query["s"] as "name" | "dateCreated" | "relevance") || this.sort;
     }
   }
 

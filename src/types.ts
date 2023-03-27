@@ -63,7 +63,7 @@ interface ISearchParams {
   creatorName?: string,
   providerName?: string
   clusters?: string[],
-  sortBy?: 'name' | 'dateCreated'
+  sortBy?: 'name' | 'dateCreated' | 'relevance'
 }
 
 interface ITypeaheadParams {
