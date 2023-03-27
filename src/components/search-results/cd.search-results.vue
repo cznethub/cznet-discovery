@@ -227,7 +227,7 @@
                   class="my-1"
                   v-html="highlightCreators(result)"
                 ></div>
-                <div class="my-1">{{ formatDate(result.dateCreated) }}</div>
+                <div class="my-1" v-if="result.dateCreated">{{ formatDate(result.dateCreated) }}</div>
                 <div class="my-1" v-if="result.datePublished">
                   Publication Date: {{ formatDate(result.datePublished) }}
                 </div>
