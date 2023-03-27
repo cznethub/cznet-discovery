@@ -87,8 +87,12 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import { formatDate } from "@/util";
-import { FEATURED_DATASETS } from "@/components/home/featured-datasets";
+// import { FEATURED_DATASETS } from "@/components/home/featured-datasets";
 import CdHomeSearch from "@/components/home/cd.home-search.vue";
+import Search from "@/models/search.model";
+
+const numFeatured = 10;
+const featuredSearch = "CZNet";
 
 @Component({
   name: "cd-featured-datasets",
@@ -97,10 +101,32 @@ import CdHomeSearch from "@/components/home/cd.home-search.vue";
 export default class CdFeaturedDatasets extends Vue {
   protected selected: number | null = null;
   protected formatDate = formatDate;
-  protected datasets = FEATURED_DATASETS;
+  // protected datasets = FEATURED_DATASETS;  // JSON file setup. Unused for now.
 
   protected getResultAuthors(result) {
     return result.creator.join(", ");
+  }
+
+  public get datasets(): IResult[] {
+    return Search.$state.results.length
+      ? Search.$state.results
+      : new Array(numFeatured).fill(null);
+  }
+
+  created() {
+    this.getFeaturedDatasets();
+  }
+
+  public async getFeaturedDatasets() {
+    try {
+      await Search.search({
+        term: featuredSearch,
+        pageSize: numFeatured,
+        pageNumber: 1,
+      });
+    } catch (e) {
+      console.log(e);
+    }
   }
 }
 </script>
