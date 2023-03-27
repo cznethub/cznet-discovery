@@ -59,7 +59,7 @@ export default class Search extends Model {
     this.commit((state) => {
       state.results = [
         ...state.results,
-        ...incoming
+        ...incoming.map(this._parseResult)
       ] || []
     })
 
