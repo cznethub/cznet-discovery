@@ -186,7 +186,7 @@ export default class CdSearch extends Vue {
         switchMap(() => from(this._onTypeahead()))
       )
       .subscribe(() => {
-        this._handleTypeahead();
+        this._handleTypeahead(false);
       });
   }
 
