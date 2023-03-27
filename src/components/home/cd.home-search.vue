@@ -24,10 +24,10 @@
           {{ $t("home.search.inputLabel") }}
         </div>
         <cd-search ref="search" />
-        <div class="has-text-shadow text-h5 mt-12">
+        <div class="has-text-shadow text-h5 mt-12 mb-2">
           Not sure what you are looking for?
         </div>
-        <v-btn @click="searchInput.browse('CZNet')" class="has-text-shadow" color="white" text>Browse CZNet data products</v-btn>
+        <v-btn @click="searchInput.browse('CZNet')" color="white">Browse CZNet data products</v-btn>
       </div>
     </v-container>
   </v-parallax>
