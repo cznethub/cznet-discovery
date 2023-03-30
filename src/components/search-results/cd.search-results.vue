@@ -505,6 +505,7 @@ export default class CdSearchResults extends Vue {
     }
     this.hasMore = true;
     this.isSearching = true;
+    this.pageNumber = 1;
 
     try {
       // set the parameters on the route
