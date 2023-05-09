@@ -1,15 +1,15 @@
 <template>
   <v-container class="cd-featured-datasets text-center py-12">
     <div class="display-1 my-4">{{ $t("home.featuredData.title") }}</div>
-    <div
-      class="text--secondary text-body-2 my-4 d-inline-block"
+    <v-subheader
+      class="text-body-1 my-4 d-inline-block"
       style="max-width: 35rem"
     >
       {{ $t("home.featuredData.subtitle") }}
-    </div>
+    </v-subheader>
     <v-slide-group v-model="selected" center-active class="pa-4" show-arrows>
       <v-slide-item
-        v-for="(result, index) in results"
+        v-for="(result, index) in datasets"
         :key="index"
         v-slot="{ toggle }"
       >
@@ -39,8 +39,13 @@
               </div>
               <div class="card-content info lighten-4">
                 <v-card-text class="pb-0 d-flex justify-space-between">
-                  <div><span v-if="result.dateCreated">{{ getResultCreationDate(result) }}</span></div>
+                  <div>
+                    <template v-if="result.dateCreated">{{
+                      formatDate(result.dateCreated)
+                    }}</template>
+                  </div>
                   <v-btn
+                    class="primary lighten-1"
                     :href="result.url"
                     target="_blank"
                     small
@@ -54,7 +59,7 @@
                   <div class="snip-2">{{ result.name }}</div>
                 </v-card-title>
                 <v-card-text>
-                  <div class="mb-4">
+                  <div v-if="result.keywords.length" class="mb-4">
                     <v-chip
                       v-for="(keyowrd, index) of result.keywords.slice(0, 3)"
                       :key="index"
@@ -83,18 +88,28 @@
 import { Component, Vue } from "vue-property-decorator";
 import CdHomeSearch from "@/components/home/cd.home-search.vue";
 import Search from "@/models/search.model";
+import { formatDate } from "@/util";
 
 const numFeatured = 10;
+const featuredSearch = "Water";
 
 @Component({
   name: "cd-featured-datasets",
-  components: { CdHomeSearch }
+  components: { CdHomeSearch },
 })
 export default class CdFeaturedDatasets extends Vue {
-  public selected: number | null = null;
+  protected selected: number | null = null;
+  protected formatDate = formatDate;
+  // protected datasets = FEATURED_DATASETS;  // JSON file setup. Unused for now.
 
-  public get results() {
-    return Search.$state.results || new Array(numFeatured).fill(null)
+  protected getResultAuthors(result) {
+    return result.creator.join(", ");
+  }
+
+  public get datasets(): IResult[] {
+    return Search.$state.results.length
+      ? Search.$state.results
+      : new Array(numFeatured).fill(null);
   }
 
   created() {
@@ -104,49 +119,45 @@ export default class CdFeaturedDatasets extends Vue {
   public async getFeaturedDatasets() {
     try {
       await Search.search({
+        term: featuredSearch,
         pageSize: numFeatured,
         pageNumber: 1,
-        term: "Water",
-      })
+      });
     } catch (e) {
       console.log(e);
     }
   }
 
-  public getResultAuthors(result) {
-    return result.creator;
-  }
+  // public getResultCreationDate(result) {
+  //   if (!result.dateCreated) {
+  //     return ''
+  //   }
+  //   return new Date(result.dateCreated).toLocaleDateString("en-us", {
+  //     year: "numeric",
+  //     month: "long",
+  //     day: "numeric",
+  //   });
+  // }
 
-  public getResultCreationDate(result) {
-    if (!result.dateCreated) {
-      return ''
-    }
-    return new Date(result.dateCreated).toLocaleDateString("en-us", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  }
+  // public getResultPublicationDate(result) {
+  //   return new Date(result.datePublished).toLocaleDateString("en-us", {
+  //     year: "numeric",
+  //     month: "long",
+  //     day: "numeric",
+  //   });
+  // }
 
-  public getResultPublicationDate(result) {
-    return new Date(result.datePublished).toLocaleDateString("en-us", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  }
+  // public getResultKeywords(result) {
+  //   return result.keywords.join(", ");
+  // }
 
-  public getResultKeywords(result) {
-    return result.keywords.join(", ");
-  }
+  // public getResultFunding(result) {
+  //   if (result.funding) {
+  //     return result.funding.map((f) => f.name || f.funder.name).join(", ");
+  //   }
 
-  public getResultFunding(result) {
-    if (result.funding) {
-      return result.funding.map((f) => f.name || f.funder.name).join(", ");
-    }
-
-    return "";
-  }
+  //   return "";
+  // }
 }
 </script>
 
@@ -244,11 +255,11 @@ export default class CdFeaturedDatasets extends Vue {
   z-index: 2;
 
   & > .v-slide-group__next {
-    box-shadow: -4px 0px 4px -4px rgba(0,0,0,0.25);
+    box-shadow: -4px 0px 4px -4px rgba(0, 0, 0, 0.25);
   }
 
   & > .v-slide-group__prev {
-    box-shadow: 4px 0px 4px -4px rgba(0,0,0,0.25);
+    box-shadow: 4px 0px 4px -4px rgba(0, 0, 0, 0.25);
   }
 }
 </style>

@@ -4,7 +4,7 @@
     class="cd-home-search"
     alt="Snowy mountains over landscape with pine trees and a river"
     :src="require('@/assets/img/bg2.jpg')"
-    height="650"
+    height="450"
   >
     <v-container
       class="d-flex flex-column justify-center align-center full-height pa-12"
@@ -16,11 +16,11 @@
       <div class="text-h3 my-4 text-center has-text-shadow">
         {{ $t("home.search.title") }}
       </div>
-      <div class="text-h5 mt-4 mb-12 has-text-shadow text-center">
+      <div class="text-h5 mt-2 mb-12 has-text-shadow text-center">
         {{ $t("home.search.subtitle") }}
       </div>
       <div class="search-container full-width px-4 text-center mb-4">
-        <div class="has-text-shadow font-weight-normal text-h6 mb-4">
+        <div class="has-text-shadow font-weight-normal text-h6 mb-2">
           {{ $t("home.search.inputLabel") }}
         </div>
         <cd-search />
@@ -37,9 +37,7 @@ import CdSearch from "@/components/search/cd.search.vue";
   name: "cd-home-search",
   components: { CdSearch },
 })
-export default class CdHomeSearch extends Vue {
-
-}
+export default class CdHomeSearch extends Vue {}
 </script>
 
 <style lang="scss" scoped>

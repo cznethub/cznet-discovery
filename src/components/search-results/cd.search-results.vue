@@ -23,7 +23,8 @@
                 style="white-space: nowrap"
                 >Sort results by:</small
               >
-              <v-btn-toggle class="d-table-cell" v-model="sort" dense>
+              <v-btn-toggle class="d-table-cell" v-model="sort" dense mandatory>
+                <v-btn small value="relevance">Relevance</v-btn>
                 <v-btn small value="dateCreated">Date</v-btn>
                 <v-btn small value="name">Title</v-btn>
               </v-btn-toggle>
@@ -65,25 +66,25 @@
               <div
                 v-for="result of results"
                 class="mb-16 text-body-2"
-                :key="result._id"
+                :key="result.id"
               >
                 <a
                   class="result-title text-body-1 text-decoration-none"
                   :href="result.url"
-                  v-html="getResultFieldHighlightedHtml(result, 'name')"
+                  target="_blank"
+                  v-html="highlight(result, 'name')"
                 ></a>
-                <div
-                  class="my-1"
-                  v-html="getCreatorsHighlightedHtml(result)"
-                ></div>
-                <div v-if="result.dateCreated" class="my-1">{{ getResultCreationDate(result) }}</div>
-                <div v-if="result.datePublished" class="my-1">
-                  Publication Date: {{ getResultPublicationDate(result) }}
+                <div class="my-1" v-html="highlightCreators(result)"></div>
+                <div class="my-1" v-if="result.dateCreated">
+                  {{ formatDate(result.dateCreated) }}
+                </div>
+                <div class="my-1" v-if="result.datePublished">
+                  Publication Date: {{ formatDate(result.datePublished) }}
                 </div>
                 <p
                   class="mt-4 mb-1"
                   :class="{ 'snip-3': !result.showMore }"
-                  v-html="getResultFieldHighlightedHtml(result, 'description')"
+                  v-html="highlight(result, 'description')"
                 ></p>
 
                 <v-btn
@@ -94,35 +95,34 @@
                   >Show {{ result.showMore ? "less" : "more" }}...</v-btn
                 >
 
-                <div class="d-flex gap-1 justify-space-between flex-wrap flex-lg-nowrap mt-2">
+                <div
+                  class="d-flex gap-1 justify-space-between flex-wrap flex-lg-nowrap mt-2"
+                >
                   <div>
                     <a class="mb-2 d-block" :href="result.url">{{
                       result.url
                     }}</a>
                     <div class="mb-2">
                       <strong>Keywords: </strong
-                      ><span
-                        v-html="
-                          getResultFieldHighlightedHtml(result, 'keywords')
-                        "
-                      ></span>
+                      ><span v-html="highlight(result, 'keywords')"></span>
                     </div>
-                    <div class="mb-2" v-if="result.funding">
-                      <strong>Funded by: </strong>{{ getResultFunding(result) }}
+                    <div class="mb-2" v-if="result.funding.length">
+                      <strong>Funded by: </strong
+                      >{{ result.funding.join(", ") }}
                     </div>
-                    <div class="mb-2" v-if="result.license.text">
-                      <strong>License: </strong>{{ result.license.text }}
+                    <div class="mb-2" v-if="result.license">
+                      <strong>License: </strong>{{ result.license }}
                     </div>
                   </div>
 
                   <div
                     v-if="hasSpatialFeatures(result)"
-                    :id="`map-${result._id}`"
+                    :id="`map-${result.id}`"
                   >
                     <cd-spatial-coverage-map
                       :loader="loader"
                       :loader-options="options"
-                      :features="result.spatialCoverage.geojson"
+                      :features="result.spatialCoverage"
                     />
                   </div>
                 </div>
@@ -158,8 +158,10 @@
 import { Component, Vue, Watch } from "vue-property-decorator";
 import { sameRouteNavigationErrorHandler } from "@/constants";
 import { Loader, LoaderOptions } from "google-maps";
+import { formatDate } from "@/util";
 import CdSpatialCoverageMap from "@/components/search-results/cd.spatial-coverage-map.vue";
 import CdSearch from "@/components/search/cd.search.vue";
+import SearchResults from "@/models/search-results.model";
 import SearchHistory from "@/models/search-history.model";
 import Search from "@/models/search.model";
 import Notification from "@/models/notifications.model";
@@ -172,7 +174,7 @@ const loader: Loader = new Loader(
 
 @Component({
   name: "cd-search-results",
-  components: { CdSearch, CdSpatialCoverageMap }
+  components: { CdSearch, CdSpatialCoverageMap },
 })
 export default class CdSearchResults extends Vue {
   public loader = loader;
@@ -184,21 +186,38 @@ export default class CdSearchResults extends Vue {
   public hasMore = true;
   public isSearching = false;
   public isFetchingMore = false;
-  public sort: "name" | "dateCreated" | null = null;
+  public sort: "name" | "dateCreated" | "relevance" = "relevance";
   // public view: 'list' | 'map' = 'list'
+  public formatDate = formatDate;
 
-  public get results() {
-    return Search.$state.results
+  public get publicationYear() {
+    return SearchResults.$state.publicationYear;
   }
 
-  /** Typeahead query parameters */
-  public get typeaheadParams() {
-    const queryParams: ITypeaheadParams = {
-      term: this.searchQuery,
-      pageSize: this.pageSize,
-    };
+  public set publicationYear(range: [number, number]) {
+    // TODO: validate input
+    SearchResults.commit((state) => {
+      state.publicationYear = range;
+    });
+  }
 
-    return queryParams;
+  public get dataCoverage() {
+    return SearchResults.$state.dataCoverage;
+  }
+
+  public set dataCoverage(range: [number, number]) {
+    // TODO: validate input
+    SearchResults.commit((state) => {
+      state.dataCoverage = range;
+    });
+  }
+
+  public get results() {
+    return Search.$state.results;
+  }
+
+  public get clusters() {
+    return Search.$state.clusters;
   }
 
   /** Search query parameters */
@@ -256,6 +275,7 @@ export default class CdSearchResults extends Vue {
     }
     this.hasMore = true;
     this.isSearching = true;
+    this.pageNumber = 1;
 
     try {
       // set the parameters on the route
@@ -267,16 +287,16 @@ export default class CdSearchResults extends Vue {
         .catch(sameRouteNavigationErrorHandler);
 
       SearchHistory.log(this.queryParams.term);
-      this.hasMore = await Search.search(this.queryParams)
+      this.hasMore = await Search.search(this.queryParams);
     } catch (e) {
       console.log(e);
       Search.commit((state) => {
         state.results = [];
-      })
+      });
       Notification.toast({
         message: `Failed to perform search`,
-        type: 'error',
-      })
+        type: "error",
+      });
     }
     this.isSearching = false;
   }
@@ -286,58 +306,19 @@ export default class CdSearchResults extends Vue {
     this.pageNumber++;
     this.isFetchingMore = true;
     try {
-      this.hasMore = await Search.fetchMore(this.queryParams)
+      this.hasMore = await Search.fetchMore(this.queryParams);
     } catch (e) {
       console.log(e);
     }
     this.isFetchingMore = false;
   }
 
-  public getResultAuthors(result) {
-    return result.creator;
-  }
-
-  public getResultCreationDate(result) {
-    if (!result.dateCreated) {
-      return ''
-    }
-    return new Date(result.dateCreated).toLocaleDateString("en-us", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  }
-
-  public getResultPublicationDate(result) {
-    if (!result.datePublished) {
-      return ''
-    }
-
-    return new Date(result.datePublished).toLocaleDateString("en-us", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  }
-
-  public getResultKeywords(result) {
-    return result.keywords.join(", ");
-  }
-
-  public getResultFunding(result) {
-    if (result.funding) {
-      return result.funding.map((f) => f.name || f.funder.name).join(", ");
-    }
-
-    return "";
-  }
-
-  public getCreatorsHighlightedHtml(result: any) {
+  public highlightCreators(result: IResult) {
     if (!result.creator) {
       return "";
     }
     const div = document.createElement("DIV");
-    div.innerHTML = result.creator;
+    div.innerHTML = result.creator.join(", ");
 
     let content = div.textContent || div.innerText || "";
 
@@ -358,9 +339,8 @@ export default class CdSearchResults extends Vue {
     return content;
   }
 
-  // TODO: turn this method into a filter
   /** Applies highlights to a string or string[] field and returns the new content as HTML */
-  public getResultFieldHighlightedHtml(result: any, path: string) {
+  public highlight(result: IResult, path: string) {
     const div = document.createElement("DIV");
     div.innerHTML = Array.isArray(result[path])
       ? result[path].join(", ")
@@ -388,16 +368,17 @@ export default class CdSearchResults extends Vue {
   private _loadRouteParams() {
     // SEARCH QUERY
     this.searchQuery = this.$route.query["q"] as string;
-    
+
     // SORT
     if (this.$route.query["s"]) {
       this.sort =
-        (this.$route.query["s"] as "name" | "dateCreated") || this.sort;
+        (this.$route.query["s"] as "name" | "dateCreated" | "relevance") ||
+        this.sort;
     }
   }
 
-  public hasSpatialFeatures(result): boolean {
-    return result.spatialCoverage?.geojson?.some((f) => f.geometry);
+  public hasSpatialFeatures(result: IResult): boolean {
+    return result.spatialCoverage?.some((feature) => feature.geometry);
   }
 }
 </script>
