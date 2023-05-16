@@ -19,7 +19,7 @@ export interface IUserState {
 
 export default class User extends Model {
   static entity = "users";
-  // static isLoginListenerSet = false;
+  static isLoginListenerSet = false;
   static logInDialog$ = new Subject<RawLocation | undefined>();
   static loggedIn$ = new Subject<void>();
 
@@ -61,55 +61,47 @@ export default class User extends Model {
     };
     const loginUrl = `https://auth.cuahsi.io/realms/HydroShare/protocol/openid-connect/auth`;
 
-    const popup: WindowProxy = window.open(
+    window.open(
       `${loginUrl}?${getQueryString(params)}`,
       "_blank",
-      "location=1,status=1,scrollbars=1, width=800,height=800"
-    ) as WindowProxy;
+      "location=1, status=1, scrollbars=1, width=800, height=800"
+    );
 
-    // if (!this.isLoginListenerSet) {
-    // this.isLoginListenerSet = true; // Prevents registering the listener more than once
+    if (!this.isLoginListenerSet) {
+      this.isLoginListenerSet = true; // Prevents registering the listener more than once
+      console.info(`User: listening to login window...`);
+      window.addEventListener("message", async (event: MessageEvent) => {
+        if (
+          event.type !== "message" ||
+          event.origin !== "http://localhost:8080"
+        ) {
+          Notifications.toast({
+            message: "Failed to Log In",
+            type: "error",
+          });
+          return;
+        }
 
-    const handleMessage = async (event: MessageEvent) => {
-      console.log(event);
-      if (
-        event.type !== "message" ||
-        event.origin !== "http://localhost:8080"
-      ) {
-        Notifications.toast({
-          message: "Failed to Log In",
-          type: "error",
-        });
-        return;
-      }
-
-      if (event.data) {
-        Notifications.toast({
-          message: "You have logged in!",
-          type: "success",
-        });
-        await User.commit((state) => {
-          state.isLoggedIn = true;
-          state.accessToken = event.data;
-        });
-        // document.cookie = `Authorization=Bearer ${dict.access_token}; path=/`;
-        this.loggedIn$.next();
-        callback?.();
-
-        popup.removeEventListener("message", handleMessage);
-        popup.close();
-      } else {
-        Notifications.toast({
-          message: "Failed to Log In",
-          type: "error",
-        });
-      }
-    };
-
-    console.info(`User: listening to login window...`);
-    // TODO: this event listener is broken if the popup has a redirect step before postMessaage
-    // https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy
-    popup.addEventListener("message", handleMessage, { once: true });
+        if (event.data.accessToken) {
+          Notifications.toast({
+            message: "You have logged in!",
+            type: "success",
+          });
+          await User.commit((state) => {
+            state.isLoggedIn = true;
+            state.accessToken = event.data.accessToken;
+          });
+          this.loggedIn$.next();
+          this.isLoginListenerSet = false;
+          callback?.();
+        } else {
+          Notifications.toast({
+            message: "Failed to Log In",
+            type: "error",
+          });
+        }
+      });
+    }
   }
 
   static async checkAuthorization() {
@@ -149,7 +141,7 @@ export default class User extends Model {
     await User.commit((state) => {
       (state.isLoggedIn = false), (state.accessToken = "");
     });
-    // this.isLoginListenerSet = false;
+    this.isLoginListenerSet = false;
 
     Notifications.toast({
       message: "You have logged out!",

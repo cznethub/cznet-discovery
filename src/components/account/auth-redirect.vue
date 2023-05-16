@@ -25,7 +25,12 @@ export default class AuthRedirect extends Vue {
       return acc;
     }, dict);
 
-    postMessage(dict.access_token || "", "http://localhost:8080");
+    // window.opener references our original window from where the login popup was opened
+    window.opener.postMessage(
+      { accessToken: dict.access_token || "" },
+      "http://localhost:8080" // Important security measure: https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy
+    );
+    window.close();
   }
 }
 </script>
