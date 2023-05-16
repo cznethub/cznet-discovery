@@ -1,6 +1,7 @@
 <template>
   <v-app app>
     <v-app-bar
+      v-if="!$route.meta.hideNavigation"
       color="navbar"
       ref="appBar"
       id="app-bar"
@@ -101,7 +102,7 @@
         <v-sheet
           min-height="70vh"
           rounded
-          :elevation="$route.meta.hideMainSheet ? 0 : 2"
+          :elevation="$route.meta.hideNavigation ? 0 : 2"
         >
           <router-view name="content" />
         </v-sheet>
@@ -113,6 +114,7 @@
     </v-footer>
 
     <v-navigation-drawer
+      v-if="!$route.meta.hideNavigation"
       class="mobile-nav-items"
       v-model="showMobileNavigation"
       temporary
@@ -159,7 +161,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import { APP_NAME } from "./constants";
-import { CzNotifications } from "@cznethub/cznet-vue-core";
+import { CzNotifications, Notifications } from "@cznethub/cznet-vue-core";
 import { Subscription } from "rxjs";
 import User from "@/models/user.model";
 import CzLogin from "@/components/account/cz.login.vue";
@@ -199,6 +201,18 @@ export default class App extends Vue {
 
   protected get isLoggedIn(): boolean {
     return User.$state.isLoggedIn;
+  }
+
+  protected logOut() {
+    Notifications.openDialog({
+      title: "Log out?",
+      content: "Are you sure you want to log out?",
+      confirmText: "Log Out",
+      cancelText: "Cancel",
+      onConfirm: () => {
+        User.logOut();
+      },
+    });
   }
 
   async created() {

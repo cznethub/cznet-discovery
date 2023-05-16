@@ -35,7 +35,9 @@ export const routes: RouteConfig[] = [
     path: "/auth-redirect",
     components: {
       content: AuthRedirect,
-      footer: CdFooter,
+    },
+    meta: {
+      hideNavigation: true,
     },
   },
   {
