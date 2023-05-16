@@ -14,7 +14,7 @@
         </router-link>
         <div class="spacer"></div>
         <v-card
-          class="nav-items has-space-right d-flex"
+          class="nav-items has-space-right d-flex mr-4"
           :elevation="2"
           v-if="!$vuetify.breakpoint.mdAndDown"
         >
@@ -31,6 +31,63 @@
             {{ path.label }}
           </v-btn>
         </v-card>
+
+        <template v-if="!$vuetify.breakpoint.mdAndDown">
+          <v-btn
+            id="navbar-login"
+            v-if="!isLoggedIn"
+            @click="openLogInDialog()"
+            rounded
+            >Log In</v-btn
+          >
+          <template v-else>
+            <v-menu bottom left>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  :color="
+                    $route.matched.some((p) => p.name === 'profile')
+                      ? 'primary'
+                      : ''
+                  "
+                  elevation="2"
+                  rounded
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon>mdi-account-circle</v-icon>
+                  <v-icon>mdi-menu-down</v-icon>
+                </v-btn>
+              </template>
+
+              <v-list class="pa-0">
+                <v-list-item
+                  :to="{ path: '/profile' }"
+                  active-class="primary white--text"
+                >
+                  <v-list-item-icon class="mr-2">
+                    <v-icon>mdi-account-circle</v-icon>
+                  </v-list-item-icon>
+
+                  <v-list-item-content>
+                    <v-list-item-title>Account & Settings</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+
+                <v-divider></v-divider>
+
+                <v-list-item id="navbar-logout" @click="logOut()">
+                  <v-list-item-icon class="mr-2">
+                    <v-icon>mdi-logout</v-icon>
+                  </v-list-item-icon>
+
+                  <v-list-item-content>
+                    <v-list-item-title>Log Out</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </template>
+        </template>
 
         <v-app-bar-nav-icon
           @click.stop="showMobileNavigation = true"
@@ -79,7 +136,14 @@
       </v-list>
     </v-navigation-drawer>
 
-    <cd-notifications />
+    <cz-notifications />
+
+    <v-dialog v-model="logInDialog.isActive" width="500">
+      <cz-login
+        @cancel="logInDialog.isActive = false"
+        @logged-in="logInDialog.onLoggedIn"
+      ></cz-login>
+    </v-dialog>
 
     <link
       href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
@@ -95,21 +159,36 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import { APP_NAME } from "./constants";
-// import Search from "@/models/search.model";
-import CdNotifications from "@/components/base/cz.notifications.vue";
+import { CzNotifications } from "@cznethub/cznet-vue-core";
+import { Subscription } from "rxjs";
+import User from "@/models/user.model";
+import CzLogin from "@/components/account/cz.login.vue";
+import { RawLocation } from "vue-router";
 
 @Component({
   name: "app",
-  components: { CdNotifications },
+  components: { CzNotifications, CzLogin },
 })
 export default class App extends Vue {
+  protected onOpenLogInDialog!: Subscription;
   public showMobileNavigation = false;
+  protected logInDialog: any & { isActive: boolean } = {
+    isActive: false,
+    onLoggedIn: () => {},
+    onCancel: () => {},
+  };
   public paths: any[] = [
     {
       attrs: { to: "/" },
       label: "Home",
       icon: "mdi-bookmark-multiple",
       isActive: () => this.$route.name === "search",
+    },
+    {
+      attrs: { to: "contribute" },
+      label: "Contribute",
+      icon: "mdi-book-plus",
+      isActive: () => this.$route.name === "contribute",
     },
     // {
     //   attrs: { href: "https://dsp.criticalzone.org/" },
@@ -118,8 +197,34 @@ export default class App extends Vue {
     // },
   ];
 
+  protected get isLoggedIn(): boolean {
+    return User.$state.isLoggedIn;
+  }
+
   async created() {
     document.title = APP_NAME;
+
+    this.onOpenLogInDialog = User.logInDialog$.subscribe(
+      (redirectTo: RawLocation | undefined) => {
+        this.logInDialog.isActive = true;
+
+        this.logInDialog.onLoggedIn = () => {
+          if (redirectTo) {
+            this.$router.push(redirectTo);
+          }
+          this.logInDialog.isActive = false;
+        };
+      }
+    );
+  }
+
+  beforeDestroy() {
+    // Good practice
+    this.onOpenLogInDialog.unsubscribe();
+  }
+
+  protected openLogInDialog() {
+    User.openLogInDialog();
   }
 }
 </script>

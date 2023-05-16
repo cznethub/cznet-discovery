@@ -3,7 +3,7 @@
  * @returns the resulting object after filter and transformation
  */
 function _stringifyPrimitiveParamValues(
-  params: ISearchParams | ITypeaheadParams
+  params: ISearchParams | ITypeaheadParams | { [key: string]: string }
 ): { [key: string]: string } {
   return Object.fromEntries(
     Object.entries(params)
@@ -15,11 +15,11 @@ function _stringifyPrimitiveParamValues(
 }
 
 /** Filters array items from a param object and returns a concatenation of query strings
- * i.e: `{ foo: ['bar', 'baz'] }` => `'&foo=this&bar=baz'`
+ * i.e: `{ foo: ['bar', 'baz'] }` => `'&foo=bar&foo=baz'`
  * @returns a concatenation of array query strings
  */
 function _stringifyArrayParamValues(
-  params: ISearchParams | ITypeaheadParams
+  params: ISearchParams | ITypeaheadParams | { [key: string]: string }
 ): string {
   return Object.entries(params)
     .filter(([key, value]) => Array.isArray(value) && value.length > 0)
@@ -30,7 +30,7 @@ function _stringifyArrayParamValues(
 }
 
 export function getQueryString(
-  params: ISearchParams | ITypeaheadParams
+  params: ISearchParams | ITypeaheadParams | { [key: string]: string }
 ): string {
   const primitiveParams = _stringifyPrimitiveParamValues(params);
   const arrayParams = _stringifyArrayParamValues(params);

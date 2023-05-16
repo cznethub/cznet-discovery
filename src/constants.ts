@@ -19,5 +19,7 @@ export const API_BASE = process.env.VUE_APP_API_URL || "";
 export const ENDPOINTS: { [key: string]: string } = {
   search: `${API_BASE}/search`,
   typeahead: `${API_BASE}/typeahead`,
+  api: `${API_BASE}`,
+  logout: `${API_BASE}/logout`,
 };
 export const INITIAL_RANGE: [number, number] = [MIN_YEAR, MAX_YEAR];

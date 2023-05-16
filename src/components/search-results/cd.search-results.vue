@@ -164,7 +164,7 @@ import CdSearch from "@/components/search/cd.search.vue";
 import SearchResults from "@/models/search-results.model";
 import SearchHistory from "@/models/search-history.model";
 import Search from "@/models/search.model";
-import Notification from "@/models/notifications.model";
+import { Notifications } from "@cznethub/cznet-vue-core";
 
 const options: LoaderOptions = { libraries: ["drawing"] };
 const loader: Loader = new Loader(
@@ -293,7 +293,7 @@ export default class CdSearchResults extends Vue {
       Search.commit((state) => {
         state.results = [];
       });
-      Notification.toast({
+      Notifications.toast({
         message: `Failed to perform search`,
         type: "error",
       });
