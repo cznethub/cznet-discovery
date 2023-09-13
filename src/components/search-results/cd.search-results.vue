@@ -359,7 +359,7 @@ export default class CdSearchResults extends Vue {
     //   value: [],
     // },
     repository: {
-      options: ["HydroShare", "EarthChem Library"],
+      options: ["HydroShare", "EarthChem Library", "Zenodo"],
       value: "",
     },
     creatorName: "",
@@ -669,7 +669,8 @@ export default class CdSearchResults extends Vue {
     // SORT
     if (this.$route.query["s"]) {
       this.sort =
-        (this.$route.query["s"] as "name" | "dateCreated" | "relevance") || this.sort;
+        (this.$route.query["s"] as "name" | "dateCreated" | "relevance") ||
+        this.sort;
     }
   }
 
