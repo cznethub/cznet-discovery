@@ -249,9 +249,12 @@
                   class="d-flex gap-1 justify-space-between flex-wrap flex-lg-nowrap mt-2"
                 >
                   <div>
-                    <a class="mb-2 d-block" :href="result.url">{{
-                      result.url
-                    }}</a>
+                    <a
+                      class="mb-2 d-block"
+                      :href="result.url"
+                      target="_blank"
+                      >{{ result.url }}</a
+                    >
                     <div class="mb-2">
                       <strong>Keywords: </strong
                       ><span v-html="highlight(result, 'keywords')"></span>
