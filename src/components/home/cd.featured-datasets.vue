@@ -77,10 +77,17 @@
               </div>
             </div>
           </template>
-          <v-skeleton-loader v-else type="image"></v-skeleton-loader>
+          <v-skeleton-loader
+            v-else-if="isLoading"
+            type="image"
+          ></v-skeleton-loader>
         </v-card>
       </v-slide-item>
     </v-slide-group>
+
+    <div v-if="!wasLoaded && !isLoading" class="text--secondary text-body-1">
+      There are no datasets to feature right now. Please check again soon...
+    </div>
   </v-container>
 </template>
 
@@ -100,6 +107,8 @@ const featuredSearch = "CZNet";
 })
 export default class CdFeaturedDatasets extends Vue {
   protected selected: number | null = null;
+  protected isLoading = false;
+  protected wasLoaded = false;
   protected formatDate = formatDate;
   // protected datasets = FEATURED_DATASETS;  // JSON file setup. Unused for now.
 
@@ -108,9 +117,13 @@ export default class CdFeaturedDatasets extends Vue {
   }
 
   public get datasets(): IResult[] {
-    return Search.$state.results.length
+    const datasets = Search.$state.results.length
       ? Search.$state.results
       : new Array(numFeatured).fill(null);
+
+    this.wasLoaded = datasets.some((d) => !!d);
+
+    return datasets;
   }
 
   created() {
@@ -119,6 +132,7 @@ export default class CdFeaturedDatasets extends Vue {
 
   public async getFeaturedDatasets() {
     try {
+      this.isLoading = true;
       await Search.search({
         term: featuredSearch,
         pageSize: numFeatured,
@@ -126,6 +140,8 @@ export default class CdFeaturedDatasets extends Vue {
       });
     } catch (e) {
       console.log(e);
+    } finally {
+      this.isLoading = false;
     }
   }
 }
