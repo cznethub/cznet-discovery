@@ -94,8 +94,8 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import { APP_NAME } from "./constants";
-import CdNotifications from '@/components/base/cz.notifications.vue'
+import { APP_NAME, DSP_URL } from "./constants";
+import CdNotifications from "@/components/base/cz.notifications.vue";
 import Search from "@/models/search.model";
 
 @Component({
@@ -113,7 +113,7 @@ export default class App extends Vue {
       isActive: () => this.$route.name === "search",
     },
     {
-      attrs: { href: "https://dsp.criticalzone.org/" },
+      attrs: { href: DSP_URL },
       label: "Contribute Data",
       icon: "mdi-book-plus",
     },
@@ -129,10 +129,9 @@ export default class App extends Vue {
     document.title = APP_NAME;
 
     try {
-      Search.fetchClusters()
-    }
-    catch(e) {
-      console.error('Failed to fetch clusters', e);
+      Search.fetchClusters();
+    } catch (e) {
+      console.error("Failed to fetch clusters", e);
     }
 
     this.isLoading = false;

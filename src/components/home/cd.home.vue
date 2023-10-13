@@ -20,19 +20,16 @@
       </div>
       <br />
 
-      <v-btn
-        :href="$t('home.contribute.buttonUrl')"
-        class="my-4"
-        small
-        color="accent"
-        >{{ $t("home.contribute.buttonText") }}</v-btn
-      >
+      <v-btn :href="dspUrl" class="my-4" small color="accent">{{
+        $t("home.contribute.buttonText")
+      }}</v-btn>
     </v-container>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
+import { DSP_URL } from "@/constants";
 import CdHomeSearch from "@/components/home/cd.home-search.vue";
 import CdFeaturedDatasets from "@/components/home/cd.featured-datasets.vue";
 
@@ -40,8 +37,9 @@ import CdFeaturedDatasets from "@/components/home/cd.featured-datasets.vue";
   name: "cd-home",
   components: { CdHomeSearch, CdFeaturedDatasets },
 })
-export default class CdHome extends Vue {}
+export default class CdHome extends Vue {
+  dspUrl = DSP_URL;
+}
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>
