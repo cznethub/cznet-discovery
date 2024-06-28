@@ -23,7 +23,7 @@
       </div>
       <br />
 
-      <v-btn :href="dspUrl" class="my-4" small color="primary">{{
+      <v-btn :href="dspUrl" class="my-4" size="small" color="primary">{{
         $t("home.contribute.buttonText")
       }}</v-btn>
     </v-container>

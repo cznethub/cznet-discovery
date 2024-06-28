@@ -51,14 +51,11 @@ export default toNative(CdHomeSearch);
 <style lang="scss" scoped>
 .cd-home-search {
   background-color: var(--v-navbar-base);
-  background-position: center;
+  background-position: top, center;
+  background-size: cover;
 }
 
 .search-container {
   max-width: 45rem;
-}
-
-:deep(.v-parallax__content) {
-  padding: 0;
 }
 </style>

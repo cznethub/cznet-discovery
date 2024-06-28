@@ -207,10 +207,10 @@
                 ></p>
 
                 <v-btn
-                  x-small
-                  text
+                  size="x-small"
+                  variant="text"
                   color="primary"
-                  @click="$set(result, 'showMore', !result.showMore)"
+                  @click="result.showMore = !result.showMore"
                   >Show {{ result.showMore ? "less" : "more" }}...</v-btn
                 >
 
@@ -306,19 +306,19 @@ const sortOptions: { label: string; value: string }[] = [
   components: { CdSearch, CdSpatialCoverageMap, CdRangeInput },
 })
 class CdSearchResults extends Vue {
-  public loader = loader;
-  public options = options;
-  public isIntersecting = false;
-  public searchQuery = "";
-  public pageNumber = 1;
-  public pageSize = 15;
-  public hasMore = true;
-  public isSearching = false;
-  public isFetchingMore = false;
-  public sort: "name" | "dateCreated" | "relevance" = "relevance";
+  loader = loader;
+  options = options;
+  isIntersecting = false;
+  searchQuery = "";
+  pageNumber = 1;
+  pageSize = 15;
+  hasMore = true;
+  isSearching = false;
+  isFetchingMore = false;
+  sort: "name" | "dateCreated" | "relevance" = "relevance";
   sortEmpty = "dateCreated";
   // public view: 'list' | 'map' = 'list'
-  public filter: ISearchFilter = {
+  filter: ISearchFilter = {
     publicationYear: {
       min: MIN_YEAR,
       max: MAX_YEAR,
@@ -343,7 +343,7 @@ class CdSearchResults extends Vue {
     },
     creatorName: "",
   };
-  public formatDate = formatDate;
+  formatDate = formatDate;
   route = useRoute();
   router = useRouter();
 
@@ -491,7 +491,7 @@ class CdSearchResults extends Vue {
         SearchHistory.log(this.queryParams.term);
       }
 
-      // Note: this will reload the component
+      // Note: this will reload the component because the router-view in the App component has `:key="route.fullPath"`
       this.router
         .push({
           name: "search",
@@ -537,6 +537,7 @@ class CdSearchResults extends Vue {
     isActive: boolean;
   }) {
     filter.isActive = true;
+
     this.pushSearchRoute();
   }
 

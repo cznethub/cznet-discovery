@@ -13,6 +13,9 @@ export const routes: RouteRecordRaw[] = [
       content: CdHome,
       footer: CdFooter,
     },
+    meta: {
+      title: "Home",
+    },
   },
   {
     name: "search",
@@ -20,6 +23,9 @@ export const routes: RouteRecordRaw[] = [
     components: {
       content: CdSearchResults,
       footer: CdFooter,
+    },
+    meta: {
+      title: "Search",
     },
   },
   {
@@ -29,6 +35,9 @@ export const routes: RouteRecordRaw[] = [
       content: CdAbout,
       footer: CdFooter,
     },
+    meta: {
+      title: "About",
+    },
   },
   {
     name: "contact",
@@ -36,6 +45,9 @@ export const routes: RouteRecordRaw[] = [
     components: {
       content: CdContact,
       footer: CdFooter,
+    },
+    meta: {
+      title: "Contact",
     },
   },
   /** @see https://router.vuejs.org/guide/migration/#removed-star-or-catch-all-routes */

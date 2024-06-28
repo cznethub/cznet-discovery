@@ -22,7 +22,7 @@
             variant="flat"
           >
             {{ path.label }}
-            <v-icon v-if="path.isExternal" small class="ml-2" right>
+            <v-icon v-if="path.isExternal" size="small" class="ml-2" right>
               mdi-open-in-new
             </v-icon>
           </v-btn>
@@ -42,7 +42,7 @@
           rounded
           :elevation="$route.meta.hideMainSheet ? 0 : 2"
         >
-          <router-view v-if="!isLoading" name="content" />
+          <router-view v-if="!isLoading" name="content" :key="route.fullPath" />
         </v-sheet>
       </v-container>
     </v-main>
@@ -91,6 +91,8 @@ import { Component, Vue, toNative } from "vue-facing-decorator";
 import { APP_NAME, DSP_URL } from "./constants";
 import Search from "@/models/search.model";
 import { CzNotifications } from "@cznethub/cznet-vue-core";
+import { useRoute } from "vue-router";
+import { addRouteTags } from "@/modules/router";
 
 @Component({
   name: "app",
@@ -100,9 +102,11 @@ class App extends Vue {
   public isLoading = true;
   public showMobileNavigation = false;
   paths: any[] = [];
+  route = useRoute();
 
   async created() {
     document.title = APP_NAME;
+    addRouteTags(this.route, this.route);
 
     this.paths = [
       {

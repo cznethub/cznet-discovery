@@ -2,7 +2,7 @@ import { APP_NAME } from "@/constants";
 import type { UserModule } from "@/types";
 import { NavigationHookAfter } from "vue-router";
 
-const addRouteTags: NavigationHookAfter = (to, from) => {
+export const addRouteTags: NavigationHookAfter = (to, from) => {
   // This goes through the matched routes from last to first, finding the closest route with a title.
   // e.g., if we have `/some/deep/nested/route` and `/some`, `/deep`, and `/nested` have titles,
   // `/nested`'s will be chosen.
