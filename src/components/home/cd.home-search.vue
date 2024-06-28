@@ -52,7 +52,6 @@ export default toNative(CdHomeSearch);
 .cd-home-search {
   background-color: var(--v-navbar-base);
   background-position: center;
-  background-size: cover;
 }
 
 .search-container {

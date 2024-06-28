@@ -52,33 +52,32 @@
                   </div>
                   <v-btn
                     color="primary-lighten-1"
-                    @click="
-                      router.push({
-                        name: 'dataset',
-                        params: { id: result.id },
-                      })
-                    "
+                    :href="result.url"
                     target="_blank"
                     size="small"
                     depressed
                     variant="flat"
                   >
-                    <v-icon small left>mdi-open-in-new</v-icon>
+                    <v-icon size="small" left class="mr-2"
+                      >mdi-open-in-new</v-icon
+                    >
                     View
                   </v-btn>
                 </v-card-text>
-                <v-card-title
-                  :title="result.name"
-                  class="text-body-1 d-block font-weight-regular"
-                >
-                  <div class="snip-2">{{ result.name }}</div>
-                </v-card-title>
+
                 <v-card-text>
-                  <div v-if="result.keywords.length" class="mb-4">
+                  <p
+                    class="snip-2 text-body-1 font-weight-regular"
+                    :title="result.name"
+                  >
+                    {{ result.name }}
+                  </p>
+
+                  <div v-if="result.keywords.length" class="my-4">
                     <v-chip
                       v-for="(keyowrd, index) of result.keywords.slice(0, 3)"
                       :key="index"
-                      class="ma-1 bg-secondary-lighten-1"
+                      class="ma-1 bg-blue-grey-lighten-1"
                       style="pointer-events: none"
                       small
                       >{{ keyowrd }}</v-chip
