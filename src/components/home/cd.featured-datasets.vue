@@ -109,7 +109,7 @@ import { IResult } from "@/types";
 import { useRouter } from "vue-router";
 
 const numFeatured = 10;
-const featuredSearch = "string";
+const featuredSearch = "";
 
 @Component({
   name: "cd-featured-datasets",

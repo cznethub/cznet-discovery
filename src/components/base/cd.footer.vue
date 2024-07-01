@@ -60,8 +60,8 @@ import { Component, Vue, toNative } from "vue-facing-decorator";
   components: {},
 })
 class CdFooter extends Vue {
-  protected get version() {
-    return import.meta.env.VITE_APP_VERSION || "0";
+  get version() {
+    return VITE_APP_VERSION;
   }
 
   protected get year() {
