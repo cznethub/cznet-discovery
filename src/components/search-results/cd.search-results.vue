@@ -15,7 +15,7 @@
             @end="onSliderControlChange(filter.publicationYear)"
             :min="filter.publicationYear.min"
             :max="filter.publicationYear.max"
-            label="Publication Year"
+            label="Publication year"
           />
 
           <!-- DATA COVERAGE -->
@@ -26,7 +26,7 @@
             @end="onSliderControlChange(filter.dataCoverage)"
             :min="filter.dataCoverage.min"
             :max="filter.dataCoverage.max"
-            label="Data Coverage"
+            label="Data temporal coverage"
           />
 
           <!-- CREATOR NAME -->

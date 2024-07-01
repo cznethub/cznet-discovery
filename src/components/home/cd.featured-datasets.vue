@@ -79,7 +79,7 @@
                       :key="index"
                       class="ma-1 bg-blue-grey-lighten-1"
                       style="pointer-events: none"
-                      small
+                      size="small"
                       >{{ keyowrd }}</v-chip
                     >
                   </div>
@@ -109,7 +109,7 @@ import { IResult } from "@/types";
 import { useRouter } from "vue-router";
 
 const numFeatured = 10;
-const featuredSearch = "Water";
+const featuredSearch = "string";
 
 @Component({
   name: "cd-featured-datasets",

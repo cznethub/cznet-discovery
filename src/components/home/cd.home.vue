@@ -7,20 +7,17 @@
 
     <v-container class="text-center py-12">
       <div class="display-1 mt-4">{{ $t("home.contribute.title") }}</div>
-      <v-list-subheader
+      <p
         class="text-body-1 mt-2 mb-4 d-inline-block font-weight-light"
         style="max-width: 35rem"
       >
         {{ $t("home.contribute.subtitle") }}
-      </v-list-subheader>
+      </p>
       <br />
 
-      <div
-        class="text-body-1 mt-4 d-inline-block font-weight-light"
-        style="max-width: 30rem"
-      >
+      <p class="text-body-1 mt-4 d-inline-block" style="max-width: 30rem">
         {{ $t("home.contribute.body") }}
-      </div>
+      </p>
       <br />
 
       <v-btn :href="dspUrl" class="my-4" size="small" color="primary">{{
