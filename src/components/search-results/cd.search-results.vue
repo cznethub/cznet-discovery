@@ -107,7 +107,7 @@
             <div
               class="d-table-row d-lg-flex align-center flex-md-row flex-column"
             >
-              <small class="mr-2">Sort results by:</small>
+              <p class="mr-2">Sort results by:</p>
               <v-btn-toggle
                 v-if="searchQuery"
                 v-model="sort"
@@ -119,6 +119,7 @@
                 <v-btn
                   v-for="option of sortOptions"
                   :key="option.value"
+                  size="small"
                   @click="
                     $nextTick(() => {
                       pushSearchRoute();
@@ -139,6 +140,7 @@
                 <v-btn
                   v-for="option of sortOptions"
                   :key="option.value"
+                  size="small"
                   @click="
                     $nextTick(() => {
                       pushSearchRoute();
@@ -460,15 +462,13 @@ class CdSearchResults extends Vue {
         : undefined,
       // ct: this.filter.contentType.value || undefined,
       p: this.filter.project.value || undefined,
-      s: this.sort || undefined,
+      s: (this.searchQuery ? this.sort : this.sortEmpty) || undefined,
     };
   }
 
   created() {
     this._loadRouteParams();
-    if (this.$route.query["q"]) {
-      this._onSearch();
-    }
+    this._onSearch();
   }
 
   public onIntersect(_isIntersecting: boolean, entries: any[], _observer: any) {
