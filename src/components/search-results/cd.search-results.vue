@@ -52,6 +52,7 @@
             variant="outlined"
             density="compact"
             hide-details
+            multiple
             :label="$t('searchResults.filters.projectLabel')"
           />
 
@@ -428,7 +429,7 @@ class CdSearchResults extends Vue {
     }
 
     // PROJECT
-    if (this.filter.project.value.length) {
+    if (this.filter.project.value?.length) {
       queryParams.clusters = this.filter.project.value;
     }
 

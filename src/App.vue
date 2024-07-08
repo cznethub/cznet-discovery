@@ -120,6 +120,7 @@ class App extends Vue {
         attrs: { href: DSP_URL },
         label: "Contribute Data",
         icon: "mdi-book-plus",
+        isExternal: true,
       },
       {
         attrs: { to: "/about" },
