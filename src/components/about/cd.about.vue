@@ -6,7 +6,7 @@
       :style="{
         'background-image':
           'linear-gradient(rgb(0 52 82 / 31%), rgba(0, 0, 0, 0)), url(' +
-          require('@/assets/img/bg3.jpg') +
+          '/img/bg3.jpg' +
           ')',
       }"
     ></div>
@@ -15,7 +15,7 @@
       <a href="http://www.criticalzone.org" target="_blank"
         >http://www.criticalzone.org</a
       >
-      <v-divider class="has-space-bottom" />
+      <v-divider class="mb-4" />
       <p class="text-body-1">
         The Critical Zone Collaborative Network (CZNet) is the next phase of
         NSF’s Critical Zone research program, comprised of nine Thematic Cluster
@@ -48,13 +48,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, toNative } from "vue-facing-decorator";
 
 @Component({
   name: "cd-about",
   components: {},
 })
-export default class CdAbout extends Vue {}
+class CdAbout extends Vue {}
+export default toNative(CdAbout);
 </script>
 
 <style lang="scss" scoped>

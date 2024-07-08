@@ -1,40 +1,36 @@
 <template>
   <v-app app>
-    <v-app-bar
-      color="navbar"
-      ref="appBar"
-      id="app-bar"
-      elevate-on-scroll
-      fixed
-      app
-    >
-      <v-container class="d-flex align-end full-height pa-0 align-center">
+    <v-app-bar id="app-bar" color="navbar" scroll-behavior="elevate" fixed app>
+      <v-container class="d-flex align-end full-height py-1 align-center">
         <router-link :to="{ path: `/` }" class="logo">
-          <img :src="require('@/assets/img/logo.png')" alt="home" />
+          <img :src="'/img/logo.png'" alt="home" />
         </router-link>
-        <div class="spacer"></div>
+        <v-spacer></v-spacer>
         <v-card
-          class="nav-items has-space-right d-flex"
+          class="nav-items mr-2 d-flex mr-4"
           :elevation="2"
-          v-if="!$vuetify.breakpoint.mdAndDown"
+          v-if="!$vuetify.display.mdAndDown"
         >
           <v-btn
-            color="white"
             v-for="path of paths"
-            :key="path.attrs.to || path.attrs.href"
             v-bind="path.attrs"
             :id="`navbar-nav-${path.label.replaceAll(/[\/\s]/g, ``)}`"
+            :key="path.attrs.to || path.attrs.href"
             :elevation="0"
             active-class="primary"
-            :class="path.isActive?.() ? 'primary' : ''"
+            :color="path.isActive && path.isActive() ? 'primary' : ''"
+            variant="flat"
           >
             {{ path.label }}
+            <v-icon v-if="path.isExternal" size="small" class="ml-2" right>
+              mdi-open-in-new
+            </v-icon>
           </v-btn>
         </v-card>
 
         <v-app-bar-nav-icon
           @click.stop="showMobileNavigation = true"
-          v-if="$vuetify.breakpoint.mdAndDown"
+          v-if="$vuetify.display.mdAndDown"
         />
       </v-container>
     </v-app-bar>
@@ -46,12 +42,12 @@
           rounded
           :elevation="$route.meta.hideMainSheet ? 0 : 2"
         >
-          <router-view v-if="!isLoading" name="content" />
+          <router-view v-if="!isLoading" name="content" :key="route.fullPath" />
         </v-sheet>
       </v-container>
     </v-main>
 
-    <v-footer class="mt-8 navbar lighten-1">
+    <v-footer class="mt-8">
       <router-view name="footer" />
     </v-footer>
 
@@ -62,24 +58,22 @@
       app
     >
       <v-list nav dense class="nav-items">
-        <v-list-item-group class="text-body-1">
-          <v-list-item
-            v-for="path of paths"
-            @click="showMobileNavigation = false"
-            :id="`drawer-nav-${path.label.replaceAll(/[\/\s]/g, ``)}`"
-            :key="path.attrs.to || path.attrs.href"
-            :class="path.isActive?.() ? 'accent' : ''"
-            v-bind="path.attrs"
-            active-class="accent white--text"
-          >
-            <v-icon class="mr-2">{{ path.icon }}</v-icon>
-            <span>{{ path.label }}</span>
-          </v-list-item>
-        </v-list-item-group>
+        <v-list-item
+          v-for="path of paths"
+          @click="showMobileNavigation = false"
+          :id="`drawer-nav-${path.label.replaceAll(/[\/\s]/g, ``)}`"
+          :key="path.attrs.to || path.attrs.href"
+          :class="path.isActive?.() ? 'accent' : ''"
+          v-bind="path.attrs"
+          active-class="accent white--text"
+        >
+          <v-icon class="mr-2">{{ path.icon }}</v-icon>
+          <span>{{ path.label }}</span>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
-    <cd-notifications />
+    <cz-notifications />
 
     <link
       href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
@@ -93,40 +87,54 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, toNative } from "vue-facing-decorator";
 import { APP_NAME, DSP_URL } from "./constants";
-import CdNotifications from "@/components/base/cz.notifications.vue";
 import Search from "@/models/search.model";
+import { CzNotifications } from "@cznethub/cznet-vue-core";
+import { useRoute } from "vue-router";
+import { addRouteTags } from "@/modules/router";
 
 @Component({
   name: "app",
-  components: { CdNotifications },
+  components: { CzNotifications },
 })
-export default class App extends Vue {
+class App extends Vue {
   public isLoading = true;
   public showMobileNavigation = false;
-  public paths: any[] = [
-    {
-      attrs: { to: "/" },
-      label: "Discover Data",
-      icon: "mdi-bookmark-multiple",
-      isActive: () => this.$route.name === "search",
-    },
-    {
-      attrs: { href: DSP_URL },
-      label: "Contribute Data",
-      icon: "mdi-book-plus",
-    },
-    { attrs: { to: "/about" }, label: "About", icon: "mdi-help" },
-    {
-      attrs: { to: "/contact" },
-      label: "Contact",
-      icon: "mdi-book-open-blank-variant",
-    },
-  ];
+  paths: any[] = [];
+  route = useRoute();
 
   async created() {
     document.title = APP_NAME;
+    addRouteTags(this.route, this.route);
+
+    this.paths = [
+      {
+        attrs: { to: "/" },
+        label: "Discover Data",
+        icon: "mdi-bookmark-multiple",
+        isActive: () =>
+          this.$route.name === "search" || this.$route.name === "home",
+      },
+      {
+        attrs: { href: DSP_URL },
+        label: "Contribute Data",
+        icon: "mdi-book-plus",
+      },
+      {
+        attrs: { to: "/about" },
+        label: "About",
+        icon: "mdi-help",
+        isActive: () => this.$route.name === "about",
+      },
+
+      {
+        attrs: { to: "/contact" },
+        label: "Contact",
+        icon: "mdi-book-open-blank-variant",
+        isActive: () => this.$route.name === "contact",
+      },
+    ];
 
     try {
       Search.fetchClusters();
@@ -137,6 +145,7 @@ export default class App extends Vue {
     this.isLoading = false;
   }
 }
+export default toNative(App);
 </script>
 
 <style lang="scss" scoped>
