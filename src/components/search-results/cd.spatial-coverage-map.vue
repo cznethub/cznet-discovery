@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Ref } from "vue-property-decorator";
+import { Component, Vue, Prop, Ref, toNative } from "vue-facing-decorator";
 import { Loader, LoaderOptions } from "google-maps";
 
 const DEFAULT_ZOOM = 5;
@@ -14,7 +14,7 @@ const DEFAULT_ZOOM = 5;
   name: "cd-spatial-coverage-map",
   components: {},
 })
-export default class CdSpatialCoverageMap extends Vue {
+class CdSpatialCoverageMap extends Vue {
   @Prop() features!: any;
   @Prop() loader!: Loader;
   @Prop() loaderOptions!: LoaderOptions;
@@ -179,6 +179,7 @@ export default class CdSpatialCoverageMap extends Vue {
     }
   }
 }
+export default toNative(CdSpatialCoverageMap)
 </script>
 
 <style lang="scss" scoped>

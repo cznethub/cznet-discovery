@@ -7,20 +7,20 @@
 
     <v-container class="text-center py-12">
       <div class="display-1 mt-4">{{ $t("home.contribute.title") }}</div>
-      <v-subheader
-        class="text-body-1 mt-2 mb-4 d-inline-block"
+      <p
+        class="text-body-1 mt-2 mb-4 d-inline-block font-weight-light"
         style="max-width: 35rem"
       >
         {{ $t("home.contribute.subtitle") }}
-      </v-subheader>
+      </p>
       <br />
 
-      <div class="text-body-1 mt-4 d-inline-block" style="max-width: 30rem">
+      <p class="text-body-1 mt-4 d-inline-block" style="max-width: 30rem">
         {{ $t("home.contribute.body") }}
-      </div>
+      </p>
       <br />
 
-      <v-btn :href="dspUrl" class="my-4" small color="accent">{{
+      <v-btn :href="dspUrl" class="my-4" size="small" color="primary">{{
         $t("home.contribute.buttonText")
       }}</v-btn>
     </v-container>
@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, toNative } from "vue-facing-decorator";
 import { DSP_URL } from "@/constants";
 import CdHomeSearch from "@/components/home/cd.home-search.vue";
 import CdFeaturedDatasets from "@/components/home/cd.featured-datasets.vue";
@@ -37,9 +37,10 @@ import CdFeaturedDatasets from "@/components/home/cd.featured-datasets.vue";
   name: "cd-home",
   components: { CdHomeSearch, CdFeaturedDatasets },
 })
-export default class CdHome extends Vue {
+class CdHome extends Vue {
   dspUrl = DSP_URL;
 }
+export default toNative(CdHome);
 </script>
 
 <style lang="scss" scoped></style>
