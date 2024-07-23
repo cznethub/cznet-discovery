@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+  cdp:
+    image: us-east1-docker.pkg.dev/cznet-393818/cznethub/cdp:${AR_TAG}
+    container_name: cdp
+    ports:
+      - 5003:5003
+    restart: unless-stopped
