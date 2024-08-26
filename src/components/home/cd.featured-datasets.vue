@@ -143,6 +143,7 @@ class CdFeaturedDatasets extends Vue {
   public async getFeaturedDatasets() {
     try {
       this.isLoading = true;
+      Search.clearResults();
       await Search.search({
         term: featuredSearch,
         pageSize: numFeatured,

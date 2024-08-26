@@ -45,6 +45,15 @@ export default class Search extends Model {
     return rawResults.length === params.pageSize;
   }
 
+  /**
+   * Clear all results
+   */
+  public static clearResults() {
+    this.commit((state) => {
+      state.results = [];
+    });
+  }
+
   /** Fetches the next page indicated by params.pageNumber and appends the incoming items to `state.results`
    * @returns a boolean indicating if the query has more pages that can be fetched
    */
