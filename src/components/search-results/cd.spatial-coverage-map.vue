@@ -56,6 +56,9 @@ class CdSpatialCoverageMap extends Vue {
   created() {}
 
   protected async initMap() {
+    if (!this.mapContainer) {
+      return;
+    }
     const google = await this.loader.load();
 
     this.map = new google.maps.Map(this.mapContainer, {
@@ -104,7 +107,7 @@ class CdSpatialCoverageMap extends Vue {
             ({
               lat: f.coordinates[1],
               lng: f.coordinates[0],
-            } as google.maps.ReadonlyLatLngLiteral)
+            }) as google.maps.ReadonlyLatLngLiteral,
         );
 
       const rectangles: google.maps.LatLngBoundsLiteral[] = features
@@ -116,7 +119,7 @@ class CdSpatialCoverageMap extends Vue {
               south: f.coordinates[1],
               east: f.coordinates[2],
               west: f.coordinates[3],
-            } as google.maps.LatLngBoundsLiteral)
+            }) as google.maps.LatLngBoundsLiteral,
         );
 
       if (points.length) {
@@ -179,7 +182,7 @@ class CdSpatialCoverageMap extends Vue {
     }
   }
 }
-export default toNative(CdSpatialCoverageMap)
+export default toNative(CdSpatialCoverageMap);
 </script>
 
 <style lang="scss" scoped>

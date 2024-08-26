@@ -597,7 +597,9 @@ class CdSearchResults extends Vue {
     const wasSomeActive = this.isSomeFilterActive;
 
     this.filter.publicationYear.isActive = false;
+    this.publicationYear = [MIN_YEAR, MAX_YEAR];
     this.filter.dataCoverage.isActive = false;
+    this.dataCoverage = [MIN_YEAR, MAX_YEAR];
     // this.filter.contentType.value = [];
     this.filter.project.value = [];
     this.filter.repository.value = null;
