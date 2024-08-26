@@ -37,7 +37,7 @@
     "vuex-persistedstate": "^4.1.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^2.27.2",
+    "@antfu/eslint-config": "^2.26.0",
     "@fortawesome/fontawesome-free": "^6.6.0",
     "@iconify-json/carbon": "^1.1.37",
     "@mdi/font": "^7.4.47",
@@ -46,7 +46,7 @@
     "cross-env": "^7.0.3",
     "cypress": "^13.13.3",
     "cypress-vite": "^1.5.0",
-    "eslint": "^9.9.1",
+    "eslint": "^9.9.0",
     "eslint-plugin-cypress": "^3.5.0",
     "eslint-plugin-format": "^0.1.2",
     "lint-staged": "^15.2.9",
