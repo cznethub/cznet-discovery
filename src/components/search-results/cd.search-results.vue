@@ -341,7 +341,7 @@ class CdSearchResults extends Vue {
     //   value: [],
     // },
     repository: {
-      options: ["HydroShare", "EarthChem Library", "Zenodo"],
+      options: ["HydroShare", "EarthChem Library", "Zenodo", "Other"],
       value: null,
     },
     creatorName: "",
