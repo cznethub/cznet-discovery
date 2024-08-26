@@ -1,6 +1,6 @@
 <template>
   <v-container class="cd-featured-datasets text-center py-12">
-    <div class="display-1 my-4">{{ $t("home.featuredData.title") }}</div>
+    <div class="text-h4 my-4">{{ $t("home.featuredData.title") }}</div>
     <div
       class="text-body-1 my-4 d-inline-block font-weight-light"
       style="max-width: 35rem"

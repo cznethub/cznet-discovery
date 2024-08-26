@@ -47,7 +47,7 @@
       </v-container>
     </v-main>
 
-    <v-footer class="mt-8">
+    <v-footer class="mt-8" color="#ebf4f9">
       <router-view name="footer" />
     </v-footer>
 

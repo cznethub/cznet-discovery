@@ -6,7 +6,7 @@
     <v-divider />
 
     <v-container class="text-center py-12">
-      <div class="display-1 mt-4">{{ $t("home.contribute.title") }}</div>
+      <div class="text-h4 mt-4">{{ $t("home.contribute.title") }}</div>
       <p
         class="text-body-1 mt-2 mb-4 d-inline-block font-weight-light"
         style="max-width: 35rem"
