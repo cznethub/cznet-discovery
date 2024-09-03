@@ -186,12 +186,20 @@
                 />
               </div>
               <div
+                v-if="searchResultsMetadata?.count?.total && searchQuery"
+                class="text-body-1 text-medium-emphasis mb-4"
+              >
+                {{ searchResultsMetadata?.count?.total || "" }} result{{
+                  searchResultsMetadata?.count?.total != 1 ? "s" : ""
+                }}
+              </div>
+              <div
                 v-for="result of results"
                 class="mb-16 text-body-2"
                 :key="result.id"
               >
                 <a
-                  class="result-title text-body-1 text-decoration-none"
+                  class="result-title text-h6 text-decoration-none"
                   :href="result.url"
                   target="_blank"
                   v-html="highlight(result, 'name')"
@@ -205,7 +213,7 @@
                 </div>
                 <p
                   class="mt-4 mb-1"
-                  :class="{ 'snip-3': !result.showMore }"
+                  :class="{ 'snip-3': !result._showMore }"
                   v-html="highlight(result, 'description')"
                 ></p>
 
@@ -213,8 +221,8 @@
                   size="x-small"
                   variant="text"
                   color="primary"
-                  @click="result.showMore = !result.showMore"
-                  >Show {{ result.showMore ? "less" : "more" }}...</v-btn
+                  @click="result._showMore = !result._showMore"
+                  >Show {{ result._showMore ? "less" : "more" }}...</v-btn
                 >
 
                 <div
@@ -288,7 +296,12 @@ import SearchResults from "@/models/search-results.model";
 import SearchHistory from "@/models/search-history.model";
 import Search from "@/models/search.model";
 import { Notifications } from "@cznethub/cznet-vue-core";
-import { ISearchFilter, ISearchParams, IResult } from "@/types";
+import {
+  ISearchFilter,
+  ISearchParams,
+  IResult,
+  ISearchResultsMetadata,
+} from "@/types";
 import CdRangeInput from "./cd.range-input.vue";
 import { useRoute, useRouter } from "vue-router";
 
@@ -356,6 +369,10 @@ class CdSearchResults extends Vue {
       : sortOptions.slice(1, sortOptions.length);
   }
 
+  get searchResultsMetadata(): ISearchResultsMetadata | undefined {
+    return Search.$state.results.metadata;
+  }
+
   public get publicationYear() {
     return SearchResults.$state.publicationYear;
   }
@@ -378,8 +395,8 @@ class CdSearchResults extends Vue {
     });
   }
 
-  public get results() {
-    return Search.$state.results;
+  public get results(): IResult[] {
+    return Search.$state.results.docs;
   }
 
   public get clusters() {

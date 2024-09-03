@@ -133,7 +133,7 @@ class CdFeaturedDatasets extends Vue {
   }
 
   get fetchedDatasets() {
-    return Search.$state.results;
+    return Search.$state.results.docs as IResult[];
   }
 
   created() {

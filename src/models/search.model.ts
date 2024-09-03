@@ -1,10 +1,16 @@
 import { Model } from "@vuex-orm/core";
 import { ENDPOINTS } from "@/constants";
 import { getQueryString } from "@/util";
-import { IResult, ISearchParams, ITypeaheadParams } from "@/types";
+import {
+  IResult,
+  ISearchParams,
+  ISearchResultsMetadata,
+  ITypeaheadParams,
+  ISearchApiResponse,
+} from "@/types";
 
 export interface ISearchState {
-  results: IResult[];
+  results: { docs: IResult[]; metadata?: ISearchResultsMetadata };
   clusters: string[];
 }
 
@@ -21,7 +27,7 @@ export default class Search extends Model {
 
   static state(): ISearchState {
     return {
-      results: [],
+      results: { docs: [] },
       clusters: [],
     };
   }
@@ -38,11 +44,18 @@ export default class Search extends Model {
       throw new Error("Network response was not OK");
     }
 
-    const rawResults: any[] = await response.json();
+    const incoming: ISearchApiResponse = await response.json();
     this.commit((state) => {
-      state.results = rawResults.map(this._parseResult);
+      if (Array.isArray(incoming.docs)) {
+        state.results = {
+          docs: incoming.docs.map(this._parseResult),
+          metadata: incoming.meta,
+        };
+      }
     });
-    return rawResults.length === params.pageSize;
+
+    // If the number of items in this page equals the page size, then there could be more items in the next page.
+    return incoming.docs.length === params.pageSize;
   }
 
   /**
@@ -50,7 +63,7 @@ export default class Search extends Model {
    */
   public static clearResults() {
     this.commit((state) => {
-      state.results = [];
+      state.results = { docs: [] as IResult[] };
     });
   }
 
@@ -66,14 +79,19 @@ export default class Search extends Model {
       throw new Error("Network response was not OK");
     }
 
-    const incoming = await response.json();
+    const incoming: ISearchApiResponse = await response.json();
 
     this.commit((state) => {
-      state.results =
-        [...state.results, ...incoming.map(this._parseResult)] || [];
+      state.results = {
+        docs: ([
+          ...state.results.docs,
+          ...incoming.docs.map(this._parseResult),
+        ] || []) as IResult[],
+        metadata: incoming.meta,
+      };
     });
 
-    return incoming.length === params.pageSize;
+    return incoming.docs.length === params.pageSize;
   }
 
   /** Performs a typeahead search and returns the results */
@@ -111,7 +129,8 @@ export default class Search extends Model {
       dateCreated: rawResult.dateCreated || "",
       datePublished: rawResult.datePublished || "",
       description: rawResult.description || "",
-      funding: rawResult.funding?.map((f) => f.name || f.funder.name) || [],
+      funding:
+        rawResult.funding?.map((f: any) => f.name || f.funder.name) || [],
       highlights: rawResult.highlights || [],
       id: rawResult["@id"],
       keywords: rawResult.keywords || [],

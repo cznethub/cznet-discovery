@@ -23,6 +23,16 @@ export interface IResult {
   url: string;
   funding: string[];
   spatialCoverage: any;
+  _showMore?: boolean; // Used to toggle 'show more...' button
+}
+
+export interface ISearchApiResponse {
+  docs: any[];
+  meta?: { count?: { total: number } };
+}
+
+export interface ISearchResultsMetadata {
+  count?: { total: number };
 }
 
 export interface IHint {
