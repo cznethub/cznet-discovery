@@ -12,7 +12,7 @@
     "up": "taze major -I"
   },
   "dependencies": {
-    "@cznethub/cznet-vue-core": "^0.2.7",
+    "@cznethub/cznet-vue-core": "^0.2.24",
     "@unhead/vue": "^1.9.9",
     "@vueuse/core": "^10.9.0",
     "@vueuse/head": "^2.0.0",
