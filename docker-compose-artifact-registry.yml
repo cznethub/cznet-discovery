@@ -1,8 +1,6 @@
-version: "3.8"
-
 services:
   cdp:
-    image: us-east1-docker.pkg.dev/cznet-393818/cznethub/cdp:${AR_TAG}
+    image: cdp:latest
     container_name: cdp
     ports:
       - 5003:5003
