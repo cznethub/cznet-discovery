@@ -8,11 +8,11 @@ for file in $ROOT_DIR/assets/index*.js $ROOT_DIR/index.html;
 do
   echo "Processing $file ...";
 
-  sed -i 's|VUE_APP_NAME_PLACEHOLDER|'${VUE_APP_NAME}'|g' $file 
-  sed -i 's|VUE_APP_GOOGLE_MAPS_API_KEY_PLACEHOLDER|'${VUE_APP_GOOGLE_MAPS_API_KEY}'|g' $file 
-  sed -i 's|VUE_APP_API_URL_PLACEHOLDER|'${VUE_APP_API_URL}'|g' $file 
-  sed -i 's|VUE_APP_DSP_URL_PLACEHOLDER|'${VUE_APP_DSP_URL}'|g' $file 
-  sed -i 's|VUE_APP_VERSION_PLACEHOLDER|'${VUE_APP_VERSION}'|g' $file 
+  sed -i 's|VITE_APP_NAME_PLACEHOLDER|'${VITE_APP_NAME}'|g' $file 
+  sed -i 's|VITE_APP_GOOGLE_MAPS_API_KEY_PLACEHOLDER|'${VITE_APP_GOOGLE_MAPS_API_KEY}'|g' $file 
+  sed -i 's|VITE_APP_API_URL_PLACEHOLDER|'${VITE_APP_API_URL}'|g' $file 
+  sed -i 's|VITE_APP_DSP_URL_PLACEHOLDER|'${VITE_APP_DSP_URL}'|g' $file 
+  sed -i 's|VITE_APP_VERSION_PLACEHOLDER|'${VITE_APP_VERSION}'|g' $file 
 
 done
 
