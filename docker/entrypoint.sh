@@ -12,8 +12,6 @@ do
   sed -i 's|VITE_APP_GOOGLE_MAPS_API_KEY_PLACEHOLDER|'${VITE_APP_GOOGLE_MAPS_API_KEY}'|g' $file 
   sed -i 's|VITE_APP_API_URL_PLACEHOLDER|'${VITE_APP_API_URL}'|g' $file 
   sed -i 's|VITE_APP_DSP_URL_PLACEHOLDER|'${VITE_APP_DSP_URL}'|g' $file 
-  sed -i 's|VITE_APP_VERSION_PLACEHOLDER|'${VITE_APP_VERSION}'|g' $file 
-
 done
 
 echo "Starting Nginx"
