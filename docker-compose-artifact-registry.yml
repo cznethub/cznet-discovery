@@ -1,6 +1,6 @@
 services:
   cdp:
-    image: cdp:latest
+    image: cdp:${CDP_TAG}
     container_name: cdp
     ports:
       - 5003:5003
