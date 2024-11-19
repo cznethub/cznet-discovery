@@ -46,6 +46,11 @@ export interface ISearchFilter {
     max: number;
     isActive: boolean;
   };
+  creationDate: {
+    min: number;
+    max: number;
+    isActive: boolean;
+  };
   dataCoverage: {
     min: number;
     max: number;
@@ -72,6 +77,8 @@ export interface ISearchParams {
   pageNumber: number;
   publishedStart?: number;
   publishedEnd?: number;
+  creationDateStart?: number;
+  creationDateEnd?: number;
   dataCoverageStart?: number;
   dataCoverageEnd?: number;
   creatorName?: string;

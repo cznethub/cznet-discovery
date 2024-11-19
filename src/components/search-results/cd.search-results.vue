@@ -7,6 +7,17 @@
       <v-container class="sidebar flex-shrink-0">
         <div class="sidebar--content">
           <div class="text-subtitle-2 mb-6">Filter by:</div>
+          <!-- CREATION DATE -->
+          <cd-range-input
+            v-model="creationDate"
+            v-model:isActive="filter.creationDate.isActive"
+            @update:is-active="pushSearchRoute"
+            @end="onSliderControlChange(filter.creationDate)"
+            :min="filter.creationDate.min"
+            :max="filter.creationDate.max"
+            label="Date Created"
+          />
+
           <!-- PUBLICATION YEAR -->
           <cd-range-input
             v-model="publicationYear"
@@ -186,7 +197,7 @@
                 />
               </div>
               <div
-                v-if="searchResultsMetadata?.count?.total && searchQuery"
+                v-if="searchResultsMetadata?.count?.total"
                 class="text-body-1 text-medium-emphasis mb-4"
               >
                 {{ searchResultsMetadata?.count?.total || "" }} result{{
@@ -206,7 +217,7 @@
                 ></a>
                 <div class="my-1" v-html="highlightCreators(result)"></div>
                 <div class="my-1" v-if="result.dateCreated">
-                  {{ formatDate(result.dateCreated) }}
+                  Date Created: {{ formatDate(result.dateCreated) }}
                 </div>
                 <div class="my-1" v-if="result.datePublished">
                   Publication Date: {{ formatDate(result.datePublished) }}
@@ -340,6 +351,11 @@ class CdSearchResults extends Vue {
       max: MAX_YEAR,
       isActive: false,
     },
+    creationDate: {
+      min: MIN_YEAR,
+      max: MAX_YEAR,
+      isActive: false,
+    },
     dataCoverage: {
       min: MIN_YEAR,
       max: MAX_YEAR,
@@ -371,6 +387,17 @@ class CdSearchResults extends Vue {
 
   get searchResultsMetadata(): ISearchResultsMetadata | undefined {
     return Search.$state.results.metadata;
+  }
+
+  public get creationDate() {
+    return SearchResults.$state.creationDate;
+  }
+
+  public set creationDate(range: [number, number]) {
+    // TODO: validate input
+    SearchResults.commit((state) => {
+      state.creationDate = range;
+    });
   }
 
   public get publicationYear() {
@@ -423,6 +450,12 @@ class CdSearchResults extends Vue {
       pageNumber: this.pageNumber,
     };
 
+    // Creation Date
+    if (this.filter.creationDate.isActive) {
+      queryParams.creationDateStart = this.publicationYear[0];
+      queryParams.creationDateEnd = this.publicationYear[1];
+    }
+
     // PUBLICATION YEAR
     if (this.filter.publicationYear.isActive) {
       queryParams.publishedStart = this.publicationYear[0];
@@ -472,6 +505,9 @@ class CdSearchResults extends Vue {
       q: this.searchQuery,
       cn: this.filter.creatorName || undefined,
       r: this.filter.repository.value || undefined,
+      cd: this.filter.creationDate.isActive
+        ? this.creationDate.map((n) => n.toString()) || undefined
+        : undefined,
       py: this.filter.publicationYear.isActive
         ? this.publicationYear.map((n) => n.toString()) || undefined
         : undefined,
@@ -613,10 +649,15 @@ class CdSearchResults extends Vue {
   public clearFilters() {
     const wasSomeActive = this.isSomeFilterActive;
 
+    this.filter.creationDate.isActive = false;
+    this.creationDate = [MIN_YEAR, MAX_YEAR];
+
     this.filter.publicationYear.isActive = false;
     this.publicationYear = [MIN_YEAR, MAX_YEAR];
+
     this.filter.dataCoverage.isActive = false;
     this.dataCoverage = [MIN_YEAR, MAX_YEAR];
+
     // this.filter.contentType.value = [];
     this.filter.project.value = [];
     this.filter.repository.value = null;
@@ -645,6 +686,16 @@ class CdSearchResults extends Vue {
     this.filter.project.value = this.$route.query["p"]
       ? ([this.$route.query["p"]].flat() as string[])
       : [];
+
+    // CREATION DATE
+    if (this.$route.query["cd"]) {
+      this.filter.creationDate.isActive = true;
+      this.creationDate =
+        ((this.$route.query["cd"] as [string, string])?.map((n) => +n) as [
+          number,
+          number,
+        ]) || this.creationDate;
+    }
 
     // PUBLICATION YEAR
     if (this.$route.query["py"]) {
