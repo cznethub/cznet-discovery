@@ -26,16 +26,18 @@
       <v-col>
         <v-text-field
           :model-value="modelValue[0]"
-          @update:model-value="modelValue[0] = $event"
+          @update:model-value="modelValue[0] = +$event"
           type="number"
           @blur="
-            $emit('update:model-value', [modelValue[0], modelValue[1]]);
+            $emit('update:model-value', range);
             $emit('end');
           "
           @keyup.enter="
-            $emit('update:model-value', [modelValue[0], modelValue[1]]);
+            $emit('update:model-value', range);
             $emit('end');
           "
+          :min="min"
+          :max="max"
           label="Start"
           variant="outlined"
           density="compact"
@@ -46,16 +48,18 @@
       <v-col>
         <v-text-field
           :model-value="modelValue[1]"
-          @update:model-value="modelValue[1] = $event"
+          @update:model-value="modelValue[1] = +$event"
           type="number"
           @blur="
-            $emit('update:model-value', [modelValue[0], modelValue[1]]);
+            $emit('update:model-value', range);
             $emit('end');
           "
           @keyup.enter="
-            $emit('update:model-value', [modelValue[0], modelValue[1]]);
+            $emit('update:model-value', range);
             $emit('end');
           "
+          :min="min"
+          :max="max"
           label="End"
           variant="outlined"
           density="compact"
@@ -80,6 +84,21 @@ class CdRangeInput extends Vue {
   @Prop() label!: string;
   @Prop() min!: number;
   @Prop() max!: number;
+
+  public get range() {
+    // Check date range cross over
+    if (this.modelValue[0] > this.modelValue[1]) {
+      // swap values
+      const temp = this.modelValue[0];
+      this.modelValue[0] = this.modelValue[1];
+      this.modelValue[1] = temp;
+    }
+    // Clip values
+    return [
+      Math.max(this.min, this.modelValue[0]),
+      Math.min(this.max, this.modelValue[1]),
+    ];
+  }
 }
 export default toNative(CdRangeInput);
 </script>
