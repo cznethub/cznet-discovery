@@ -432,7 +432,7 @@ class CdSearchResults extends Vue {
 
   public get isSomeFilterActive() {
     return (
-      this.filter.publicationYear.isActive ||
+      this.filter.creationDate.isActive ||
       this.filter.publicationYear.isActive ||
       this.filter.dataCoverage.isActive ||
       // this.filter.contentType.value.length ||
@@ -450,10 +450,10 @@ class CdSearchResults extends Vue {
       pageNumber: this.pageNumber,
     };
 
-    // Creation Date
+    // CREATION DATE
     if (this.filter.creationDate.isActive) {
-      queryParams.creationDateStart = this.publicationYear[0];
-      queryParams.creationDateEnd = this.publicationYear[1];
+      queryParams.creationDateStart = this.creationDate[0];
+      queryParams.creationDateEnd = this.creationDate[1];
     }
 
     // PUBLICATION YEAR
