@@ -71,11 +71,10 @@
 
 <script lang="ts">
 import { Component, Vue, toNative, Prop } from "vue-facing-decorator";
-import { VNumberInput } from "vuetify/labs/VNumberInput";
 
 @Component({
   name: "cd-range-input",
-  components: { VNumberInput },
+  components: {},
   emits: ["end", "update:model-value", "update:is-active"],
 })
 class CdRangeInput extends Vue {

@@ -76,11 +76,7 @@ import { fromEvent, from } from "rxjs";
 import { debounceTime, map, switchMap, tap } from "rxjs/operators";
 import SearchHistory from "@/models/search-history.model";
 import Search from "@/models/search.model";
-import type {
-  VBtn,
-  VListItem,
-  VTextField,
-} from "vuetify/lib/components/index.mjs";
+import type { VTextField } from "vuetify/lib/components/index.mjs";
 import { IHint } from "@/types";
 import { useRoute, useRouter } from "vue-router";
 
