@@ -51,7 +51,7 @@
     "eslint-plugin-format": "^1.0.1",
     "lint-staged": "^15.5.2",
     "sass": "^1.88.0",
-    "shiki": "^3.4.0",
+    "shiki": "^3.4.1",
     "taze": "^19.1.0",
     "typescript": "^5.8.3",
     "unplugin-auto-import": "^19.2.0",
