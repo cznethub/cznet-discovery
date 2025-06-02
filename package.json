@@ -24,7 +24,7 @@
     "pretty-bytes": "^7.0.0",
     "rxjs": "^7.8.2",
     "vite-plugin-vuetify": "^2.1.1",
-    "vue": "^3.5.14",
+    "vue": "^3.5.16",
     "vue-browser-detect-plugin": "^0.1.18",
     "vue-cookies": "^1.8.6",
     "vue-demi": "^0.14.10",
