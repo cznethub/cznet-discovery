@@ -39,7 +39,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "^6.7.3",
     "@fortawesome/fontawesome-free": "^7.1.0",
-    "@iconify-json/carbon": "^1.2.15",
+    "@iconify-json/carbon": "^1.2.16",
     "@mdi/font": "^7.4.47",
     "@vitejs/plugin-vue": "^6.0.3",
     "@vue/test-utils": "^2.4.6",
