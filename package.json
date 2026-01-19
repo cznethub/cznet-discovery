@@ -54,7 +54,7 @@
     "shiki": "^3.21.0",
     "taze": "^19.9.2",
     "typescript": "^5.9.3",
-    "unplugin-auto-import": "^20.3.0",
+    "unplugin-auto-import": "^21.0.0",
     "unplugin-vue-components": "^30.0.0",
     "unplugin-vue-macros": "^2.14.5",
     "vite": "^7.3.1",
