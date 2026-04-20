@@ -18,7 +18,7 @@
     "@vueuse/head": "^2.0.0",
     "@vuex-orm/core": "^0.36.4",
     "deepmerge": "^4.3.1",
-    "dompurify": "^3.3.2",
+    "dompurify": "^3.4.0",
     "google-maps": "^4.3.3",
     "lodash.isequal": "^4.5.0",
     "pretty-bytes": "^7.1.0",
