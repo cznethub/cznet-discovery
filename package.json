@@ -42,7 +42,7 @@
     "@iconify-json/carbon": "^1.2.20",
     "@mdi/font": "^7.4.47",
     "@vitejs/plugin-vue": "^6.0.6",
-    "@vue/test-utils": "^2.4.6",
+    "@vue/test-utils": "^2.4.9",
     "cross-env": "^10.1.0",
     "cypress": "^15.14.0",
     "cypress-vite": "^1.8.0",
